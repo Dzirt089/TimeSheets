@@ -4,9 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 
 using ProductionControl.Entitys;
-using ProductionControl.Models.ExternalOrganization;
+using ProductionControl.Models;
 using ProductionControl.Services.Interfaces;
-using ProductionControl.Utils;
 using ProductionControl.Views;
 
 using System.Collections.ObjectModel;
@@ -48,22 +47,15 @@ namespace ProductionControl.ViewModel
 				UserDataCurrent = await _timeSheetDb.GetLocalUserAsync() ??
 						new() { MachineName = string.Empty, UserName = string.Empty };
 
-				ValueDepartmentID = "015";//UserDataCurrent.MachineName.GetDepartmentAsync();
-
 				HidenElemets();
 
-				if (MainAccess())
-				{
-					VisibilityButtons = Visibility.Visible;
+				VisibilityButtons = Visibility.Visible;
 
-					LoadPhotoCmd = new AsyncRelayCommand(LoadPhotoAsync);
-					CreateNewEmployeeExOrgCmd = new AsyncRelayCommand(CreateNewEmployeeExOrgAsync);
-					EditEmployeeExOrgCmd = new AsyncRelayCommand(EditEmployeeExOrgAsync);
-					DismissalEmployeeExOrgCmd = new AsyncRelayCommand(DismissalEmployeeExOrgAsync);
-					RefreshCmd = new AsyncRelayCommand(RefreshAsync);
-				}
-				else
-					VisibilityButtons = Visibility.Collapsed;
+				LoadPhotoCmd = new AsyncRelayCommand(LoadPhotoAsync);
+				CreateNewEmployeeExOrgCmd = new AsyncRelayCommand(CreateNewEmployeeExOrgAsync);
+				EditEmployeeExOrgCmd = new AsyncRelayCommand(EditEmployeeExOrgAsync);
+				DismissalEmployeeExOrgCmd = new AsyncRelayCommand(DismissalEmployeeExOrgAsync);
+				RefreshCmd = new AsyncRelayCommand(RefreshAsync);
 
 				CloseExOrgCmd = new RelayCommand(Close);
 				SaveDataForEmployeeExOrgCmd = new AsyncRelayCommand(SaveEmployeeExOrgAsync);
@@ -78,16 +70,6 @@ namespace ProductionControl.ViewModel
 
 		#region Methods
 
-		/// <summary>
-		/// Проверяет, имеет ли текущий пользователь доступ к основным функциям.
-		/// </summary>
-		/// <returns>True, если доступ есть, иначе false.</returns>
-		private bool MainAccess()
-		{
-			return UserDataCurrent.MachineName.Equals("comp89", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.MachineName.Equals("comp17", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.MachineName.Equals("comp22", StringComparison.OrdinalIgnoreCase);
-		}
 
 		/// <summary>
 		/// Сохраняет данные сотрудника внешней организации.
@@ -95,26 +77,26 @@ namespace ProductionControl.ViewModel
 		private async Task SaveEmployeeExOrgAsync()
 		{
 			try
-			{				
-				if (NewEmployeeForCartotecaExOrg is null) return;
-				
-				int idEmpLast = NewEmployeeForCartotecaExOrg.EmployeeExOrgID;
-				
-				if (NewEmployeeForCartotecaExOrg.DateDismissal != DateTime.Parse("31.12.1876") && NewEmployeeForCartotecaExOrg.IsDismissal == false)
-					NewEmployeeForCartotecaExOrg.IsDismissal = true;
+			{
+				if (NewEmployeeForCartoteca is null) return;
+
+				var idEmpLast = NewEmployeeForCartoteca.EmployeeID;
+
+				if (NewEmployeeForCartoteca.DateDismissal != DateTime.Parse("31.12.1876") && NewEmployeeForCartoteca.IsDismissal == false)
+					NewEmployeeForCartoteca.IsDismissal = true;
 
 
-				if (CheckingBool())				
+				if (NewEmployeeForCartoteca != null)
 					await _timeSheetDb.UpdateEmployeeExOrgAsync(
-						NewEmployeeForCartotecaExOrg, ValueDepartmentID, AddWorkingInReg, UserDataCurrent);				
+						NewEmployeeForCartoteca, ValueDepartmentID, UserDataCurrent);
 				else
-					await _timeSheetDb.AddEmployeeExOrgAsync(NewEmployeeForCartotecaExOrg, UserDataCurrent);
+					await _timeSheetDb.AddEmployeeExOrgAsync(NewEmployeeForCartoteca, UserDataCurrent);
 
 				VisibilityAddMainRegion = Visibility.Visible;
 
 				await RefreshAsync();
 
-				SelectedEmployeeForCartotecaExOrg = EmployeesForCartotecaExOrg.FirstOrDefault(x => x.EmployeeExOrgID == idEmpLast);
+				SelectedEmployeeForCartotecaExOrg = EmployeesForCartotecaExOrg.FirstOrDefault(x => x.EmployeeID == idEmpLast);
 			}
 			catch (Exception ex)
 			{
@@ -129,11 +111,11 @@ namespace ProductionControl.ViewModel
 		private async Task RefreshAsync()
 		{
 			try
-			{				
-				EmployeesForCartotecaExOrgList = await _timeSheetDb.GetEmployeeExOrgsNoDismissalAsync(UserDataCurrent);
+			{
+				EmployeesForCartotecas = await _timeSheetDb.GetEmployeeExOrgsNoDismissalAsync(UserDataCurrent);
 
-				EmployeesForCartotecaExOrg = new ObservableCollection<EmployeeExOrg>(EmployeesForCartotecaExOrgList);
-				DubleEmployeesForCartotecaExOrg = new List<EmployeeExOrg>(EmployeesForCartotecaExOrgList);
+				EmployeesForCartotecaExOrg = new ObservableCollection<Employee>(EmployeesForCartotecas);
+				DubleEmployeesForCartotecaExOrg = new List<Employee>(EmployeesForCartotecas);
 
 				SetCollectionsEmployeesExOrg(DubleEmployeesForCartotecaExOrg);
 			}
@@ -150,20 +132,20 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				if (NewEmployeeForCartotecaExOrg is null)
+				if (NewEmployeeForCartoteca is null)
 					return;
 
-				if (NewEmployeeForCartotecaExOrg.IsDismissal == true)
+				if (NewEmployeeForCartoteca.IsDismissal == true)
 				{
-					NewEmployeeForCartotecaExOrg.DateDismissal = DateTime.Parse("31.12.1876");
-					NewEmployeeForCartotecaExOrg.IsDismissal = false;
+					NewEmployeeForCartoteca.DateDismissal = DateTime.Parse("31.12.1876");
+					NewEmployeeForCartoteca.IsDismissal = false;
 				}
 				else
 				{
 					IsEnabledDateDismissal = true;
 					IsEnabledTextBox = false;
 					VisibilityButtonLoad = Visibility.Hidden;
-					NewEmployeeForCartotecaExOrg.DateDismissal = DateTime.Now.Date;
+					NewEmployeeForCartoteca.DateDismissal = DateTime.Now.Date;
 				}
 			}
 			catch (Exception ex)
@@ -212,7 +194,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				if (NewEmployeeForCartotecaExOrg is null) return;
+				if (NewEmployeeForCartoteca is null) return;
 
 				OpenFileDialog openFileDialog = new()
 				{
@@ -224,8 +206,8 @@ namespace ProductionControl.ViewModel
 					string filePath = openFileDialog.FileName;
 					Photo = await File.ReadAllBytesAsync(filePath);
 
-					if (NewEmployeeForCartotecaExOrg != null)
-						NewEmployeeForCartotecaExOrg.Photo = Photo;
+					if (NewEmployeeForCartoteca != null)
+						NewEmployeeForCartoteca.Photo = Photo;
 				}
 			}
 			catch (Exception ex)
@@ -242,7 +224,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				NewEmployeeForCartotecaExOrg = new()
+				NewEmployeeForCartoteca = new()
 				{
 					DateDismissal = DateTime.Parse("31.12.1876"),
 					DateEmployment = DateTime.Now.Date
@@ -261,18 +243,18 @@ namespace ProductionControl.ViewModel
 		/// Устанавливает коллекцию сотрудников внешних организаций в зависимости от их статуса увольнения.
 		/// </summary>
 		/// <param name="dubleEmployeesForCartotecaExOrg">Список сотрудников внешних организаций.</param>
-		private void SetCollectionsEmployeesExOrg(List<EmployeeExOrg> dubleEmployeesForCartotecaExOrg)
+		private void SetCollectionsEmployeesExOrg(List<Employee> dubleEmployeesForCartotecaExOrg)
 		{
 			if (EmployeesForCartotecaExOrg is null || dubleEmployeesForCartotecaExOrg is null) return;
 
-			List<EmployeeExOrg> employeeExes = [];
+			List<Employee> employeeExes = [];
 			if (ShowDismissalEmployeeExOrg)
 				employeeExes = dubleEmployeesForCartotecaExOrg.Where(x => x.IsDismissal).ToList();
 
 			else if (!ShowDismissalEmployeeExOrg)
 				employeeExes = dubleEmployeesForCartotecaExOrg.Where(x => x.IsDismissal == false).ToList();
 
-			EmployeesForCartotecaExOrg = new ObservableCollection<EmployeeExOrg>(employeeExes);
+			EmployeesForCartotecaExOrg = new ObservableCollection<Employee>(employeeExes);
 		}
 
 		/// <summary>
@@ -292,7 +274,7 @@ namespace ProductionControl.ViewModel
 		/// <summary>
 		/// Получает или задает коллекцию сотрудников внешних организаций для картотеки.
 		/// </summary>
-		public ObservableCollection<EmployeeExOrg>? EmployeesForCartotecaExOrg
+		public ObservableCollection<Employee>? EmployeesForCartotecaExOrg
 		{
 			get => _employeesForCartotecaExOrg;
 			set
@@ -305,47 +287,40 @@ namespace ProductionControl.ViewModel
 				else
 				{
 					SelectedEmployeeForCartotecaExOrg = null;
-					NewEmployeeForCartotecaExOrg = null;
+					NewEmployeeForCartoteca = null;
 				}
 			}
 		}
-		private ObservableCollection<EmployeeExOrg>? _employeesForCartotecaExOrg;
+		private ObservableCollection<Employee>? _employeesForCartotecaExOrg;
 
 		/// <summary>
 		/// Получает или задает коллекцию сотрудников внешних организаций (дублирующая).
 		/// </summary>
-		public List<EmployeeExOrg>? DubleEmployeesForCartotecaExOrg
+		public List<Employee>? DubleEmployeesForCartotecaExOrg
 		{
 			get => _dubleEmployeesForCartotecaExOrg;
 			set => SetProperty(ref _dubleEmployeesForCartotecaExOrg, value);
 
 		}
-		private List<EmployeeExOrg>? _dubleEmployeesForCartotecaExOrg;
+		private List<Employee>? _dubleEmployeesForCartotecaExOrg;
 
 		/// <summary>
 		/// Задает нового сотрудника внешней организации для картотеки.
 		/// </summary>
-		public EmployeeExOrg? NewEmployeeForCartotecaExOrg
+		public Employee? NewEmployeeForCartoteca
 		{
 			get => _newEmployeeForCartotecaExOrg;
 			set
 			{
 				SetProperty(ref _newEmployeeForCartotecaExOrg, value);
-				if (CheckingBool())
-				{
-					AddWorkingInReg = NewEmployeeForCartotecaExOrg.EmployeeExOrgAddInRegions
-						.Where(x => x.DepartmentID == ValueDepartmentID)
-						.Select(x => x.WorkingInTimeSheetEmployeeExOrg)
-						.FirstOrDefault();
-				}
 			}
 		}
-		private EmployeeExOrg? _newEmployeeForCartotecaExOrg;
+		private Employee? _newEmployeeForCartotecaExOrg;
 
 		/// <summary>
 		/// Получает  выбранного сотрудника внешней организации для картотеки.
 		/// </summary>
-		public EmployeeExOrg? SelectedEmployeeForCartotecaExOrg
+		public Employee? SelectedEmployeeForCartotecaExOrg
 		{
 			get => _itemEmployeeForCartotecaExOrg;
 			set
@@ -354,16 +329,13 @@ namespace ProductionControl.ViewModel
 
 				if (SelectedEmployeeForCartotecaExOrg != null)
 				{
-					NewEmployeeForCartotecaExOrg = SelectedEmployeeForCartotecaExOrg;
+					NewEmployeeForCartoteca = SelectedEmployeeForCartotecaExOrg;
 					HidenElemets();
 				}
 				else HidenElemets();
 			}
 		}
-
-
-
-		private EmployeeExOrg? _itemEmployeeForCartotecaExOrg;
+		private Employee? _itemEmployeeForCartotecaExOrg;
 
 		/// <summary>
 		/// Получает или задает флаг доступности текстового поля.
@@ -398,22 +370,6 @@ namespace ProductionControl.ViewModel
 			}
 		}
 		private bool _showDismissalEmployeeExOrg;
-
-
-		public bool AddWorkingInReg
-		{
-			get => _addWorkingInReg;
-			set
-			{
-				SetProperty(ref _addWorkingInReg, value);
-			}
-		}
-
-		private bool CheckingBool()
-		{
-			return NewEmployeeForCartotecaExOrg != null && !string.IsNullOrEmpty(ValueDepartmentID)
-								&& NewEmployeeForCartotecaExOrg.EmployeeExOrgID > 0;
-		}
 
 		private bool _addWorkingInReg;
 
@@ -475,11 +431,9 @@ namespace ProductionControl.ViewModel
 		/// Получает или задает конечную дату.
 		/// </summary>
 		public DateTime EndDate { get; private set; }
-		public List<EmployeeExOrg>? EmployeesForCartotecaExOrgList { get; private set; }
-		/// <summary>
-		/// Получает или задает ID департамента.
-		/// </summary>
-		public string? ValueDepartmentID { get; private set; }
+
+		public List<Employee>? EmployeesForCartotecas { get; private set; }
+
 
 		#endregion
 

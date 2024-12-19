@@ -2,9 +2,7 @@
 
 using ProductionControl.DAL;
 using ProductionControl.Entitys;
-using ProductionControl.Entitys.ExternalOrganization;
 using ProductionControl.Models;
-using ProductionControl.Models.ExternalOrganization;
 using ProductionControl.Services.Interfaces;
 using ProductionControl.Utils;
 
@@ -28,102 +26,18 @@ namespace ProductionControl.Services
 		public List<DepartmentProduction> DepartmentProductionsMissing { get; private set; }
 
 		/// <summary>
-		/// Получает список сотрудников за указанный период.
-		/// </summary>
-		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
-		/// <param name="startDate">Начальная дата периода.</param>
-		/// <param name="endDate">Конечная дата периода.</param>
-		/// <param name="valueDepartmentID">Идентификатор отдела.</param>
-		/// <returns>Список сотрудников.</returns>
-		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(
-			LocalUserData userDataCurrent, DateTime startDate, DateTime endDate, string valueDepartmentID)
-		{
-			await using var dbContext = await _context.CreateDbContextAsync();
-			try
-			{
-				var listResult = await dbContext.EmployeeExOrgs
-					.AsNoTracking()
-					.Include(x => x.EmployeeExOrgAddInRegions)
-					.Include(x => x.ShiftDataExOrgs
-						.Where(r => r.WorkDate >= startDate && r.WorkDate <= endDate && r.DepartmentID == valueDepartmentID))
-					.Where(s => s.IsDismissal == false)
-					.ToListAsync();
-
-				return listResult;
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName).ConfigureAwait(false);
-				return [];
-			}
-		}
-
-		/// <summary>
-		/// Получает список сотрудников за указанный период.
-		/// </summary>
-		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
-		/// <param name="startDate">Начальная дата периода.</param>
-		/// <param name="endDate">Конечная дата периода.</param>
-		/// <param name="valueDepartmentID">Идентификатор отдела.</param>
-		/// <returns>Список сотрудников.</returns>
-		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsNoDismissalAsync(LocalUserData userDataCurrent)
-		{
-			await using var dbContext = await _context.CreateDbContextAsync();
-			try
-			{
-				var listResult = await dbContext.EmployeeExOrgs
-					.AsNoTracking()
-					.Include(x => x.EmployeeExOrgAddInRegions)
-					.Where(s => s.IsDismissal == false)
-					.ToListAsync();
-
-				return listResult;
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName).ConfigureAwait(false);
-				return [];
-			}
-		}
-
-
-		/// <summary>
-		/// Получает список всех сотрудников.
-		/// </summary>
-		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
-		/// <returns>Коллекция сотрудников.</returns>
-		public async Task<List<EmployeeExOrg>> GetAllEmployeeExOrgsAsync(LocalUserData userDataCurrent)
-		{
-			await using var dbContext = await _context.CreateDbContextAsync();
-			try
-			{
-				var listResult = await dbContext.EmployeeExOrgs.ToListAsync();
-				return listResult;
-			}
-			catch (Exception ex)
-			{
-
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName).ConfigureAwait(false);
-				return [];
-			}
-		}
-
-		/// <summary>
 		/// Добавляет нового сотрудника.
 		/// </summary>
 		/// <param name="exOrg">Сотрудник для добавления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если сотрудник успешно добавлен, иначе False.</returns>
-		public async Task<bool> AddEmployeeExOrgAsync(EmployeeExOrg exOrg, LocalUserData userDataCurrent)
+		public async Task<bool> AddEmployeeExOrgAsync(Employee exOrg, LocalUserData userDataCurrent)
 		{
 			await using var dbContext = await _context.CreateDbContextAsync();
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
 			try
 			{
-				await dbContext.EmployeeExOrgs.AddAsync(exOrg);
+				await dbContext.Employees.AddAsync(exOrg);
 				await dbContext.SaveChangesAsync();
 				await trans.CommitAsync();
 				return true;
@@ -147,7 +61,7 @@ namespace ProductionControl.Services
 		/// <param name="addInTimeSheetEmployeeExOrg">Флаг добавления в табель.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
-		public async Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(EmployeeExOrg exOrg,
+		public async Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(Employee exOrg,
 			DateTime startDate, DateTime endDate, string valueDepartmentID,
 			bool addInTimeSheetEmployeeExOrg, LocalUserData userDataCurrent)
 		{
@@ -158,7 +72,7 @@ namespace ProductionControl.Services
 				var empExOrg = await dbContext.EmployeeExOrgs
 					.Include(x => x.ShiftDataExOrgs
 						.Where(e => e.DepartmentID == valueDepartmentID))
-					.SingleOrDefaultAsync(e => e.EmployeeExOrgID == exOrg.EmployeeExOrgID);
+					.SingleOrDefaultAsync(e => e.EmployeeExOrgID == exOrg.EmployeeID);
 
 				if (empExOrg is null)
 					return await AddEmployeeExOrgAsync(exOrg, userDataCurrent);
@@ -169,13 +83,13 @@ namespace ProductionControl.Services
 				{
 					if (!shiftDict.ContainsKey(date))
 					{
-						shiftDict[date] = new ShiftDataExOrg
+						shiftDict[date] = new ShiftData
 						{
-							EmployeeExOrgID = empExOrg.EmployeeExOrgID,
+							EmployeeID = empExOrg.EmployeeExOrgID,
 							WorkDate = date,
-							EmployeeExOrg = empExOrg,
+							Employee = empExOrg,
+							Overday = string.Empty,
 							Hours = string.Empty,
-							DepartmentID = valueDepartmentID,
 						};
 					}
 				}
@@ -199,7 +113,7 @@ namespace ProductionControl.Services
 		/// <param name="exOrg">Сотрудник для обновления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
-		public async Task<bool> UpdateEmployeeExOrgAsync(EmployeeExOrg exOrg, string valueDepId, bool addWorkInReg, LocalUserData userDataCurrent)
+		public async Task<bool> UpdateEmployeeExOrgAsync(Employee exOrg, string valueDepId, LocalUserData userDataCurrent)
 		{
 			await using var dbContext = await _context.CreateDbContextAsync();
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
@@ -667,104 +581,7 @@ namespace ProductionControl.Services
 			}
 		}
 
-		/// <summary>
-		/// Рассчитывает элементы табеля учета рабочего времени для сотрудников Сторонних Организаций.
-		/// </summary>
-		/// <param name="valueDepartmentID">ID СО отдела предприятия.</param>
-		/// <param name="startDate">Дата начала периода.</param>
-		/// <param name="endDate">Дата окончания периода.</param>
-		/// <param name="itemMonthsTO">Выбранный месяц.</param>
-		/// <param name="itemYearsTO">Выбранный год.</param>
-		/// <param name="noWorkDaysTO">Список нерабочих дней.</param>
-		/// <param name="userDataCurrent">Текущие данные пользователя.</param>
-		/// <returns>Коллекция элементов табеля.</returns>
-		public async Task<ObservableCollection<TimeSheetItemExOrg>> SetDataForTimeSheetExOrgAsync(
-			string valueDepartmentID,
-			DateTime startDate, DateTime endDate,
-			MonthsOrYears itemMonthsTO, MonthsOrYears itemYearsTO,
-			List<int> noWorkDaysTO, LocalUserData userDataCurrent)
-		{
-			try
-			{
-				await using var dbContext = await _context.CreateDbContextAsync();
 
-				//Временная (на время расчетов) коллекция для сбора всех данных о сотрудниках для табеля
-				var tempShifts = new ObservableCollection<TimeSheetItemExOrg>();
-
-				int id = 1;
-
-				//Выбираем только тех сотрудников, которые принадлежат выбранному участку и датам
-				var EmployeeExOrgWithSifts = await dbContext.EmployeeExOrgs
-					.Include(i => i.ShiftDataExOrgs
-						.Where(s => s.WorkDate >= startDate && s.WorkDate <= endDate && s.DepartmentID == valueDepartmentID))
-					.Include(x => x.EmployeeExOrgAddInRegions
-						.Where(x => x.DepartmentID == valueDepartmentID && x.WorkingInTimeSheetEmployeeExOrg == true))
-					.OrderBy(o => o.FullName)
-					.ToListAsync();
-
-				//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
-				EmployeeExOrgWithSifts = EmployeeExOrgWithSifts
-					.Where(x => x.VolidateEmployee(itemMonthsTO.Id, itemYearsTO.Id))
-					.ToList();
-
-				//Циклы в которых,
-				//Создаём и заполняем на каждого сотрудника "Пустой" график работ. Который будет заполняться в ручную и автоматически раз в месяц.
-				foreach (var employee in EmployeeExOrgWithSifts)
-				{
-					var shiftDict = employee.ShiftDataExOrgs?.ToDictionary(x => x.WorkDate) ?? [];
-
-					for (var date = startDate; date <= endDate; date = date.AddDays(1))
-					{
-						if (!shiftDict.ContainsKey(date))
-						{
-							shiftDict[date] = new ShiftDataExOrg
-							{
-								EmployeeExOrgID = employee.EmployeeExOrgID,
-								WorkDate = date,
-								EmployeeExOrg = employee,
-								Hours = string.Empty,
-								DepartmentID = valueDepartmentID,
-							};
-						}
-					}
-					employee.ShiftDataExOrgs = [.. shiftDict.Values];
-
-
-					//Конфигурируем данные сотрудника для отображения в табеле
-					var itemShift = new TimeSheetItemExOrg(
-							id,
-							new ShiftDataEmployee
-							{
-								ShortName = employee.ShortName
-							},
-							new ObservableCollection<ShiftDataExOrg>(employee.ShiftDataExOrgs),
-							noWorkDaysTO);
-
-					//Если сотрудник уволен в выбранном месяце, то его ФИО красятся в красный. Все остальные случаи - в черный
-					if (employee.DateDismissal.Month == itemMonthsTO.Id &&
-						employee.DateDismissal.Year == itemYearsTO.Id)
-						itemShift.Brush = Brushes.Red;
-					else
-						itemShift.Brush = Brushes.Black;
-
-					tempShifts.Add(itemShift);
-					id++;
-				}
-
-				if (dbContext.ChangeTracker.HasChanges())
-				{
-					await dbContext.SaveChangesAsync();
-				}
-
-				return tempShifts;
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName).ConfigureAwait(false);
-				return [];
-			}
-		}
 
 
 
@@ -792,29 +609,7 @@ namespace ProductionControl.Services
 			}
 		}
 
-		/// <summary>
-		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении
-		/// </summary>
-		public async Task SetTotalWorksDaysExOrgAsync(object? sender,
-			LocalUserData userDataCurrent)
-		{
-			try
-			{
-				if (sender is ShiftDataExOrg shiftData)
-				{
-					await using var dbContext = await _context.CreateDbContextAsync();
-					dbContext.ShiftDataExOrgs?.Update(shiftData);
-					await dbContext.SaveChangesAsync();
-				}
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex,
-					user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName)
-					.ConfigureAwait(false);
-			}
-		}
+
 
 		/// <summary>
 		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении

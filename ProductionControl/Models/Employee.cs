@@ -116,7 +116,17 @@ namespace ProductionControl.Models
 				SetProperty(ref _shifts, value);
 			}
 		}
-		private IEnumerable<ShiftData>? _shifts;
+		private IEnumerable<ShiftData>? _shifts;			  
+
+		/// <summary>
+		/// Фотографии людей
+		/// </summary>
+		public byte[]? Photo
+		{
+			get => _photo;
+			set => SetProperty(ref _photo, value);
+		}
+		private byte[]? _photo;
 
 		public Employee()
 		{

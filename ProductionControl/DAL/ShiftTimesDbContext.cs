@@ -27,21 +27,10 @@ namespace ProductionControl.DAL
 		public DbSet<ErrorLog>? ErrorLogs { get; set; }
 		public DbSet<DepartmentProduction>? DepartmentProductions { get; set; }
 		public DbSet<EmployeeExOrg>? EmployeeExOrgs { get; set; }
-		public DbSet<ShiftDataExOrg>? ShiftDataExOrgs { get; set; }
-		public DbSet<EmployeeExOrgAddInRegion>? EmployeeExOrgAddInRegions { get; set; }
+		public DbSet<ShiftDataExOrg>? ShiftDataExOrgs { get; set; }					   		
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<EmployeeExOrgAddInRegion>(entity =>
-			{
-				entity.HasKey(k => new { k.EmployeeExOrgID, k.DepartmentID });
-
-				entity.HasOne(h => h.EmployeeExOrg)
-						.WithMany(m => m.EmployeeExOrgAddInRegions)
-						.HasForeignKey(h => h.EmployeeExOrgID)
-						.OnDelete(DeleteBehavior.Restrict);
-			});
-
 			modelBuilder.Entity<EmployeeExOrg>(entity =>
 			{
 				entity.HasKey(x => x.EmployeeExOrgID);
@@ -86,8 +75,6 @@ namespace ProductionControl.DAL
 						.HasForeignKey(d => d.DepartmentID)                             // Определяем внешний ключ
 						.OnDelete(DeleteBehavior.Restrict)                              // Запрещаем каскадное удаление
 						.HasConstraintName("FK_Departments");
-
-
 			});
 
 			modelBuilder.Entity<DepartmentProduction>(entity =>

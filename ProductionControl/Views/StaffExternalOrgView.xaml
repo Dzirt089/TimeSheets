@@ -14,7 +14,7 @@
         dialog:DialogParticipation.Register="{Binding}" 
         WindowStartupLocation="CenterScreen" 
         
-        Width="990" Height="740"
+        Width="990" Height="940"
         
         d:DataContext="{d:DesignInstance Type=viewmodel:StaffExternalOrgViewModel}" 
         Title="Картотека"  Icon="pack://application:,,,/Resources/scheduleNew.ico"  >
@@ -98,42 +98,54 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
                     <RowDefinition Height="80"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Номер пропуска :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Табельный номер :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1" Grid.Row="0"  FontSize="16" VerticalAlignment="Center"  
+                     IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="Таб. номер"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Участок \ группа :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="1"  FontSize="16" VerticalAlignment="Center"  
+                     IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="Группа производства"/>       
+
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Номер пропуска :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="2"  FontSize="16" VerticalAlignment="Center"  
                          IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Text="{Binding NewEmployeeForCartotecaExOrg.NumberPass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="ФИО :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Grid.Row="1" FontSize="16" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="ФИО :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="3" FontSize="16" VerticalAlignment="Center" 
                          IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Text="{Binding NewEmployeeForCartotecaExOrg.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Дата приёма :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <DatePicker Grid.Column="1" Grid.Row="2" FontSize="16" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="Дата приёма :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" Grid.Row="4" FontSize="16" VerticalAlignment="Center" 
                             IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             SelectedDate="{Binding NewEmployeeForCartotecaExOrg.DateEmployment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="Дата увольнения :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <DatePicker Grid.Column="1" Grid.Row="3" FontSize="16" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="Дата увольнения :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" Grid.Row="5" FontSize="16" VerticalAlignment="Center" 
                             IsEnabled="{Binding IsEnabledDateDismissal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             SelectedDate="{Binding NewEmployeeForCartotecaExOrg.DateDismissal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="4" Text="Примечания :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Grid.Row="4" FontSize="16" VerticalAlignment="Center" TextWrapping="Wrap" 
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="Примечания :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="6" FontSize="16" VerticalAlignment="Center" TextWrapping="Wrap" 
                          IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Text="{Binding NewEmployeeForCartotecaExOrg.Descriptions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="Фото :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Grid.Row="5" FontSize="13" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="Фото :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Grid.Row="7" FontSize="13" VerticalAlignment="Center" 
                         Visibility="{Binding VisibilityButtonLoad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Content="Загрузить фото" 
                         Command="{Binding LoadPhotoCmd}"/>
                 
-                <Image Grid.ColumnSpan="2" Grid.Row="6" Height="350"
+                <Image Grid.ColumnSpan="2" Grid.Row="8" Height="350"
                        Source="{Binding NewEmployeeForCartotecaExOrg.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
                     Converter={h:ByteArrayToImageConvertor}}"/>
 

@@ -1,7 +1,5 @@
 ﻿using ProductionControl.Entitys;
-using ProductionControl.Entitys.ExternalOrganization;
 using ProductionControl.Models;
-using ProductionControl.Models.ExternalOrganization;
 
 using System.Collections.ObjectModel;
 
@@ -9,15 +7,13 @@ namespace ProductionControl.Services.Interfaces
 {
 	public interface ITimeSheetDbService
 	{
-		Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(EmployeeExOrg exOrg,
+		Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(Employee exOrg,
 			DateTime startDate, DateTime endDate, string valueDepartmentID,
 			bool addInTimeSheetEmployeeExOrg, LocalUserData userDataCurrent);
-		Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(
-			LocalUserData userDataCurrent, DateTime startDate, DateTime endDate, string valueDepartmentID);
-		Task<List<EmployeeExOrg>> GetEmployeeExOrgsNoDismissalAsync(LocalUserData userDataCurrent);
-		Task<List<EmployeeExOrg>> GetAllEmployeeExOrgsAsync(LocalUserData userDataCurrent);
-		Task<bool> UpdateEmployeeExOrgAsync(EmployeeExOrg exOrg, string valueDepId, bool addWorkInReg, LocalUserData userDataCurrent);
-		Task<bool> AddEmployeeExOrgAsync(EmployeeExOrg exOrg, LocalUserData userDataCurrent);
+
+
+		Task<bool> UpdateEmployeeExOrgAsync(Employee exOrg, string valueDepId, LocalUserData userDataCurrent);
+		Task<bool> AddEmployeeExOrgAsync(Employee exOrg, LocalUserData userDataCurrent);
 
 		Task<List<Employee>> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
 			LocalUserData userDataCurrent, DateTime startDate, DateTime endDate);
@@ -52,8 +48,6 @@ namespace ProductionControl.Services.Interfaces
 			long idEmployee, DateTime manualLastDateLunch,
 			LocalUserData userDataCurrent);
 
-
-
 		/// <summary>
 		/// Получаем все данные по участкам, вне зависимости от прав.
 		/// Предоставляет список для картотеки.
@@ -73,16 +67,6 @@ namespace ProductionControl.Services.Interfaces
 			LocalUserData userDataCurrent,
 			DepartmentProduction department);
 
-
-		/// <summary>
-		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
-		/// </summary>
-		Task<ObservableCollection<TimeSheetItemExOrg>> SetDataForTimeSheetExOrgAsync(
-			string valueDepartmentID,
-			DateTime startDate, DateTime endDate,
-			MonthsOrYears itemMonthsTO, MonthsOrYears itemYearsTO,
-			List<int> noWorkDaysTO, LocalUserData userDataCurrent);
-
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
@@ -91,14 +75,6 @@ namespace ProductionControl.Services.Interfaces
 			DateTime startDate, DateTime endDate,
 			MonthsOrYears itemMonthsTO, MonthsOrYears itemYearsTO,
 			List<int> noWorkDaysTO, bool checkingSeeOrWriteBool,
-			LocalUserData userDataCurrent);
-
-
-
-		/// <summary>
-		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении
-		/// </summary>
-		Task SetTotalWorksDaysExOrgAsync(object? sender,
 			LocalUserData userDataCurrent);
 
 		/// <summary>
@@ -119,14 +95,14 @@ namespace ProductionControl.Services.Interfaces
 		/// и на него заказывается обед
 		/// </summary>
 		Task<bool> UpdateIsLunchingDbAsync(
-			long idEmployee, LocalUserData userDataCurrent);		  	
+			long idEmployee, LocalUserData userDataCurrent);
 
 		/// <summary>
 		/// Получаем экземпляр локальных данных на сотрудника.
 		/// Имя компьютера и ФИО сотрудника, за которым закреплён комп.
 		/// </summary>
 		Task<LocalUserData?> GetLocalUserAsync();
-		
+
 		Task SetDataEmployeeAsync(Employee employee, LocalUserData userDataCurrent);
 	}
 }
