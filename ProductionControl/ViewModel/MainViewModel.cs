@@ -8,10 +8,8 @@ using Microsoft.Win32;
 
 using ProductionControl.DAL;
 using ProductionControl.Entitys;
-using ProductionControl.Entitys.ExternalOrganization;
 using ProductionControl.Entitys.ResultTimeSheet;
 using ProductionControl.Models;
-using ProductionControl.Models.ExternalOrganization;
 using ProductionControl.Services.API.Interfaces;
 using ProductionControl.Services.Interfaces;
 using ProductionControl.Utils;
@@ -102,7 +100,6 @@ namespace ProductionControl.ViewModel
 				NoWorkDaysTO = [];
 				Indicators = [];
 				LoadTOChanged += MainViewModel_LoadTOChanged;
-				LoadSOChanged += MainViewModelExOrg_LoadTOChanged;	  						 
 
 				Visibility = Visibility.Visible;
 				RunCustomDialogForDismissalCmd = new AsyncRelayCommand(RunCustomDialogAsyncForDismissal);
@@ -127,21 +124,16 @@ namespace ProductionControl.ViewModel
 				ItemYearsTO = ListYearsTO.Where(x => !string.IsNullOrEmpty(x.Name) &&
 							x.Name.Contains($"{DateTime.Now.Year}")).FirstOrDefault() ?? new(1, string.Empty);
 
-				ItemMonthsTOExOrg = ListMonthsTOExOrg?[DateTime.Now.Month - 1] ?? new(1, string.Empty);
-				ItemYearsTOExOrg = ListYearsTOExOrg.Where(x => !string.IsNullOrEmpty(x.Name) &&
-							x.Name.Contains($"{DateTime.Now.Year}")).FirstOrDefault() ?? new(1, string.Empty);
-
 				StartDate = new DateTime(day: 1, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
 				EndDate = new DateTime(day: MaxDayTO, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
 
-				
+
 				UserDataCurrent = new LocalUserData
 				{
 					MachineName = LocalMachineName,
 					UserName = string.Empty
 				};
 				await GetDepartmentProductionsAsync().ConfigureAwait(false);
-				await GetDepartmentProductionsExOrgAsync(UserDataCurrent.MachineName).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -184,384 +176,6 @@ namespace ProductionControl.ViewModel
 		}
 
 		public event EventHandler LoadTOChanged;
-
-		#endregion
-
-		#region Табель для сотрудников сторонних организаций
-		public event EventHandler LoadSOChanged;
-		/// <summary>
-		/// Обновляет свойство IsLoadedTO на основе выбранных месяца, года и отдела.
-		/// </summary>
-		private void UpdateIsLoadedSO()
-		{
-			if (ItemMonthsTO != null && ItemYearsTO != null && NamesDepartmentItem != null && MaxDayTO > 0)
-				LoadSOChanged?.Invoke(this, EventArgs.Empty);
-		}
-
-		#region Search		
-
-		/// <summary>
-		/// Применяем фильтр напрямую к коллекции. Так как DataGrid не работает с фильтрами ICollectionView как ListView
-		/// </summary>
-		/// <returns></returns>
-		private void ApplyFilterExOrg()
-		{
-			try
-			{
-				var filteredList = DoubleTimeSheetsExOrgForSearch?
-					.AsParallel()
-					.Where(item => string.IsNullOrEmpty(FilterName) ||
-						item.FioShiftOverday.ShortName.Contains(FilterName, StringComparison.OrdinalIgnoreCase))
-					.ToList() ?? [];
-
-				TimeSheetsExOrg = new ObservableCollection<TimeSheetItemExOrg>(filteredList);
-			}
-			catch (Exception ex)
-			{
-				_errorLogger
-					.ProcessingErrorLog(ex, user: UserDataCurrent.UserName,
-					machine: UserDataCurrent.MachineName);
-			}
-		}
-
-		public string FilterNameExOrg
-		{
-			get => _filterNameExOrg;
-			set
-			{
-				try
-				{
-					SetProperty(ref _filterNameExOrg, value);
-
-					_filterCancellationTokenSourceExOrg?.Cancel();
-					_filterCancellationTokenSourceExOrg = new CancellationTokenSource();
-
-					//Задержка, перед применением фильтра, для плавного поиска при наборе текста в поиске
-					Task.Delay(350, _filterCancellationTokenSourceExOrg.Token)
-						.ContinueWith(async t =>
-						{
-							if (!t.IsCanceled)
-							{
-								await Task.Run(() => ApplyFilterExOrg()).ConfigureAwait(false);
-							}
-						}, TaskContinuationOptions.RunContinuationsAsynchronously);
-					//.ContinueWith(async ty =>
-					//{
-					//	//await InitResultSheetAsync();
-					//});
-				}
-				catch (Exception ex)
-				{
-					_errorLogger.ProcessingErrorLog(ex, user: UserDataCurrent.UserName, machine: UserDataCurrent.MachineName);
-				}
-			}
-		}
-
-		private string _filterNameExOrg;
-		private CancellationTokenSource _filterCancellationTokenSourceExOrg;
-
-		#endregion
-
-		#region Methods
-		private async Task GetDepartmentProductionsExOrgAsync(string machineName)
-		{
-			try
-			{
-				NamesDepartmentOExOrg = [];
-
-				ValueDepartmentID = machineName.GetDepartmentAsync();
-				if (string.IsNullOrEmpty(ValueDepartmentID)) return;
-
-				var tempName = NamesDepartment.Where(x => x.DepartmentID == ValueDepartmentID).Select(x => x.NameDepartment).FirstOrDefault();
-				var virtualDepartmen = new DepartmentProduction
-				{
-					DepartmentID = ValueDepartmentID,
-					NameDepartment = $" СО для, {tempName}",
-				};
-				NamesDepartmentOExOrg.Add(virtualDepartmen);
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger
-					.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName,
-					machine: UserDataCurrent.MachineName)
-					.ConfigureAwait(false);
-			}
-		}
-
-		/// <summary>
-		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
-		/// </summary>
-		private async Task SetTimeSheetItemsExOrgAsync()
-		{
-			try
-			{
-				//Конфигурируем период дат, из выбранных в приложении месяца и года
-				StartDateExOrg = new DateTime(day: 1, month: ItemMonthsTOExOrg.Id, year: ItemYearsTOExOrg.Id);
-				EndDateExOrg = new DateTime(day: MaxDayTOExOrg, month: ItemMonthsTOExOrg.Id, year: ItemYearsTOExOrg.Id);
-
-				//Проверяем, если прав нет и стоит заглушка в выбранном участке - то выходим из расчёта
-				if (string.IsNullOrEmpty(ValueDepartmentID)) return;
-
-
-				var tempShifts = await _timeSheetDb.SetDataForTimeSheetExOrgAsync(
-					ValueDepartmentID, StartDateExOrg, EndDateExOrg, ItemMonthsTOExOrg, ItemYearsTOExOrg,
-					NoWorkDaysTO, UserDataCurrent).ConfigureAwait(false);
-
-
-				////Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
-				//TimeSheets = tempShifts;
-				//DoubleTimeSheetsForSearch = new ObservableCollection<TimeSheetItem>(tempShifts);
-
-				if (!string.IsNullOrEmpty(FilterName))
-				{
-					DoubleTimeSheetsExOrgForSearch = new ObservableCollection<TimeSheetItemExOrg>(tempShifts);
-					await Task.Run(() => ApplyFilterExOrg());
-				}
-				else
-				{
-					//Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
-					TimeSheetsExOrg = tempShifts;
-					DoubleTimeSheetsExOrgForSearch = new ObservableCollection<TimeSheetItemExOrg>(tempShifts);
-				}
-
-				//if (ResultsSheet != null)
-				//	await InitResultSheetAsync();
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger
-					.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName,
-					machine: UserDataCurrent.MachineName).ConfigureAwait(false);
-			}
-		}
-		#endregion
-
-		#region Property
-
-		/// <summary>
-		/// Коллекция информации по табелю на сотрудников производства
-		/// </summary>
-		public ObservableCollection<TimeSheetItemExOrg> TimeSheetsExOrg
-		{
-			get => _timeSheetsExOrg;
-			set
-			{
-				if (_timeSheetsExOrg != null)
-				{
-					foreach (var item in _timeSheetsExOrg)
-					{
-						item.WorkerHours.CollectionChanged -= TimeSheetsExOrg_CollectionChanged;
-						item.WorkerHours.AsParallel().ForAll(underItem =>
-						{
-							underItem.PropertyChanged -= ItemExOrg_PropertyChanged;
-						});
-					}
-				}
-
-				SetProperty(ref _timeSheetsExOrg, value);
-
-				if (_timeSheetsExOrg != null)
-				{
-					foreach (var item in _timeSheetsExOrg)
-					{
-						item.WorkerHours.CollectionChanged += TimeSheetsExOrg_CollectionChanged;
-						item.WorkerHours.AsParallel().ForAll(underItem =>
-						{
-							underItem.PropertyChanged += ItemExOrg_PropertyChanged;
-						});
-					}
-				}
-			}
-		}
-		private ObservableCollection<TimeSheetItemExOrg> _timeSheetsExOrg;
-
-		/// <summary>
-		/// Выбранный сотрудник с его графиком
-		/// </summary>
-		public TimeSheetItemExOrg TimeSheetOneExOrg
-		{
-			get => _timeSheetOneExOrg;
-			set => SetProperty(ref _timeSheetOneExOrg, value);
-		}
-		private TimeSheetItemExOrg _timeSheetOneExOrg;
-
-		/// <summary>Стартовая дата</summary>
-		public DateTime StartDateExOrg { get; private set; }
-
-		/// <summary>Финишная дата</summary>
-		public DateTime EndDateExOrg { get; private set; }
-
-		/// <summary>Макс день месяца</summary>
-		public int MaxDayTOExOrg
-		{
-			get => _maxDayTOExOrg;
-			set => SetProperty(ref _maxDayTOExOrg, value);
-
-		}
-		private int _maxDayTOExOrg;
-
-		/// <summary>
-		/// Выбранный год Табель ТО
-		/// </summary>
-		public MonthsOrYears ItemYearsTOExOrg
-		{
-			get => _itemYearsTOExOrg;
-			set
-			{
-				SetProperty(ref _itemYearsTOExOrg, value);
-				if (ItemYearsTOExOrg != null && ItemMonthsTOExOrg != null)
-					MaxDayTOExOrg = DateTime.DaysInMonth(ItemYearsTOExOrg.Id, ItemMonthsTOExOrg.Id);
-				UpdateIsLoadedSO();
-			}
-		}
-		private MonthsOrYears _itemYearsTOExOrg;
-
-		/// <summary>
-		/// Список для выбора года Табель ТО
-		/// </summary>
-		public ObservableCollection<MonthsOrYears> ListYearsTOExOrg
-		{
-			get => _listYearsTOExOrg;
-			set => SetProperty(ref _listYearsTOExOrg, value);
-		}
-		private ObservableCollection<MonthsOrYears> _listYearsTOExOrg;
-
-		/// <summary>
-		/// Список месяцев в году, для отображения его на форме Табель ТО
-		/// </summary>
-		public ObservableCollection<MonthsOrYears>? ListMonthsTOExOrg
-		{
-			get => _listMonthsTOExOrg;
-			set => SetProperty(ref _listMonthsTOExOrg, value);
-		}
-		private ObservableCollection<MonthsOrYears>? _listMonthsTOExOrg;
-
-		/// <summary>
-		/// Выбранный месяц на форме Табель ТО
-		/// </summary>
-		public MonthsOrYears ItemMonthsTOExOrg
-		{
-			get => _itemMonthTOExOrg;
-			set
-			{
-				SetProperty(ref _itemMonthTOExOrg, value);
-				if (ItemYearsTOExOrg != null && ItemMonthsTOExOrg != null)
-					MaxDayTOExOrg = DateTime.DaysInMonth(ItemYearsTOExOrg.Id, ItemMonthsTOExOrg.Id);
-				UpdateIsLoadedSO();
-			}
-		}
-		private MonthsOrYears _itemMonthTOExOrg;
-
-
-		/// <summary>
-		/// Список участков предприятия
-		/// </summary>
-		public ObservableCollection<DepartmentProduction> NamesDepartmentOExOrg
-		{
-			get => _namesDepartmentOExOrg;
-			set
-			{
-
-				SetProperty(ref _namesDepartmentOExOrg, value);
-
-				if (NamesDepartmentOExOrg != null || NamesDepartmentOExOrg?.Count() > 0)
-				{
-					NamesDepartmentItemOExOrg = NamesDepartmentOExOrg.FirstOrDefault();
-				}
-				else
-				{
-					NamesDepartmentItemOExOrg = new DepartmentProduction { DepartmentID = "0000", NameDepartment = @"<Нет доступа>" };
-				}
-
-			}
-		}
-		private ObservableCollection<DepartmentProduction> _namesDepartmentOExOrg;
-
-		/// <summary>
-		/// Выбранный участок предприятия
-		/// </summary>
-		public DepartmentProduction NamesDepartmentItemOExOrg
-		{
-			get => _namesDepartmentItemOExOrg;
-			set
-			{
-				SetProperty(ref _namesDepartmentItemOExOrg, value);
-				UpdateIsLoadedSO();
-			}
-		}
-		private DepartmentProduction _namesDepartmentItemOExOrg;
-		#endregion
-
-		#region Event Handlers
-
-		/// <summary>
-		/// Событие возникает, когда данные готовы к расчёту. И запускается ассинхронный метод расчёта
-		/// </summary>
-		private async void MainViewModelExOrg_LoadTOChanged(object? sender, EventArgs e)
-		{
-			try
-			{
-				await SetTimeSheetItemsExOrgAsync().ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger
-						.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName ?? string.Empty,
-						machine: UserDataCurrent.MachineName ?? string.Empty).ConfigureAwait(false);
-			}
-		}
-
-
-
-		/// <summary>
-		/// Событие на отслеживание изменений у каждого из свойств класса ShiftData
-		/// Чтобы реагировать на уровень-два кода выше, чем данные свойств класса ShiftData
-		/// </summary>
-		private async void ItemExOrg_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-		{
-			try
-			{
-				if (e.PropertyName == nameof(ShiftDataExOrg.Hours))
-					await _timeSheetDb.SetTotalWorksDaysExOrgAsync(sender, UserDataCurrent).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName, machine: UserDataCurrent.MachineName);
-			}
-		}
-
-		/// <summary>
-		/// Событие для отслеживания изменений у самой ObservableCollection (удаление, добавление).
-		/// Для того, чтобы при частичных изменениях, новые данные всегда были подписаны на событие. 
-		/// А удаляемые - отписаны (чтобы данные удалились)
-		/// </summary>
-		private void TimeSheetsExOrg_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-		{
-			try
-			{
-				if (e.NewItems != null)
-				{
-					foreach (ShiftDataExOrg item in e.NewItems)
-						item.PropertyChanged += ItemExOrg_PropertyChanged;
-				}
-				if (e.OldItems != null)
-				{
-					foreach (ShiftDataExOrg item in e.OldItems)
-					{
-						item.PropertyChanged -= ItemExOrg_PropertyChanged;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				_errorLogger
-				   .ProcessingErrorLog(ex, user: UserDataCurrent.UserName,
-				   machine: UserDataCurrent.MachineName);
-			}
-		}
-
-		#endregion
 
 		#endregion
 
@@ -998,9 +612,6 @@ namespace ProductionControl.ViewModel
 
 				for (int i = 2020; i <= currentYear; i++)
 					ListYearsTO.Add(new MonthsOrYears(i, i.ToString()));
-
-				ListMonthsTOExOrg = ListMonthsTO;
-				ListYearsTOExOrg = ListYearsTO;
 			}
 			catch (Exception ex)
 			{
@@ -1027,7 +638,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				
+
 			}
 			catch (Exception ex)
 			{
@@ -1153,7 +764,7 @@ namespace ProductionControl.ViewModel
 		/// Дублированые данные, для хранения полноценного табеля при использовании поиска в табеле
 		/// </summary>
 		public ObservableCollection<TimeSheetItem> DoubleTimeSheetsForSearch { get; private set; }
-		
+
 		public string NamePeople { get; private set; }
 
 		/// <summary>
@@ -1335,7 +946,7 @@ namespace ProductionControl.ViewModel
 		#endregion
 
 		#region Commands
-	
+
 		public ICommand FormulateReportForLunchLastMonhtCmd { get; set; }
 		public ICommand UpdateScheduleCmd { get; set; }
 		public ICommand IsLunchCmd { get; set; }
@@ -1674,8 +1285,8 @@ namespace ProductionControl.ViewModel
 			get => _faq;
 			set => SetProperty(ref _faq, value);
 		}
-		public string ValueDepartmentID { get; private set; }
-		public ObservableCollection<TimeSheetItemExOrg> DoubleTimeSheetsExOrgForSearch { get; private set; }
+
+		public string ValueDepartmentID { get; private set; }				
 
 		private FAQ? _faq;
 

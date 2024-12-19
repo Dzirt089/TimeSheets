@@ -124,11 +124,11 @@ namespace ProductionControl.Migrations
 
             modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", b =>
                 {
-                    b.Property<int>("EmployeeExOrgID")
+                    b.Property<int>("EmployeeID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeExOrgID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeID"));
 
                     b.Property<DateTime>("DateDismissal")
                         .HasColumnType("datetime2");
@@ -160,7 +160,7 @@ namespace ProductionControl.Migrations
                     b.Property<string>("ShortName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("EmployeeExOrgID");
+                    b.HasKey("EmployeeID");
 
                     b.HasIndex("DepartmentProductionDepartmentID");
 
@@ -169,7 +169,7 @@ namespace ProductionControl.Migrations
 
             modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrgAddInRegion", b =>
                 {
-                    b.Property<int>("EmployeeExOrgID")
+                    b.Property<int>("EmployeeID")
                         .HasColumnType("int");
 
                     b.Property<string>("DepartmentID")
@@ -178,14 +178,14 @@ namespace ProductionControl.Migrations
                     b.Property<bool>("WorkingInTimeSheetEmployeeExOrg")
                         .HasColumnType("bit");
 
-                    b.HasKey("EmployeeExOrgID", "DepartmentID");
+                    b.HasKey("EmployeeID", "DepartmentID");
 
                     b.ToTable("EmployeeExOrgAddInRegions");
                 });
 
             modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.ShiftDataExOrg", b =>
                 {
-                    b.Property<int>("EmployeeExOrgID")
+                    b.Property<int>("EmployeeID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("WorkDate")
@@ -197,9 +197,9 @@ namespace ProductionControl.Migrations
                     b.Property<string>("Hours")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("EmployeeExOrgID", "WorkDate", "DepartmentID");
+                    b.HasKey("EmployeeID", "WorkDate", "DepartmentID");
 
-                    b.HasIndex("EmployeeExOrgID", "WorkDate", "DepartmentID")
+                    b.HasIndex("EmployeeID", "WorkDate", "DepartmentID")
                         .IsUnique();
 
                     b.ToTable("ShiftDataExOrgs");
@@ -259,7 +259,7 @@ namespace ProductionControl.Migrations
                 {
                     b.HasOne("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", "EmployeeExOrg")
                         .WithMany("EmployeeExOrgAddInRegions")
-                        .HasForeignKey("EmployeeExOrgID")
+                        .HasForeignKey("EmployeeID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -270,7 +270,7 @@ namespace ProductionControl.Migrations
                 {
                     b.HasOne("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", "EmployeeExOrg")
                         .WithMany("ShiftDataExOrgs")
-                        .HasForeignKey("EmployeeExOrgID")
+                        .HasForeignKey("EmployeeID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

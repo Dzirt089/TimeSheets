@@ -116,7 +116,7 @@ namespace ProductionControl.Models
 				SetProperty(ref _shifts, value);
 			}
 		}
-		private IEnumerable<ShiftData>? _shifts;			  
+		private IEnumerable<ShiftData>? _shifts;
 
 		/// <summary>
 		/// Фотографии людей
@@ -127,7 +127,26 @@ namespace ProductionControl.Models
 			set => SetProperty(ref _photo, value);
 		}
 		private byte[]? _photo;
+		
 
+		/// <summary>
+		/// Описание сотрудника
+		/// </summary>
+		public int? NumberPass
+		{
+			get => _numberPass;
+			set => SetProperty(ref _numberPass, value);
+		}
+		private int? _numberPass;
+		/// <summary>
+		/// Описание сотрудника
+		/// </summary>
+		public string? Descriptions
+		{
+			get => _descriptions;
+			set => SetProperty(ref _descriptions, value);
+		}
+		private string? _descriptions;
 		public Employee()
 		{
 			// чтобы разработчики могли добавлять продукты в категорию,

@@ -1,6 +1,5 @@
 ﻿using ProductionControl.Entitys;
 using ProductionControl.Models;
-using ProductionControl.Models.ExternalOrganization;
 
 using System.Windows.Media;
 
@@ -251,35 +250,6 @@ namespace ProductionControl.Utils
 		/// <returns><see cref="True"/> если валидация прошла. Иначе - <see cref="False"/></returns>
 		public static bool VolidateEmployee(
 			this Employee employee,
-			int months, int years)
-		{
-			if (employee.DateDismissal != DateTime.Parse("31.12.1876"))
-			{
-				if (employee.DateDismissal.Month >= months
-					&& employee.DateDismissal.Year <= years) return true;
-				else
-					return false;
-			}
-			else
-			if (employee.DateEmployment.Month > months
-				&& employee.DateEmployment.Year >= years)
-				return false;
-			else
-				return true;
-		}
-
-		/// <summary>
-		/// Валидация по сотрудникам. Пояснение:
-		/// Уволенный в сентябре 2024 года сотрудник, 
-		/// отображается на графике только до начала октября. 
-		/// И трудоустроенный сотрудник не может отображаться в графике тогда, когда его не было
-		/// </summary>
-		/// <param name="employee">Данные сотрудника</param>
-		/// <param name="months">Выбранный месяц в программе</param>
-		/// <param name="years">Выбранный год в программе</param>
-		/// <returns><see cref="True"/> если валидация прошла. Иначе - <see cref="False"/></returns>
-		public static bool VolidateEmployee(
-			this EmployeeExOrg employee,
 			int months, int years)
 		{
 			if (employee.DateDismissal != DateTime.Parse("31.12.1876"))

@@ -48,7 +48,7 @@ namespace ProductionControl.Migrations
                 name: "EmployeeExOrgs",
                 columns: table => new
                 {
-                    EmployeeExOrgID = table.Column<int>(type: "int", nullable: false)
+                    EmployeeID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EmployeeExOrgAddInRegionID = table.Column<int>(type: "int", nullable: false),
                     NumberPass = table.Column<int>(type: "int", nullable: false),
@@ -63,7 +63,7 @@ namespace ProductionControl.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmployeeExOrgs", x => x.EmployeeExOrgID);
+                    table.PrimaryKey("PK_EmployeeExOrgs", x => x.EmployeeID);
                     table.ForeignKey(
                         name: "FK_EmployeeExOrgs_DepartmentProductions_DepartmentProductionDepartmentID",
                         column: x => x.DepartmentProductionDepartmentID,
@@ -100,18 +100,18 @@ namespace ProductionControl.Migrations
                 name: "EmployeeExOrgAddInRegions",
                 columns: table => new
                 {
-                    EmployeeExOrgID = table.Column<int>(type: "int", nullable: false),
+                    EmployeeID = table.Column<int>(type: "int", nullable: false),
                     DepartmentID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     WorkingInTimeSheetEmployeeExOrg = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmployeeExOrgAddInRegions", x => new { x.EmployeeExOrgID, x.DepartmentID });
+                    table.PrimaryKey("PK_EmployeeExOrgAddInRegions", x => new { x.EmployeeID, x.DepartmentID });
                     table.ForeignKey(
-                        name: "FK_EmployeeExOrgAddInRegions_EmployeeExOrgs_EmployeeExOrgID",
-                        column: x => x.EmployeeExOrgID,
+                        name: "FK_EmployeeExOrgAddInRegions_EmployeeExOrgs_EmployeeID",
+                        column: x => x.EmployeeID,
                         principalTable: "EmployeeExOrgs",
-                        principalColumn: "EmployeeExOrgID",
+                        principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -119,19 +119,19 @@ namespace ProductionControl.Migrations
                 name: "ShiftDataExOrgs",
                 columns: table => new
                 {
-                    EmployeeExOrgID = table.Column<int>(type: "int", nullable: false),
+                    EmployeeID = table.Column<int>(type: "int", nullable: false),
                     WorkDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DepartmentID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Hours = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ShiftDataExOrgs", x => new { x.EmployeeExOrgID, x.WorkDate, x.DepartmentID });
+                    table.PrimaryKey("PK_ShiftDataExOrgs", x => new { x.EmployeeID, x.WorkDate, x.DepartmentID });
                     table.ForeignKey(
-                        name: "FK_ShiftDataExOrgs_EmployeeExOrgs_EmployeeExOrgID",
-                        column: x => x.EmployeeExOrgID,
+                        name: "FK_ShiftDataExOrgs_EmployeeExOrgs_EmployeeID",
+                        column: x => x.EmployeeID,
                         principalTable: "EmployeeExOrgs",
-                        principalColumn: "EmployeeExOrgID",
+                        principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -182,9 +182,9 @@ namespace ProductionControl.Migrations
                 filter: "[NumGraf] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ShiftDataExOrgs_EmployeeExOrgID_WorkDate_DepartmentID",
+                name: "IX_ShiftDataExOrgs_EmployeeID_WorkDate_DepartmentID",
                 table: "ShiftDataExOrgs",
-                columns: new[] { "EmployeeExOrgID", "WorkDate", "DepartmentID" },
+                columns: new[] { "EmployeeID", "WorkDate", "DepartmentID" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

@@ -7,7 +7,6 @@
         mc:Ignorable="d"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:b="clr-namespace:ProductionControl.Services.DynamicGrid"
-        xmlns:b2="clr-namespace:ProductionControl.Services.DynamicGrid.ExternalOrganization"
         xmlns:v="clr-namespace:ProductionControl.Models"
         xmlns:vm="clr-namespace:ProductionControl.ViewModel"
         xmlns:ico="http://metro.mahapps.com/winfx/xaml/iconpacks" 
@@ -143,90 +142,7 @@
                     </DataGrid>
                     
                 </Grid>
-            </ma:MetroTabItem>
-            <ma:MetroTabItem Header="СО" Width="150">
-                <Grid Margin="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-
-                    <!-- Панель фильтров -->
-                    <Border Grid.Row="0" CornerRadius="5" BorderThickness="1" 
-                            BorderBrush="{StaticResource MahApps.Brushes.Accent}" Padding="10">
-                        <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Margin="0 0 20 0" Text="Поиск по ФИО :" VerticalAlignment="Center" 
-                                       FontWeight="SemiBold" FontSize="14"/>
-                            <TextBox  FontSize="13" BorderBrush="Blue"      
-                                      Text="{Binding FilterNameExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     Width="150"/>                            
-                            
-                            <TextBlock Margin="20 0 20 0" Text="Выбор месяца:" VerticalAlignment="Center" 
-                                       FontWeight="SemiBold" FontSize="14"/>
-                            <ComboBox ItemsSource="{Binding ListMonthsTOExOrg, Mode=TwoWay}" 
-                                      SelectedItem="{Binding ItemMonthsTOExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"                                       
-                                      DisplayMemberPath="Name"
-                                      FontSize="14" Width="120" Margin="0 0 20 0"/>
-                            <TextBlock Margin="0 0 20 0" Text="Выбор года:" VerticalAlignment="Center" 
-                                       FontWeight="SemiBold" FontSize="14"/>
-                            <ComboBox ItemsSource="{Binding ListYearsTOExOrg, Mode=TwoWay}" 
-                                      SelectedItem="{Binding ItemYearsTOExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                                      DisplayMemberPath="Name"
-                                      FontSize="14" Width="90" Margin="0 0 20 0"/>
-                            <TextBlock Margin="0 0 20 0" Text="Выбор участка:" VerticalAlignment="Center" 
-                                       FontWeight="SemiBold" FontSize="14"/>
-                            <ComboBox ItemsSource="{Binding NamesDepartmentOExOrg, Mode=TwoWay}" 
-                                      SelectedItem="{Binding NamesDepartmentItemOExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                                      DisplayMemberPath="FullNameDepartment"
-                                      FontSize="14" Width="250"/>
-
-                            <Button Margin="20 0 0 0"  Style="{StaticResource MahApps.Styles.Button.MetroSquare}"                                  
-                                    FontWeight="SemiBold" FontSize="13"  Command="{Binding UpdateScheduleCmd}" 
-                                    ToolTip="Обновляет табель.">
-                                <ico:PackIconModern Kind="Refresh" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </Button>
-                        </DockPanel>
-                    </Border>
-
-                    <DataGrid x:Name="MyDataGridExOrg" Grid.Row="1" ItemsSource="{Binding TimeSheetsExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                              SelectedItem="{Binding TimeSheetOneExOrg, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                              
-                              FontSize="13" FrozenColumnCount="3"  Margin="0 5 0 0"  IsReadOnly="True"  
-                                                            
-                              Background="White"
-                              HorizontalGridLinesBrush="Transparent"                              
-                              BorderBrush="{StaticResource MahApps.Brushes.Accent}"                              
-                              
-                              CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" 
-                              CanUserResizeColumns="False" CanUserResizeRows="False" AutoGenerateColumns="False"                      
-                              
-                              SelectionMode="Single" SelectionUnit="FullRow" 
-                              MinColumnWidth="30" MaxColumnWidth="150" RowHeight="60" 
-                              
-                              ScrollViewer.CanContentScroll="False"                              
-                              VirtualizingPanel.CacheLength="300"
-                              VirtualizingPanel.ScrollUnit="Pixel"
-                              EnableRowVirtualization="True"
-                              VirtualizingPanel.IsVirtualizing="True"
-                              VirtualizingPanel.VirtualizationMode="Recycling">
-                        <!--<DataGrid.ContextMenu>
-                            <ContextMenu Visibility="{Binding Visibility}">
-                                <MenuItem Header="Уволить/Отменить увольнение" 
-                                          Command="{Binding HandlerCommandDismissOrRescindDismissalCmd}" 
-                                          CommandParameter="{Binding TimeSheetOne}"/>
-                                <Separator/>
-                                <MenuItem Header="Редактировать обед по дате" Command="{Binding RunCustomDialogForLunchCmd}"
-                                          CommandParameter="{Binding TimeSheetOne}"/>
-                                <MenuItem Header="Обеды - Отметить/Снять отметку" Command="{Binding IsLunchCmd}"
-                                          CommandParameter="{Binding TimeSheetOne}"/>
-                            </ContextMenu>
-                        </DataGrid.ContextMenu>-->
-                        <i:Interaction.Behaviors>
-                            <b2:DynamicColumnsBehaviorvExpOrg/>
-                        </i:Interaction.Behaviors>
-                    </DataGrid>
-                </Grid>
-            </ma:MetroTabItem>
+            </ma:MetroTabItem>            
         </ma:MetroTabControl>
     </Grid>
 </ma:MetroWindow>

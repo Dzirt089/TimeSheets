@@ -69,15 +69,13 @@ namespace ProductionControl.Services
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
 			try
 			{
-				var empExOrg = await dbContext.EmployeeExOrgs
-					.Include(x => x.ShiftDataExOrgs
-						.Where(e => e.DepartmentID == valueDepartmentID))
-					.SingleOrDefaultAsync(e => e.EmployeeExOrgID == exOrg.EmployeeID);
+				var empExOrg = await dbContext.Employees   					
+					.SingleOrDefaultAsync(e => e.EmployeeID == exOrg.EmployeeID);
 
 				if (empExOrg is null)
 					return await AddEmployeeExOrgAsync(exOrg, userDataCurrent);
 
-				var shiftDict = empExOrg.ShiftDataExOrgs?.ToDictionary(x => x.WorkDate) ?? [];
+				var shiftDict = empExOrg.Shifts?.ToDictionary(x => x.WorkDate) ?? [];
 
 				for (var date = startDate; date <= endDate; date = date.AddDays(1))
 				{
@@ -85,7 +83,7 @@ namespace ProductionControl.Services
 					{
 						shiftDict[date] = new ShiftData
 						{
-							EmployeeID = empExOrg.EmployeeExOrgID,
+							EmployeeID = empExOrg.EmployeeID,
 							WorkDate = date,
 							Employee = empExOrg,
 							Overday = string.Empty,
@@ -93,7 +91,7 @@ namespace ProductionControl.Services
 						};
 					}
 				}
-				empExOrg.ShiftDataExOrgs = [.. shiftDict.Values];
+				empExOrg.Shifts = [.. shiftDict.Values];
 				await dbContext.SaveChangesAsync();
 				await trans.CommitAsync();
 				return true;
@@ -120,9 +118,7 @@ namespace ProductionControl.Services
 			try
 			{
 				var empExOrg = await dbContext.EmployeeExOrgs
-					.Where(x => x.EmployeeExOrgID == exOrg.EmployeeExOrgID)
-					.Include(x => x.EmployeeExOrgAddInRegions
-						.Where(w => w.DepartmentID == valueDepId && w.EmployeeExOrgID == exOrg.EmployeeExOrgID))
+					.Where(x => x.EmployeeID == exOrg.EmployeeID)
 					.FirstOrDefaultAsync();
 
 				if (empExOrg is null)
@@ -138,32 +134,6 @@ namespace ProductionControl.Services
 					empExOrg.Photo = exOrg.Photo;
 					empExOrg.Descriptions = exOrg.Descriptions;
 				}
-
-				if (empExOrg.EmployeeExOrgAddInRegions.Count() > 0)
-				{
-					empExOrg.EmployeeExOrgAddInRegions
-						.Foreach(x =>
-						{
-							x.WorkingInTimeSheetEmployeeExOrg = addWorkInReg;
-						});
-				}
-				else
-				{
-					var exOrgInRegDict = empExOrg.EmployeeExOrgAddInRegions.ToDictionary(x => x.EmployeeExOrgID) ?? [];
-					if (!exOrgInRegDict.ContainsKey(exOrg.EmployeeExOrgID))
-					{
-						exOrgInRegDict[exOrg.EmployeeExOrgID] = new EmployeeExOrgAddInRegion
-						{
-							DepartmentID = valueDepId,
-							EmployeeExOrgID = exOrg.EmployeeExOrgID,
-							EmployeeExOrg = exOrg,
-							WorkingInTimeSheetEmployeeExOrg = addWorkInReg
-						};
-					}
-					empExOrg.EmployeeExOrgAddInRegions = [.. exOrgInRegDict.Values];
-				}
-
-
 
 				await dbContext.SaveChangesAsync();
 				await trans.CommitAsync();
