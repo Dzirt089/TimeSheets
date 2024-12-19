@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using ProductionControl.Models;
-using ProductionControl.Models.ExternalOrganization;
 
 namespace ProductionControl.DAL
 {
@@ -26,27 +24,11 @@ namespace ProductionControl.DAL
 		public DbSet<ShiftData>? ShiftsData { get; set; }
 		public DbSet<ErrorLog>? ErrorLogs { get; set; }
 		public DbSet<DepartmentProduction>? DepartmentProductions { get; set; }
-		public DbSet<EmployeeExOrg>? EmployeeExOrgs { get; set; }
-		public DbSet<ShiftDataExOrg>? ShiftDataExOrgs { get; set; }					   		
+		public DbSet<Employee>? EmployeeExOrgs { get; set; }
+		public DbSet<Employee>? ShiftDataExOrgs { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<EmployeeExOrg>(entity =>
-			{
-				entity.HasKey(x => x.EmployeeExOrgID);
-				entity.Property(e => e.Photo).HasColumnType("varbinary(max)");
-			});
-
-			modelBuilder.Entity<ShiftDataExOrg>(entity =>
-			{
-				entity.HasKey(x => new { x.EmployeeExOrgID, x.WorkDate, x.DepartmentID });
-				entity.HasIndex(i => new { i.EmployeeExOrgID, i.WorkDate, i.DepartmentID }).IsUnique();
-
-				entity.HasOne(x => x.EmployeeExOrg)
-						.WithMany(w => w.ShiftDataExOrgs)
-						.HasForeignKey(s => s.EmployeeExOrgID)
-						.OnDelete(DeleteBehavior.Restrict);
-			});
 
 			modelBuilder.Entity<ShiftData>(entity =>
 			{
@@ -69,6 +51,7 @@ namespace ProductionControl.DAL
 				entity.HasKey(e => e.EmployeeID);                                       //Устанавливаем PK
 				entity.Property(x => x.EmployeeID).ValueGeneratedNever();               //ID не должен генерироваться автоматически базой данных.
 																						//entity.Property(x => x.DepartmentID).HasDefaultValue("");				//На тот случай, если забудем прописать ПК для DepartmentProduction
+				entity.Property(e => e.Photo).HasColumnType("varbinary(max)");
 
 				entity.HasOne(d => d.DepartmentProduction)                              //Устанавливаем связь через навигационную сущность участков, связь "один - ко -
 						.WithMany(r => r.EmployeesList)                                 // - многим, указывая на коллекцию сущности сотрудников
