@@ -86,10 +86,10 @@ namespace ProductionControl.ViewModel
 					NewEmployeeForCartoteca.IsDismissal = true;
 
 
-				if (NewEmployeeForCartoteca != null)
-					await _timeSheetDb.UpdateEmployeeExOrgAsync(
-						NewEmployeeForCartoteca, ValueDepartmentID, UserDataCurrent);
-				else
+				//if (NewEmployeeForCartoteca != null)
+				//	await _timeSheetDb.UpdateEmployeeExOrgAsync(
+				//		NewEmployeeForCartoteca, ValueDepartmentID, UserDataCurrent);
+				//else
 					await _timeSheetDb.AddEmployeeExOrgAsync(NewEmployeeForCartoteca, UserDataCurrent);
 
 				VisibilityAddMainRegion = Visibility.Visible;
@@ -112,7 +112,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				EmployeesForCartotecas = await _timeSheetDb.GetEmployeeExOrgsNoDismissalAsync(UserDataCurrent);
+				//EmployeesForCartotecas = await _timeSheetDb.GetEmployeeExOrgsNoDismissalAsync(UserDataCurrent);
 
 				EmployeesForCartotecaExOrg = new ObservableCollection<Employee>(EmployeesForCartotecas);
 				DubleEmployeesForCartotecaExOrg = new List<Employee>(EmployeesForCartotecas);
