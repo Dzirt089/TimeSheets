@@ -246,7 +246,7 @@ namespace ProductionControl.Services.DynamicGrid
 				DateTime times = item.WorkerHours.Select(x => x.WorkDate).FirstOrDefault();
 
 				// Флаг для переключения табеля: только на чтение или редактирование
-				bool checkUpdate = item.AccessSeeOrWrite;
+				//bool checkUpdate = item.AccessSeeOrWrite;
 
 				int daysInMonth = DateTime.DaysInMonth(times.Year, times.Month);
 				int dayNow = 0;
@@ -261,8 +261,8 @@ namespace ProductionControl.Services.DynamicGrid
 					var day = i + 1;
 					string cellTemplateXaml = string.Empty;
 
-					if (checkUpdate)
-						cellTemplateXaml = $@"
+					//if (checkUpdate)
+					cellTemplateXaml = $@"
 						<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>
 							<Grid>
 								<Grid.RowDefinitions>
@@ -290,25 +290,25 @@ namespace ProductionControl.Services.DynamicGrid
 				x:Name='SecondNameTextBox' Visibility='Collapsed' Style='{{StaticResource LostFocusTextBoxStyle}}' TextAlignment='Center' FontSize = '13'/>
 							</Grid>
 						</DataTemplate>";
-					else
-						cellTemplateXaml = $@"
-						<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>
-							<Grid>
-								<Grid.RowDefinitions>
-									<RowDefinition Height='20'/>
-									<RowDefinition Height='20'/>
-									<RowDefinition Height='20'/>
-								</Grid.RowDefinitions>
-								<TextBlock Grid.Row='0'  x:Name='HourseTB' Text='{{Binding WorkerHours[{i}].Hours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
-				Foreground='{{Binding WorkerHours[{i}].Brush , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}'  TextAlignment='Center' FontWeight = 'Bold' FontSize = '14'/>
+					//	else
+					//		cellTemplateXaml = $@"
+					//		<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'>
+					//			<Grid>
+					//				<Grid.RowDefinitions>
+					//					<RowDefinition Height='20'/>
+					//					<RowDefinition Height='20'/>
+					//					<RowDefinition Height='20'/>
+					//				</Grid.RowDefinitions>
+					//				<TextBlock Grid.Row='0'  x:Name='HourseTB' Text='{{Binding WorkerHours[{i}].Hours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
+					//Foreground='{{Binding WorkerHours[{i}].Brush , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}'  TextAlignment='Center' FontWeight = 'Bold' FontSize = '14'/>
 
-								<TextBlock Grid.Row='1' Text='{{Binding WorkerHours[{i}].Shift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
-				 x:Name='NameTextBlock' Visibility='Visible' Foreground='{{Binding WorkerHours[{i}].Brush , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' TextAlignment='Center' FontSize = '13'/>
+					//				<TextBlock Grid.Row='1' Text='{{Binding WorkerHours[{i}].Shift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
+					// x:Name='NameTextBlock' Visibility='Visible' Foreground='{{Binding WorkerHours[{i}].Brush , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' TextAlignment='Center' FontSize = '13'/>
 
-								<TextBlock Grid.Row='2'  Text='{{Binding WorkerHours[{i}].Overday, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
-					x:Name='SecondNameTextBlock' Visibility='Visible' Background='#b3b3b3' Foreground='Black' TextAlignment='Center' FontSize = '13'/>
-							</Grid>
-						</DataTemplate>";
+					//				<TextBlock Grid.Row='2'  Text='{{Binding WorkerHours[{i}].Overday, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}}' 
+					//	x:Name='SecondNameTextBlock' Visibility='Visible' Background='#b3b3b3' Foreground='Black' TextAlignment='Center' FontSize = '13'/>
+					//			</Grid>
+					//		</DataTemplate>";
 
 					var cellTemplate = LoadTemplate(cellTemplateXaml);
 

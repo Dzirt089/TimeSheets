@@ -138,39 +138,6 @@ namespace ProductionControl.ViewModel
 		}
 
 
-
-		/// <summary>
-		/// Проверка прав на компы Наливайко, Мастеров 43/44 участков, программистов. Чтобы показывать общую кнопку "Дополнительно", только им.
-		/// </summary>
-		/// <returns></returns>
-		private bool AccessButtonAddition()
-		{
-			return LocalMachineName.Equals("comp89", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp03", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp17", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp22", StringComparison.OrdinalIgnoreCase);
-		}
-		/// <summary>
-		/// Проверка прав на компы Мастеров 43/44 участков, программистов. Чтобы показывать кнопку "Плановая трудоемкость", только им.
-		/// </summary>
-		/// <returns></returns>
-		private bool AccessForRegions043_044()
-		{
-			return LocalMachineName.Equals("comp03", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp17", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp22", StringComparison.OrdinalIgnoreCase);
-		}
-		/// <summary>
-		/// Проверка прав на компы Наливайко, программистов. Чтобы показывать вложенные кнопки в "Дополнительно", только им.
-		/// </summary>
-		/// <returns></returns>
-		private bool MainAccess()
-		{
-			return LocalMachineName.Equals("comp89", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp17", StringComparison.OrdinalIgnoreCase) ||
-								LocalMachineName.Equals("comp22", StringComparison.OrdinalIgnoreCase);
-		}
-
 		public event EventHandler LoadTOChanged;
 
 		#endregion
@@ -634,7 +601,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-
+				NamesDepartment = await _timeSheetDb.GetAllDepartmentsAsync(UserDataCurrent);
 			}
 			catch (Exception ex)
 			{

@@ -350,7 +350,7 @@ namespace ProductionControl.Services
 		/// </summary>
 		/// <param name="userDataCurrent">Текущие данные пользователя.</param>
 		/// <returns>Список участков.</returns>
-		public async Task<ObservableCollection<DepartmentProduction>>
+		public async Task<List<DepartmentProduction>>
 			GetAllDepartmentsAsync(LocalUserData userDataCurrent)
 		{
 			try
@@ -367,8 +367,7 @@ namespace ProductionControl.Services
 					.ForEach(x => x.FullNameDepartment =
 					$"{x.DepartmentID} : {x.NameDepartment}");
 
-				return new ObservableCollection<DepartmentProduction>(
-					DepartmentProductionsDb ?? []);
+				return DepartmentProductionsDb;
 			}
 			catch (Exception ex)
 			{
@@ -400,7 +399,6 @@ namespace ProductionControl.Services
 				return null;
 			}
 		}
-
 
 		/// <summary>
 		/// Получает данные по сотрудникам, которые не уволены.
@@ -585,10 +583,6 @@ namespace ProductionControl.Services
 			}
 		}
 
-
-
-
-
 		/// <summary>
 		/// Асинхронно сохраняет данные сотрудника.
 		/// </summary>
@@ -612,8 +606,6 @@ namespace ProductionControl.Services
 					.ConfigureAwait(false);
 			}
 		}
-
-
 
 		/// <summary>
 		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении
@@ -670,7 +662,6 @@ namespace ProductionControl.Services
 			}
 		}
 
-
 		/// <summary>
 		/// Если сотрудник обедает, то в его данных отображается инфа, что он кушает, 
 		/// и на него заказывается обед
@@ -707,7 +698,6 @@ namespace ProductionControl.Services
 				return false;
 			}
 		}
-
 
 	}
 }

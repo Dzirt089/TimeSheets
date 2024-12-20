@@ -54,7 +54,7 @@ namespace ProductionControl.Services.Interfaces
 		/// </summary>
 		/// <param name="userDataCurrent"></param>
 		/// <returns></returns>
-		Task<ObservableCollection<DepartmentProduction>>
+		Task<List<DepartmentProduction>>
 			GetAllDepartmentsAsync(LocalUserData userDataCurrent);
 
 		/// <summary>
