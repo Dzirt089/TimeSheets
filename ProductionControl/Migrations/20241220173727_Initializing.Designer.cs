@@ -12,8 +12,8 @@ using ProductionControl.DAL;
 namespace ProductionControl.Migrations
 {
     [DbContext(typeof(ShiftTimesDbContext))]
-    [Migration("20241214204821_Initial")]
-    partial class Initial
+    [Migration("20241220173727_Initializing")]
+    partial class Initializing
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,9 @@ namespace ProductionControl.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Descriptions")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
@@ -71,6 +74,12 @@ namespace ProductionControl.Migrations
                     b.Property<string>("NumGraf")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("NumberPass")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Photo")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("ShortName")
                         .HasColumnType("nvarchar(max)");
 
@@ -82,7 +91,7 @@ namespace ProductionControl.Migrations
                         .IsUnique()
                         .HasFilter("[NumGraf] IS NOT NULL");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employee");
                 });
 
             modelBuilder.Entity("ProductionControl.Models.ErrorLog", b =>
@@ -120,89 +129,6 @@ namespace ProductionControl.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ErrorLogs");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", b =>
-                {
-                    b.Property<int>("EmployeeID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeID"));
-
-                    b.Property<DateTime>("DateDismissal")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateEmployment")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DepartmentProductionDepartmentID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Descriptions")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EmployeeExOrgAddInRegionID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDismissal")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("NumberPass")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Photo")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ShortName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EmployeeID");
-
-                    b.HasIndex("DepartmentProductionDepartmentID");
-
-                    b.ToTable("EmployeeExOrgs");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrgAddInRegion", b =>
-                {
-                    b.Property<int>("EmployeeID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DepartmentID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("WorkingInTimeSheetEmployeeExOrg")
-                        .HasColumnType("bit");
-
-                    b.HasKey("EmployeeID", "DepartmentID");
-
-                    b.ToTable("EmployeeExOrgAddInRegions");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.ShiftDataExOrg", b =>
-                {
-                    b.Property<int>("EmployeeID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("WorkDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DepartmentID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Hours")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EmployeeID", "WorkDate", "DepartmentID");
-
-                    b.HasIndex("EmployeeID", "WorkDate", "DepartmentID")
-                        .IsUnique();
-
-                    b.ToTable("ShiftDataExOrgs");
                 });
 
             modelBuilder.Entity("ProductionControl.Models.ShiftData", b =>
@@ -248,35 +174,6 @@ namespace ProductionControl.Migrations
                     b.Navigation("DepartmentProduction");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", b =>
-                {
-                    b.HasOne("ProductionControl.Models.DepartmentProduction", null)
-                        .WithMany("EmployeeExOrgs")
-                        .HasForeignKey("DepartmentProductionDepartmentID");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrgAddInRegion", b =>
-                {
-                    b.HasOne("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", "EmployeeExOrg")
-                        .WithMany("EmployeeExOrgAddInRegions")
-                        .HasForeignKey("EmployeeID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("EmployeeExOrg");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.ShiftDataExOrg", b =>
-                {
-                    b.HasOne("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", "EmployeeExOrg")
-                        .WithMany("ShiftDataExOrgs")
-                        .HasForeignKey("EmployeeID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("EmployeeExOrg");
-                });
-
             modelBuilder.Entity("ProductionControl.Models.ShiftData", b =>
                 {
                     b.HasOne("ProductionControl.Models.Employee", "Employee")
@@ -291,21 +188,12 @@ namespace ProductionControl.Migrations
 
             modelBuilder.Entity("ProductionControl.Models.DepartmentProduction", b =>
                 {
-                    b.Navigation("EmployeeExOrgs");
-
                     b.Navigation("EmployeesList");
                 });
 
             modelBuilder.Entity("ProductionControl.Models.Employee", b =>
                 {
                     b.Navigation("Shifts");
-                });
-
-            modelBuilder.Entity("ProductionControl.Models.ExternalOrganization.EmployeeExOrg", b =>
-                {
-                    b.Navigation("EmployeeExOrgAddInRegions");
-
-                    b.Navigation("ShiftDataExOrgs");
                 });
 #pragma warning restore 612, 618
         }

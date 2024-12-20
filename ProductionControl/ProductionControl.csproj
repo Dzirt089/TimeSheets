@@ -69,7 +69,7 @@
 	  <AutoGen>True</AutoGen>
 	  <DependentUpon>Settings.settings</DependentUpon>
 	</Compile>
-	<Compile Update="Views\StaffExternalOrgView.xaml.cs">
+	<Compile Update="Views\StaffView.xaml.cs">
 	  <SubType>Code</SubType>
 	</Compile>
   </ItemGroup>

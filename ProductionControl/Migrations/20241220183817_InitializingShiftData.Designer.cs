@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductionControl.DAL;
 
@@ -11,9 +12,11 @@ using ProductionControl.DAL;
 namespace ProductionControl.Migrations
 {
     [DbContext(typeof(ShiftTimesDbContext))]
-    partial class ShiftTimesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241220183817_InitializingShiftData")]
+    partial class InitializingShiftData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

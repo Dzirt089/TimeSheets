@@ -64,7 +64,12 @@ namespace ProductionControl.DAL
 			{
 				entity.HasKey(h => h.DepartmentID);                             //Устанавливаем PK
 				entity.Property(x => x.DepartmentID).ValueGeneratedNever();     //ID не должен генерироваться автоматически базой данных.
-				entity.HasIndex(i => i.DepartmentID).IsUnique();                //Устанавливаем индексы				
+				entity.HasIndex(i => i.DepartmentID).IsUnique();                //Устанавливаем индексы	
+																				//
+				entity.HasData(new DepartmentProduction { DepartmentID = "01", NameDepartment = "Группа разработки" }
+				, new DepartmentProduction { DepartmentID = "02", NameDepartment = "Группа аналитики" }
+				, new DepartmentProduction { DepartmentID = "03", NameDepartment = "Группа тестирования" }
+				, new DepartmentProduction { DepartmentID = "04", NameDepartment = "Группа исследования" });                                                               //			
 			});
 		}
 	}

@@ -439,6 +439,40 @@ namespace ProductionControl.Services
 		}
 
 		/// <summary>
+		/// Получает данные по сотрудникам, которые не уволены.
+		/// </summary>
+		/// <param name="userDataCurrent">Данные с именами сотрудника и его компьютера.</param>
+		/// <param name="department">Выбранный участок предприятия.</param>
+		/// <returns>Список сотрудников, работающих на выбранном участке.</returns>
+		public async Task<List<Employee>>
+			GetEmployeeForCartotecasAsync(
+			LocalUserData userDataCurrent)
+		{
+			try
+			{
+				await using var dbContext = await _context.CreateDbContextAsync();
+
+				var employeesForCartoteca = await dbContext.Employees
+					.Include(i => i.DepartmentProduction)
+					.OrderBy(o => o.ShortName)
+					.ToListAsync();
+
+				//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
+				employeesForCartoteca = employeesForCartoteca
+					.Where(x => x.VolidateEmployee(DateTime.Now.Month, DateTime.Now.Year) && x.IsDismissal == false)
+					.ToList();
+
+				return employeesForCartoteca;
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
+					machine: userDataCurrent.MachineName).ConfigureAwait(false);
+				return [];
+			}
+		}
+
+		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
 		/// <param name="namesDepartmentItem">Выбранный отдел предприятия.</param>

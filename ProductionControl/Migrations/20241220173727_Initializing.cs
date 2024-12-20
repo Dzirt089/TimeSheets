@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProductionControl.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Initializing : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,34 +45,7 @@ namespace ProductionControl.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmployeeExOrgs",
-                columns: table => new
-                {
-                    EmployeeID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeExOrgAddInRegionID = table.Column<int>(type: "int", nullable: false),
-                    NumberPass = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShortName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateEmployment = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateDismissal = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDismissal = table.Column<bool>(type: "bit", nullable: false),
-                    Descriptions = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Photo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    DepartmentProductionDepartmentID = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EmployeeExOrgs", x => x.EmployeeID);
-                    table.ForeignKey(
-                        name: "FK_EmployeeExOrgs_DepartmentProductions_DepartmentProductionDepartmentID",
-                        column: x => x.DepartmentProductionDepartmentID,
-                        principalTable: "DepartmentProductions",
-                        principalColumn: "DepartmentID");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Employees",
+                name: "Employee",
                 columns: table => new
                 {
                     EmployeeID = table.Column<long>(type: "bigint", nullable: false),
@@ -83,55 +56,19 @@ namespace ProductionControl.Migrations
                     DateEmployment = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateDismissal = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDismissal = table.Column<bool>(type: "bit", nullable: false),
-                    IsLunch = table.Column<bool>(type: "bit", nullable: false)
+                    IsLunch = table.Column<bool>(type: "bit", nullable: false),
+                    Photo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    NumberPass = table.Column<int>(type: "int", nullable: true),
+                    Descriptions = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employees", x => x.EmployeeID);
+                    table.PrimaryKey("PK_Employee", x => x.EmployeeID);
                     table.ForeignKey(
                         name: "FK_Departments",
                         column: x => x.DepartmentID,
                         principalTable: "DepartmentProductions",
                         principalColumn: "DepartmentID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "EmployeeExOrgAddInRegions",
-                columns: table => new
-                {
-                    EmployeeID = table.Column<int>(type: "int", nullable: false),
-                    DepartmentID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    WorkingInTimeSheetEmployeeExOrg = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EmployeeExOrgAddInRegions", x => new { x.EmployeeID, x.DepartmentID });
-                    table.ForeignKey(
-                        name: "FK_EmployeeExOrgAddInRegions_EmployeeExOrgs_EmployeeID",
-                        column: x => x.EmployeeID,
-                        principalTable: "EmployeeExOrgs",
-                        principalColumn: "EmployeeID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ShiftDataExOrgs",
-                columns: table => new
-                {
-                    EmployeeID = table.Column<int>(type: "int", nullable: false),
-                    WorkDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DepartmentID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Hours = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ShiftDataExOrgs", x => new { x.EmployeeID, x.WorkDate, x.DepartmentID });
-                    table.ForeignKey(
-                        name: "FK_ShiftDataExOrgs_EmployeeExOrgs_EmployeeID",
-                        column: x => x.EmployeeID,
-                        principalTable: "EmployeeExOrgs",
-                        principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -153,7 +90,7 @@ namespace ProductionControl.Migrations
                     table.ForeignKey(
                         name: "FK_Employees",
                         column: x => x.EmployeeID,
-                        principalTable: "Employees",
+                        principalTable: "Employee",
                         principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -165,27 +102,16 @@ namespace ProductionControl.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeeExOrgs_DepartmentProductionDepartmentID",
-                table: "EmployeeExOrgs",
-                column: "DepartmentProductionDepartmentID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Employees_DepartmentID",
-                table: "Employees",
+                name: "IX_Employee_DepartmentID",
+                table: "Employee",
                 column: "DepartmentID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_EmployeeID_DepartmentID_NumGraf",
-                table: "Employees",
+                name: "IX_Employee_EmployeeID_DepartmentID_NumGraf",
+                table: "Employee",
                 columns: new[] { "EmployeeID", "DepartmentID", "NumGraf" },
                 unique: true,
                 filter: "[NumGraf] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ShiftDataExOrgs_EmployeeID_WorkDate_DepartmentID",
-                table: "ShiftDataExOrgs",
-                columns: new[] { "EmployeeID", "WorkDate", "DepartmentID" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShiftsData_EmployeeID_WorkDate",
@@ -198,22 +124,13 @@ namespace ProductionControl.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "EmployeeExOrgAddInRegions");
-
-            migrationBuilder.DropTable(
                 name: "ErrorLogs");
-
-            migrationBuilder.DropTable(
-                name: "ShiftDataExOrgs");
 
             migrationBuilder.DropTable(
                 name: "ShiftsData");
 
             migrationBuilder.DropTable(
-                name: "EmployeeExOrgs");
-
-            migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Employee");
 
             migrationBuilder.DropTable(
                 name: "DepartmentProductions");

@@ -68,6 +68,14 @@ namespace ProductionControl.Services.Interfaces
 			DepartmentProduction department);
 
 		/// <summary>
+		/// Получаем данные по сотрудникам, которые не уволенны
+		/// </summary>
+		/// <param name="userDataCurrent">Данные с именами сотрудника и его компьютера</param>
+		Task<List<Employee>>
+		GetEmployeeForCartotecasAsync(
+		LocalUserData userDataCurrent);
+
+		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
 		Task<ObservableCollection<TimeSheetItem>> SetDataForTimeSheetAsync(

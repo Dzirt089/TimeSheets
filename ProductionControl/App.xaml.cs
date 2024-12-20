@@ -42,12 +42,11 @@ namespace ProductionControl
 				services.AddDbContextFactory<ShiftTimesDbContext>(
 					options =>
 					{
-						options.UseSqlServer(Settings.Default.ConTimeSheet);
-						//options.UseSqlServer(Settings.Default.TestTimeSheet);
+						//options.UseSqlServer(Settings.Default.ConTimeSheet);
+						options.UseSqlServer(Settings.Default.ConTimeSheetN);
 					});
-
+				
 				services.AddTransient<StaffViewModel>();
-				services.AddTransient<StaffExternalOrgViewModel>();
 				services.AddScoped<FAQViewModel>();
 				services.AddScoped<ITimeSheetDbService, TimeSheetDbService>();
 				services.AddScoped<IResultSheetsService, ResultSheetsService>();

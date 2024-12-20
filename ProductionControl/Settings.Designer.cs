@@ -36,5 +36,19 @@ namespace ProductionControl {
                 this["ConTimeSheet"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Server=ACER\\SQLEXPRESS; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_" +
+            "Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name =" +
+            " ProductionControl; ")]
+        public string ConTimeSheetN {
+            get {
+                return ((string)(this["ConTimeSheetN"]));
+            }
+            set {
+                this["ConTimeSheetN"] = value;
+            }
+        }
     }
 }

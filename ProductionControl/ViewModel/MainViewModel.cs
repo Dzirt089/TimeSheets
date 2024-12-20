@@ -37,8 +37,7 @@ namespace ProductionControl.ViewModel
 		private readonly ITimeSheetDbService _timeSheetDb;
 		private readonly IResultSheetsService _sheetsService;
 
-		private StaffViewModel StaffViewModel { get; set; }
-		private StaffExternalOrgViewModel ExternalOrgViewModel { get; set; }
+		private StaffViewModel ExternalOrgViewModel { get; set; }
 		private FAQViewModel FAQViewModel { get; set; }
 		public string LocalMachineName { get; private set; }
 		#endregion
@@ -60,9 +59,8 @@ namespace ProductionControl.ViewModel
 			IApiProductionControl api,
 			ITimeSheetDbService timeSheetDb,
 			IResultSheetsService sheetsService,
-			StaffViewModel staffViewModel,
 			FAQViewModel fAQViewModel,
-			StaffExternalOrgViewModel staffExternalOrgView
+			StaffViewModel staffExternalOrgView
 			)
 		{
 			try
@@ -77,7 +75,6 @@ namespace ProductionControl.ViewModel
 				_timeSheetDb = timeSheetDb;
 				_sheetsService = sheetsService;
 				FlagShowResultSheet = false;
-				StaffViewModel = staffViewModel;
 				FAQViewModel = fAQViewModel;
 				ExternalOrgViewModel = staffExternalOrgView;
 			}
@@ -110,7 +107,6 @@ namespace ProductionControl.ViewModel
 				RunCustomDialogForLunchCmd = new AsyncRelayCommand(RunCustomDialogAsyncForLunch);
 				UpdLunchCmd = new AsyncRelayCommand(UpdLunchAsync);
 				CloseLunchCmd = new AsyncRelayCommand(CloseLunchAsync);
-				ShowStaffWindowCmd = new AsyncRelayCommand(ShowStaffWindowAsync);
 				ShowStaffExOrgWindowCmd = new AsyncRelayCommand(ShowStaffExOrgWindowAsync);
 				ShowFAQWindowCmd = new AsyncRelayCommand(ShowFAQWindowAsync);
 				UpdateScheduleCmd = new AsyncRelayCommand(SetTimeSheetItemsAsync);
@@ -1270,12 +1266,12 @@ namespace ProductionControl.ViewModel
 		private StaffView? _staffView;
 
 
-		public StaffExternalOrgView? StaffExOrgView
+		public StaffView? StaffExOrgView
 		{
 			get => _staffExOrgView;
 			set => SetProperty(ref _staffExOrgView, value);
 		}
-		private StaffExternalOrgView? _staffExOrgView;
+		private StaffView? _staffExOrgView;
 
 		/// <summary>
 		/// Окно со справкой
@@ -1286,7 +1282,7 @@ namespace ProductionControl.ViewModel
 			set => SetProperty(ref _faq, value);
 		}
 
-		public string ValueDepartmentID { get; private set; }				
+		public string ValueDepartmentID { get; private set; }
 
 		private FAQ? _faq;
 
@@ -1318,34 +1314,7 @@ namespace ProductionControl.ViewModel
 			}
 		}
 
-		/// <summary>
-		/// Вызов окна картотеки
-		/// </summary>
-		private async Task ShowStaffWindowAsync()
-		{
-			try
-			{
-				if (StaffView == null)
-				{
-					StaffView = new();
-					StaffView.Closed += (sender, args) => StaffView = null;
-					await StaffViewModel.InitiazinigStaffAsync(StaffView);
-					StaffView.DataContext = StaffViewModel;
-					StaffView.Show();
-				}
-				else
-				{
-					StaffView.Activate();
-				}
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex,
-					user: UserDataCurrent.UserName,
-					machine: UserDataCurrent.MachineName)
-					.ConfigureAwait(false);
-			}
-		}
+
 
 		/// <summary>
 		/// Вызов окна картотеки СО

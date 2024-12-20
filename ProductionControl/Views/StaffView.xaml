@@ -14,45 +14,25 @@
         dialog:DialogParticipation.Register="{Binding}" 
         WindowStartupLocation="CenterScreen" 
         
-        Width="800" Height="740"
+        Width="990" Height="940"
         
         d:DataContext="{d:DesignInstance Type=viewmodel:StaffViewModel}" 
         Title="Картотека"  Icon="pack://application:,,,/Resources/scheduleNew.ico"  >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="270"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="440"/>
+            <ColumnDefinition Width="260"/>
 
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
             <RowDefinition Height="400*"/>
-            <RowDefinition Height="200"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.ColumnSpan="3" CornerRadius="5" BorderThickness="1" 
-                            BorderBrush="{StaticResource MahApps.Brushes.Accent}" Padding="10">
-            <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Margin="0 0 20 0" Text="Выбор участка:" VerticalAlignment="Center" 
-                                       FontWeight="SemiBold" FontSize="14"/>
-
-                <ComboBox ItemsSource="{Binding NamesDepartmentStaff, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                    SelectedItem="{Binding NamesDepartmentStaffItem, 
-                    UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                    DisplayMemberPath="FullNameDepartment"
-                    FontSize="14" Width="250"/>
-
-                <Button Margin="20 0 0 0"  Style="{StaticResource MahApps.Styles.Button.MetroSquare}"                                  
-                    FontWeight="SemiBold" FontSize="13" ToolTip="Обновляет табель." Command="{Binding StaffRefreshCmd}">
-                    <ico:PackIconModern Kind="Refresh" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Button>
-            </DockPanel>
-        </Border>
-        <GroupBox Header="Сотрудники" Grid.Column="0" Grid.Row="1" Margin="5,5,5,5">
-            <ListView ItemsSource="{Binding EmployeesForCartoteca}" 
-                      SelectedItem="{Binding ItemEmployeeForCartoteca}"                      
+        <GroupBox Header="Сотрудники" Grid.Column="0" Grid.Row="0" Margin="5,5,5,5">
+            <ListView ItemsSource="{Binding EmployeesForCartotecaExOrg, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                      SelectedItem="{Binding SelectedEmployeeForCartotecaExOrg, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"                      
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Center">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -69,7 +49,7 @@
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="ФИО"/>
                                     </TextBlock.ToolTip>                                    
-                                </TextBlock>                               
+                                </TextBlock>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
@@ -105,13 +85,13 @@
                 </ListView.ItemsPanel>
             </ListView>
         </GroupBox>
-      
 
-        <GroupBox Header="Управление" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" Grid.ColumnSpan="2">
+
+        <GroupBox Header="Данные сотрудника" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="170"/>
-                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="240"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
@@ -120,38 +100,99 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
+                    <RowDefinition Height="80"/>
                     <RowDefinition Height="40"/>
+                    <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Табельный номер :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Grid.Row="0"  FontSize="16" VerticalAlignment="Center"
-                           Text="{Binding ItemEmployeeForCartoteca.EmployeeID}"/>
+                <TextBox Grid.Column="1" Grid.Row="0"  FontSize="16" VerticalAlignment="Center"  
+                     IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding NewEmployeeForCartoteca.EmployeeID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="ФИО :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Grid.Row="1" FontSize="16" VerticalAlignment="Center"
-                           Text="{Binding ItemEmployeeForCartoteca.FullName}"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Участок \ группа :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="1"  FontSize="16" VerticalAlignment="Center"  
+                     IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding NewEmployeeForCartoteca.DepartmentID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>       
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Номер участка :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Grid.Row="2" FontSize="16" VerticalAlignment="Center"
-                           Text="{Binding ItemEmployeeForCartoteca.DepartmentID}"/>
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Номер пропуска :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="2"  FontSize="16" VerticalAlignment="Center"  
+                         IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding NewEmployeeForCartoteca.NumberPass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="Номер графика :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Grid.Row="3" FontSize="16" VerticalAlignment="Center"
-                           Text="{Binding ItemEmployeeForCartoteca.NumGraf}"/>
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="ФИО :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="3" FontSize="16" VerticalAlignment="Center" 
+                         IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding NewEmployeeForCartoteca.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="4" Text="Обеды :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Grid.Row="4" FontSize="16" VerticalAlignment="Center"
-                           Text="{Binding ItemEmployeeForCartoteca.IsLunch, Converter={h:BoolToYesNoConverter}}"/>
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="Дата приёма :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" Grid.Row="4" FontSize="16" VerticalAlignment="Center" 
+                            IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDate="{Binding NewEmployeeForCartoteca.DateEmployment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="Норма выдачи СИЗ :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Grid.Row="5" FontSize="16" VerticalAlignment="Center" Visibility="{Binding MainVisib}"
-                           Text="{Binding NewSIZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="Дата увольнения :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <DatePicker Grid.Column="1" Grid.Row="5" FontSize="16" VerticalAlignment="Center" 
+                            IsEnabled="{Binding IsEnabledDateDismissal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDate="{Binding NewEmployeeForCartoteca.DateDismissal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="Примечания :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Grid.Row="6" FontSize="16" VerticalAlignment="Center" TextWrapping="Wrap" 
+                         IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding NewEmployeeForCartoteca.Descriptions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="Фото :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Grid.Row="7" FontSize="13" VerticalAlignment="Center" 
+                        Visibility="{Binding VisibilityButtonLoad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Content="Загрузить фото" 
+                        Command="{Binding LoadPhotoCmd}"/>
+                
+                <Image Grid.ColumnSpan="2" Grid.Row="8" Height="350"
+                       Source="{Binding NewEmployeeForCartoteca.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
+                    Converter={h:ByteArrayToImageConvertor}}"/>
+
             </Grid>
         </GroupBox>
-       
-        <Button Content="Сохранить" Grid.Column="0" Grid.Row="3" FontSize="17" Margin="5 0 5 0" Width="250"
-                Style="{StaticResource MahApps.Styles.Button.Dialogs.Accent}" Command="{Binding SaveDataForEmployeeCmd}"/>
 
-        <Button Content="Отмена" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Right" FontSize="17" Margin="5 0 5 0" Width="250"
-                Style="{StaticResource MahApps.Styles.Button.Dialogs}" Command="{Binding CloseCmd}"/>
+        <GroupBox Header="Управление" Grid.Row="0" Grid.Column="2"  Margin="5,5,5,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>                   
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource MahApps.Styles.Button.Dialogs}"
+                        Margin="15 0 15 0" Content="Создать" Command="{Binding CreateNewEmployeeExOrgCmd}" 
+                        Visibility="{Binding VisibilityButtons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource MahApps.Styles.Button.Dialogs}"
+                        Margin="15 0 15 0" Content="Изменить" Command="{Binding EditEmployeeExOrgCmd}"
+                        Visibility="{Binding VisibilityButtons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource MahApps.Styles.Button.Dialogs}"
+                        Margin="15 0 15 0" Content="Уволить/Отменить увольнение" Command="{Binding DismissalEmployeeExOrgCmd}"
+                        Visibility="{Binding VisibilityButtons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <Button Grid.Column="0" Grid.Row="4" Content="Обновить" Margin="15 0 15 0" Command="{Binding RefreshCmd}"
+                        Style="{StaticResource MahApps.Styles.Button.Dialogs}"/>
+
+                <CheckBox Grid.Column="0" Grid.Row="5" FontWeight="DemiBold" Margin="15 0 15 0" Content="Показать уволенных" 
+                          IsChecked="{Binding ShowDismissalEmployeeExOrg, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          Visibility="{Binding VisibilityButtons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+               
+            </Grid>
+        </GroupBox>
+
+        <Button Content="Сохранить" Grid.Column="0" Grid.Row="2" FontSize="17" Margin="5 0 5 0" Width="250"
+                Style="{StaticResource MahApps.Styles.Button.Dialogs.Accent}" Command="{Binding SaveDataForEmployeeExOrgCmd}"/>
+
+        <Button Content="Отмена" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Right" FontSize="17" Margin="5 0 5 0" Width="250"
+                Style="{StaticResource MahApps.Styles.Button.Dialogs}" Command="{Binding CloseExOrgCmd}"/>
     </Grid>
 </w:MetroWindow>

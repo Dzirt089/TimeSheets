@@ -5,5 +5,8 @@
     <Setting Name="ConTimeSheet" Type="System.String" Scope="User">
       <Value Profile="(Default)">Server=RYZEN; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = ProductionControl; </Value>
     </Setting>
+    <Setting Name="ConTimeSheetN" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Server=ACER\SQLEXPRESS; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = ProductionControl; </Value>
+    </Setting>
   </Settings>
 </SettingsFile>
