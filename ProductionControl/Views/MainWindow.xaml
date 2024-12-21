@@ -29,14 +29,11 @@
         </Grid.RowDefinitions>
 
         <!-- Верхнее меню -->
-        <Menu Grid.Row="0" Background="{StaticResource MahApps.Brushes.Control.Background}">
-            
-            
+        <Menu Grid.Row="0" Background="{StaticResource MahApps.Brushes.Control.Background}">            
             <MenuItem Header="Сервис" 
                       Height="30" FontSize="15">
-                <MenuItem Header="Картотека" Command="{Binding ShowStaffWindowCmd}"/>
-                <MenuItem Header="Картотека СО" Command="{Binding ShowStaffExOrgWindowCmd}"/>
-            </MenuItem>
+				<MenuItem Header="Картотека" Command="{Binding ShowStaffExOrgWindowCmd}"/>
+			</MenuItem>
             
             <Button Content="Итоги Табеля"   
                     Style="{StaticResource MahApps.Styles.Button.MetroWindow.Base}"

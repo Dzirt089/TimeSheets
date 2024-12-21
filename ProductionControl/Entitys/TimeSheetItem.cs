@@ -25,7 +25,6 @@ namespace ProductionControl.Entitys
 			ShiftDataEmployee fioShiftOverday,
 			ObservableCollection<ShiftData> workerHours,
 			List<int> noWorksDay,
-			bool accessSeeOrWrite,
 			bool lunch
 			)
 		{
@@ -33,22 +32,12 @@ namespace ProductionControl.Entitys
 			FioShiftOverday = fioShiftOverday;
 			WorkerHours = workerHours;
 			NoWorksDays = noWorksDay;
-			AccessSeeOrWrite = accessSeeOrWrite;
 			IsLunch = lunch;
 			SetTotalWorksDays();
 			SetCalendarDayAndHours();
 		}
 		public TimeSheetItem() { }
 
-		//TODO: Создать доп. табельный номер, при внедрении в систему.
-
-		/// <summary>
-		/// Сво-во отражает в каком варианте грузить шаблоны для табеля. 
-		/// Если <see cref="true"/> - то право на редактирование открыто.
-		/// Если <see cref="false"/> - то право на просмотр открыто.
-		/// </summary>
-		public bool AccessSeeOrWrite { get => _accessSeeOrWrite; set => SetProperty(ref _accessSeeOrWrite, value); }
-		private bool _accessSeeOrWrite;
 
 		/// <summary>Флаг, который обозначает что сотрудник обедает на производстве или нет. Для того, чтобы заказывать на него обед\ужин или нет</summary>
 		public bool IsLunch
@@ -360,7 +349,6 @@ namespace ProductionControl.Entitys
 		{
 			return new TimeSheetItem
 			{
-				AccessSeeOrWrite = this.AccessSeeOrWrite,
 				Brush = this.Brush,
 				CalendarWorksDay = this.CalendarWorksDay,
 				CalendarWorksHours = this.CalendarWorksHours,

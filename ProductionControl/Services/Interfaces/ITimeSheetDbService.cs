@@ -7,16 +7,45 @@ namespace ProductionControl.Services.Interfaces
 {
 	public interface ITimeSheetDbService
 	{
-		Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(Employee exOrg,
+		/// <summary>
+		/// Обновляет данные сотрудника и его смен.
+		/// </summary>
+		/// <param name="exOrg">Сотрудник для обновления.</param>
+		/// <param name="startDate">Начальная дата периода.</param>
+		/// <param name="endDate">Конечная дата периода.</param>
+		/// <param name="valueDepartmentID">Идентификатор отдела.</param>
+		/// <param name="addInTimeSheetEmployeeExOrg">Флаг добавления в табель.</param>
+		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
+		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
+		Task<bool> UpdateEmployeeAndShiftDataExOrgAsync(Employee emp,
 			DateTime startDate, DateTime endDate, string valueDepartmentID,
 			bool addInTimeSheetEmployeeExOrg, LocalUserData userDataCurrent);
 
+		/// <summary>
+		/// Проверяем, существует ли табельный номер, при создании нового сотрудника
+		/// </summary>
+		/// <param name="employeeId">Табельный номер сотрудника</param>
+		/// <param name="userDataCurrent">Данные текущего пользователя</param>
+		/// <returns>True, если совпадение найдено, иначе False</returns>
+		Task<bool> CheckingDoubleEmployeeAsync(long employeeId, LocalUserData userDataCurrent);
 
-		Task<bool> UpdateEmployeeExOrgAsync(Employee exOrg, string valueDepId, LocalUserData userDataCurrent);
-		Task<bool> AddEmployeeExOrgAsync(Employee exOrg, LocalUserData userDataCurrent);
+		/// <summary>
+		/// Обновляет данные сотрудника.
+		/// </summary>
+		/// <param name="emp">Сотрудник для обновления.</param>
+		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
+		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
+		Task<bool> UpdateEmployeeAsync(Employee emp, LocalUserData userDataCurrent);
 
-		Task<List<Employee>> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
-			LocalUserData userDataCurrent, DateTime startDate, DateTime endDate);
+		/// <summary>
+		/// Добавляет нового сотрудника.
+		/// </summary>
+		/// <param name="emp">Сотрудник для добавления.</param>
+		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
+		/// <returns>True, если сотрудник успешно добавлен, иначе False.</returns>
+		Task<bool> AddEmployeeAsync(Employee emp, LocalUserData userDataCurrent);
+
+
 		/// <summary>
 		/// Достаём данные по сотруднику по его табельному номеру и дате
 		/// </summary>
@@ -82,7 +111,7 @@ namespace ProductionControl.Services.Interfaces
 			DepartmentProduction namesDepartmentItem,
 			DateTime startDate, DateTime endDate,
 			MonthsOrYears itemMonthsTO, MonthsOrYears itemYearsTO,
-			List<int> noWorkDaysTO, bool checkingSeeOrWriteBool,
+			List<int> noWorkDaysTO,
 			LocalUserData userDataCurrent);
 
 		/// <summary>

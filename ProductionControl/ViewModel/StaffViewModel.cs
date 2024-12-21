@@ -46,19 +46,16 @@ namespace ProductionControl.ViewModel
 
 				UserDataCurrent = await _timeSheetDb.GetLocalUserAsync() ??
 						new() { MachineName = string.Empty, UserName = string.Empty };
-
 				HidenElemets();
-
 				VisibilityButtons = Visibility.Visible;
-
 				LoadPhotoCmd = new AsyncRelayCommand(LoadPhotoAsync);
 				CreateNewEmployeeExOrgCmd = new AsyncRelayCommand(CreateNewEmployeeExOrgAsync);
 				EditEmployeeExOrgCmd = new AsyncRelayCommand(EditEmployeeExOrgAsync);
 				DismissalEmployeeExOrgCmd = new AsyncRelayCommand(DismissalEmployeeExOrgAsync);
 				RefreshCmd = new AsyncRelayCommand(RefreshAsync);
-
 				CloseExOrgCmd = new RelayCommand(Close);
 				SaveDataForEmployeeExOrgCmd = new AsyncRelayCommand(SaveEmployeeExOrgAsync);
+
 				await RefreshAsync();
 			}
 			catch (Exception ex)
@@ -80,17 +77,15 @@ namespace ProductionControl.ViewModel
 			{
 				if (NewEmployeeForCartoteca is null) return;
 
-				var idEmpLast = NewEmployeeForCartoteca.EmployeeID;
+				var idEmpLast = NewEmployeeForCartoteca.EmployeeID;		 				
 
 				if (NewEmployeeForCartoteca.DateDismissal != DateTime.Parse("31.12.1876") && NewEmployeeForCartoteca.IsDismissal == false)
 					NewEmployeeForCartoteca.IsDismissal = true;
 
-
-				//if (NewEmployeeForCartoteca != null)
-				//	await _timeSheetDb.UpdateEmployeeExOrgAsync(
-				//		NewEmployeeForCartoteca, ValueDepartmentID, UserDataCurrent);
-				//else
-					await _timeSheetDb.AddEmployeeExOrgAsync(NewEmployeeForCartoteca, UserDataCurrent);
+				if (NewEmployeeForCartoteca != null)
+					await _timeSheetDb.UpdateEmployeeAsync(NewEmployeeForCartoteca, UserDataCurrent);
+				else
+					await _timeSheetDb.AddEmployeeAsync(NewEmployeeForCartoteca, UserDataCurrent);
 
 				VisibilityAddMainRegion = Visibility.Visible;
 

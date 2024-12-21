@@ -624,8 +624,10 @@ namespace ProductionControl.ViewModel
 				EndDate = new DateTime(day: MaxDayTO, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
 
 				var tempShifts = await _timeSheetDb.SetDataForTimeSheetAsync(
-					NamesDepartmentItem, StartDate, EndDate, ItemMonthsTO, ItemYearsTO,
-					NoWorkDaysTO, CheckingSeeOrWriteBool, UserDataCurrent).ConfigureAwait(false);
+					NamesDepartmentItem, StartDate, EndDate,
+					ItemMonthsTO, ItemYearsTO,
+					NoWorkDaysTO, UserDataCurrent)
+					.ConfigureAwait(false);
 
 
 				if (!string.IsNullOrEmpty(FilterName))
@@ -734,11 +736,6 @@ namespace ProductionControl.ViewModel
 		/// Данные с именами сотрудника и его компьютера
 		/// </summary>
 		public LocalUserData UserDataCurrent { get; private set; }
-
-		/// Сво-во отражает в каком варианте грузить шаблоны для табеля. 
-		/// Если <see cref="true"/> - то право на редактирование открыто.
-		/// Если <see cref="false"/> - то право на просмотр открыто.
-		public bool CheckingSeeOrWriteBool { get; private set; }
 
 		/// <summary>
 		/// Днные по поледней записи, какой участок занимали в режиме редактирования

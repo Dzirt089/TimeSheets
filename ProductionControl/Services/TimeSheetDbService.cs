@@ -7,6 +7,7 @@ using ProductionControl.Services.Interfaces;
 using ProductionControl.Utils;
 
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ProductionControl.Services
@@ -28,16 +29,24 @@ namespace ProductionControl.Services
 		/// <summary>
 		/// Добавляет нового сотрудника.
 		/// </summary>
-		/// <param name="exOrg">Сотрудник для добавления.</param>
+		/// <param name="emp">Сотрудник для добавления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если сотрудник успешно добавлен, иначе False.</returns>
-		public async Task<bool> AddEmployeeExOrgAsync(Employee exOrg, LocalUserData userDataCurrent)
+		public async Task<bool> AddEmployeeAsync(Employee emp, LocalUserData userDataCurrent)
 		{
 			await using var dbContext = await _context.CreateDbContextAsync();
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
 			try
 			{
-				await dbContext.Employees.AddAsync(exOrg);
+				//TODO: Надо поставить флаг при создании сотрудника. Иначе при добавлении - заменяются данные
+				if (await CheckingDoubleEmployeeAsync(emp.EmployeeID, userDataCurrent))
+				{
+					MessageBox.Show(@"При добавлении нового сотрудника выяснилось, 
+					что данный табельный номер уже принадлежит другому сотруднику. 
+					Замените и повторите попытку");
+					return false;
+				}
+				await dbContext.Employees.AddAsync(emp);
 				await dbContext.SaveChangesAsync();
 				await trans.CommitAsync();
 				return true;
@@ -69,11 +78,11 @@ namespace ProductionControl.Services
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
 			try
 			{
-				var empExOrg = await dbContext.Employees   					
+				var empExOrg = await dbContext.Employees
 					.SingleOrDefaultAsync(e => e.EmployeeID == exOrg.EmployeeID);
 
 				if (empExOrg is null)
-					return await AddEmployeeExOrgAsync(exOrg, userDataCurrent);
+					return await AddEmployeeAsync(exOrg, userDataCurrent);
 
 				var shiftDict = empExOrg.Shifts?.ToDictionary(x => x.WorkDate) ?? [];
 
@@ -106,33 +115,60 @@ namespace ProductionControl.Services
 		}
 
 		/// <summary>
+		/// Проверяем, существует ли табельный номер, при создании нового сотрудника
+		/// </summary>
+		/// <param name="employeeId">Табельный номер сотрудника</param>
+		/// <param name="userDataCurrent">Данные текущего пользователя</param>
+		/// <returns>True, если совпадение найдено, иначе False</returns>
+		public async Task<bool> CheckingDoubleEmployeeAsync(long employeeId, LocalUserData userDataCurrent)
+		{
+			await using var dbContext = await _context.CreateDbContextAsync();
+
+			try
+			{
+				return dbContext.Employees
+			   .Any(x => x.EmployeeID == employeeId);
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
+					machine: userDataCurrent.MachineName).ConfigureAwait(false);
+				return false;
+			}
+		}
+
+
+		/// <summary>
 		/// Обновляет данные сотрудника.
 		/// </summary>
-		/// <param name="exOrg">Сотрудник для обновления.</param>
+		/// <param name="employee">Сотрудник для обновления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
-		public async Task<bool> UpdateEmployeeExOrgAsync(Employee exOrg, string valueDepId, LocalUserData userDataCurrent)
+		public async Task<bool> UpdateEmployeeAsync(Employee employee, LocalUserData userDataCurrent)
 		{
 			await using var dbContext = await _context.CreateDbContextAsync();
 			await using var trans = await dbContext.Database.BeginTransactionAsync();
 			try
 			{
-				var empExOrg = await dbContext.EmployeeExOrgs
-					.Where(x => x.EmployeeID == exOrg.EmployeeID)
+				var emp = await dbContext.Employees
+					.Where(x => x.EmployeeID == employee.EmployeeID)
 					.FirstOrDefaultAsync();
 
-				if (empExOrg is null)
-					return await AddEmployeeExOrgAsync(exOrg, userDataCurrent);
+				if (emp is null)
+					return await AddEmployeeAsync(employee, userDataCurrent);
 				else
 				{
-					empExOrg.DateDismissal = exOrg.DateDismissal;
-					empExOrg.IsDismissal = exOrg.IsDismissal;
-					empExOrg.NumberPass = exOrg.NumberPass;
-					empExOrg.FullName = exOrg.FullName;
-					empExOrg.ShortName = exOrg.ShortName;
-					empExOrg.DateEmployment = exOrg.DateEmployment;
-					empExOrg.Photo = exOrg.Photo;
-					empExOrg.Descriptions = exOrg.Descriptions;
+					emp.DateDismissal = employee.DateDismissal;
+					emp.IsDismissal = employee.IsDismissal;
+					emp.NumberPass = employee.NumberPass;
+					emp.FullName = employee.FullName;
+					emp.ShortName = employee.ShortName;
+					emp.DateEmployment = employee.DateEmployment;
+					emp.Photo = employee.Photo;
+					emp.Descriptions = employee.Descriptions;
+					emp.DepartmentID = employee.DepartmentID;
+					emp.NumGraf = employee.NumGraf;
+					emp.IsLunch = employee.IsLunch;
 				}
 
 				await dbContext.SaveChangesAsync();
@@ -145,34 +181,6 @@ namespace ProductionControl.Services
 				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
 					machine: userDataCurrent.MachineName).ConfigureAwait(false);
 				return false;
-			}
-		}
-
-		/// <summary>
-		/// Получает список сотрудников с переработками для указанных регионов за период.
-		/// </summary>
-		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
-		/// <param name="startDate">Начальная дата периода.</param>
-		/// <param name="endDate">Конечная дата периода.</param>
-		/// <returns>Список сотрудников.</returns>
-		public async Task<List<Employee>> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
-			LocalUserData userDataCurrent, DateTime startDate, DateTime endDate)
-		{
-			try
-			{
-				await using var dbContext = await _context.CreateDbContextAsync();
-
-				var list = await dbContext.Employees
-					.Where(x => x.DepartmentID.Contains("043") || x.DepartmentID.Contains("044"))
-					.Include(i => i.Shifts.Where(r => r.WorkDate >= startDate && r.WorkDate <= endDate))
-					.ToListAsync();
-				return list;
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex, user: userDataCurrent.UserName,
-					machine: userDataCurrent.MachineName).ConfigureAwait(false);
-				return [];
 			}
 		}
 
@@ -486,7 +494,7 @@ namespace ProductionControl.Services
 			DepartmentProduction namesDepartmentItem,
 			DateTime startDate, DateTime endDate,
 			MonthsOrYears itemMonthsTO, MonthsOrYears itemYearsTO,
-			List<int> noWorkDaysTO, bool checkingSeeOrWriteBool,
+			List<int> noWorkDaysTO,
 			LocalUserData userDataCurrent)
 		{
 			try
@@ -548,7 +556,6 @@ namespace ProductionControl.Services
 							},
 							new ObservableCollection<ShiftData>(employee.Shifts),
 							noWorkDaysTO,
-							checkingSeeOrWriteBool,
 							employee.IsLunch);
 
 					//Если сотрудник уволен в выбранном месяце, то его ФИО красятся в красный. Все остальные случаи - в черный
