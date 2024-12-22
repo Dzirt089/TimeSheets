@@ -1,0 +1,138 @@
+﻿<mah:MetroWindow x:Class="TimeSheets.Views.ResultsSheet"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:ico="http://metro.mahapps.com/winfx/xaml/iconpacks" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TimeSheets.Views"
+        mc:Ignorable="d"
+        xmlns:vm="clr-namespace:TimeSheets.ViewModel"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}" 
+        WindowStartupLocation="CenterScreen"
+        Title="Итоги Табеля"  Icon="pack://application:,,,/Resources/scheduleNew.ico"   
+        Width="500" Height="800">
+
+    <mah:MetroWindow.Resources>
+        <!-- Цвет фона для панели -->
+        <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="Blue" />
+        <SolidColorBrush x:Key="ListViewHeaderBrush" Color="{StaticResource MahApps.Colors.Accent3}" />
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="{StaticResource ListViewHeaderBrush}" />
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+        </Style>
+        <Style TargetType="ListViewItem">
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Selector.Background" Value="LightGreen"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Selector.Background" Value="LightSkyBlue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </mah:MetroWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition MinHeight="350"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition MinHeight="200"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" CornerRadius="5" BorderThickness="1" 
+                Padding="5" Margin="5"
+                BorderBrush="{StaticResource MahApps.Brushes.Accent}">
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" FontWeight="SemiBold" 
+                       Text="{Binding TextIndicator}" FontSize="15"/>
+                <TextBlock Grid.Row="1" FontWeight="SemiBold" 
+                       Text="{Binding TextCountEmployee}" FontSize="15"/>
+            </Grid>            
+        </Border> 
+        
+        <ListView 
+            Margin="5" 
+            Grid.Row="1" 
+            ItemsSource="{Binding Indicators}"
+            SelectedItem="{Binding ItemIndicator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            BorderBrush="{StaticResource MahApps.Brushes.Accent}"
+            BorderThickness="1">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Показатель" 
+                    DisplayMemberBinding="{Binding DescriptionIndicator}"
+                    Width="330"/>
+
+                    <GridViewColumn Header="Дней"
+                    DisplayMemberBinding="{Binding CountDays}"
+                    Width="70"/>
+
+                    <GridViewColumn Header="Часы"
+                    DisplayMemberBinding="{Binding CountHours}"
+                    Width="70"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        
+        <Border Grid.Row="2" CornerRadius="5" BorderThickness="1" 
+                Padding="5" Margin="5"
+                BorderBrush="{StaticResource MahApps.Brushes.Accent}">
+            <TextBlock FontWeight="SemiBold" Grid.Row="2" 
+                       Text="{Binding TextEmpIndicator}" FontSize="15"/>
+        </Border>
+        
+        <ListView 
+            Style="{StaticResource MahApps.Styles.ListView}"
+            ItemsSource="{Binding EmpIndicators, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+            Grid.Row="3"
+            Margin="5" 
+            BorderBrush="{StaticResource MahApps.Brushes.Accent}" 
+            BorderThickness="1">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Таб. №"
+                                    DisplayMemberBinding="{Binding EmployeeID}"
+                                    Width="80"/>
+                    <GridViewColumn Header="ФИО"
+                                    DisplayMemberBinding="{Binding FullName}"
+                                    Width="250"/>
+                    <GridViewColumn Header="Дней"
+                                    DisplayMemberBinding="{Binding CountDays}"
+                                    Width="70"/>
+                    <GridViewColumn Header="Часов"
+                                    DisplayMemberBinding="{Binding CountHours}"
+                                    Width="70"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Border Grid.Row="4" CornerRadius="5" BorderThickness="1"
+                Padding="5" Margin="5" BorderBrush="{StaticResource MahApps.Brushes.Accent}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="Обновить данные"
+                        Style="{StaticResource MahApps.Styles.Button}"
+                        Command="{Binding UpdateResultSheetCmd}"
+                        Margin=" 10 0 10 0"/>
+
+                <Button Grid.Column="1" Content="Сохранить в Excel"
+                        Style="{StaticResource MahApps.Styles.Button}"
+                        Command="{Binding CreateReportResultSheetCmd}"
+                        Margin=" 10 0 10 0"/>
+            </Grid>
+        </Border>
+    </Grid>
+</mah:MetroWindow>
