@@ -1,13 +1,14 @@
-﻿using TimeSheets.Entitys;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
+
+using TimeSheets.Entitys;
 using TimeSheets.Entitys.ResultTimeSheet;
 using TimeSheets.Services.API.Interfaces;
 using TimeSheets.Services.Interfaces;
 
-using System.Net.Http;
-using System.Net.Http.Json;
-
 namespace TimeSheets.Services.API
 {
+	//TODO: Доделать API-шку под программу. Пока она не доступна в гите
 	public class ApiProductionControl(
 		HttpClientForProject httpClient,
 		IErrorLogger errorLogger) : IApiProductionControl
@@ -21,8 +22,7 @@ namespace TimeSheets.Services.API
 		{
 			try
 			{
-				return await _client.GetAsync("http://server-to1:31514/GetOrderForLunch");
-				//return await _client.GetAsync("http://localhost:5044/GetOrderForLunch");
+				return await _client.GetAsync("http://localhost:5044/GetOrderForLunch");
 			}
 			catch (Exception ex)
 			{
@@ -40,8 +40,7 @@ namespace TimeSheets.Services.API
 		{
 			try
 			{
-				return await _client.GetAsync($"http://server-to1:31514/CreateOrderLunchLastMonth/{totalSum}");
-				//return await _client.GetAsync($"http://localhost:5044/CreateOrderLunchLastMonth/{totalSum}");
+				return await _client.GetAsync($"http://localhost:5044/CreateOrderLunchLastMonth/{totalSum}");
 			}
 			catch (Exception ex)
 			{
@@ -51,16 +50,18 @@ namespace TimeSheets.Services.API
 
 		}
 
+		/// <summary>
+		/// Сохраняем в выбранном месте на компьютере Excel отчёт по выбранному показателю в итогах табеля
+		/// </summary>
+		/// <param name="indica">Список данных людей по выбранной категории</param>
+		/// <returns></returns>
 		public async Task<string> GetReportResultSheetsAsync(
 			List<EmployeesInIndicator> indica, LocalUserData user)
 		{
 			try
 			{
 				var response = await _client.PostAsJsonAsync(
-					$"http://server-to1:31514/CreateReportForResultSheet", indica);
-
-				//var response = await _client.PostAsJsonAsync(
-				//	$"http://localhost:5044/CreateReportForResultSheet", indica);
+					$"http://localhost:5044/CreateReportForResultSheet", indica);
 
 				var result = await response.Content.ReadAsStringAsync();
 				return result;

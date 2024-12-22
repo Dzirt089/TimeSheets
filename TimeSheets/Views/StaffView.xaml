@@ -110,11 +110,16 @@
                      Text="{Binding NewEmployeeForCartoteca.EmployeeID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Участок \ группа :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Grid.Row="1"  FontSize="16" VerticalAlignment="Center"  
+                <!--<TextBox Grid.Column="1" Grid.Row="1"  FontSize="16" VerticalAlignment="Center"  
                      IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Text="{Binding NewEmployeeForCartoteca.DepartmentID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>       
+                     Text="{Binding NewEmployeeForCartoteca.DepartmentID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>-->
+				<ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding DepartmentProductions, Mode=TwoWay}"
+                    SelectedItem="{Binding ItemDepartmentProductions, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                    DisplayMemberPath="FullNameDepartment"  Width="240"
+                    FontSize="16" VerticalAlignment="Center"
+                    IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Номер пропуска :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
+				<TextBlock Grid.Column="0" Grid.Row="2" Text="Номер пропуска :" FontSize="16" FontWeight="DemiBold" VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1" Grid.Row="2"  FontSize="16" VerticalAlignment="Center"  
                          IsEnabled="{Binding IsEnabledTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Text="{Binding NewEmployeeForCartoteca.NumberPass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

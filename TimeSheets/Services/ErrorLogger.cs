@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using System.Windows;
+
 using TimeSheets.DAL;
 using TimeSheets.Models;
 using TimeSheets.Services.Interfaces;
-
-using System.Windows;
 
 namespace TimeSheets.Services
 {
@@ -16,7 +16,6 @@ namespace TimeSheets.Services
 	public class ErrorLogger(
 		IDbContextFactory<ShiftTimesDbContext> context) : IErrorLogger
 	{
-
 		private readonly IDbContextFactory<ShiftTimesDbContext> _context = context;
 
 		/// <summary>
@@ -41,7 +40,7 @@ namespace TimeSheets.Services
 				Application = application
 			};
 			dbContext.ErrorLogs?.Add(errorLog);
-			await dbContext.SaveChangesAsync();			
+			await dbContext.SaveChangesAsync();
 		}
 
 		/// <summary>
@@ -68,6 +67,6 @@ namespace TimeSheets.Services
 		{
 			await LogErrorAsync(ex, user, machine, application);
 			MessageBox.Show("Произошла ошибка в работе программы. Пожалуйста, обратитесь в Тех.Отдел к разработчикам.");
-		}				
+		}
 	}
 }

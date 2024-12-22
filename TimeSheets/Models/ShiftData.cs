@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using TimeSheets.Entitys;
-using TimeSheets.Utils;
-
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
+
+using TimeSheets.Entitys;
+using TimeSheets.Utils;
 
 namespace TimeSheets.Models
 {
@@ -158,7 +157,6 @@ namespace TimeSheets.Models
 				{
 					Hours = (temp - 1).ToString();
 				}
-
 			}
 			else
 				Hours = tempHoursString;
@@ -218,16 +216,12 @@ namespace TimeSheets.Models
 				_ when string.Equals(ShiftType.Hours7.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.Hours7.HoursCount,
 				_ when string.Equals(ShiftType.Hours5.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.Hours5.HoursCount,
 				_ when string.Equals(ShiftType.AdministrativeLeave.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.AdministrativeLeave.HoursCount,
-
 				_ when string.Equals(ShiftType.AdministrativeLeavev2.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.AdministrativeLeavev2.HoursCount,
 				_ when string.Equals(ShiftType.Demobilized.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.Demobilized.HoursCount,
 				_ when string.Equals(ShiftType.ParentalLeave.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.ParentalLeave.HoursCount,
 				_ when string.Equals(ShiftType.InvalidLeave.ShiftType, shiftValue, StringComparison.OrdinalIgnoreCase) => ShiftType.InvalidLeave.HoursCount,
-
-
 				_ => string.Empty,
 			};
-
 		}
 
 		/// <summary>

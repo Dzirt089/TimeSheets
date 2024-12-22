@@ -54,7 +54,7 @@ namespace TimeSheets.Models
 		{
 			// чтобы разработчики могли добавлять продукты в категорию,
 			// мы должны инициализировать свойство навигации в пустую коллекцию
-			EmployeesList = new HashSet<Employee>();			   			
+			EmployeesList = new HashSet<Employee>();
 		}
 	}
 }

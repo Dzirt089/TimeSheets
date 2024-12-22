@@ -1,7 +1,7 @@
-﻿using TimeSheets.Entitys;
-using TimeSheets.Models;
+﻿using System.Collections.ObjectModel;
 
-using System.Collections.ObjectModel;
+using TimeSheets.Entitys;
+using TimeSheets.Models;
 
 namespace TimeSheets.Services.Interfaces
 {
@@ -44,7 +44,6 @@ namespace TimeSheets.Services.Interfaces
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если сотрудник успешно добавлен, иначе False.</returns>
 		Task<bool> AddEmployeeAsync(Employee emp, LocalUserData userDataCurrent);
-
 
 		/// <summary>
 		/// Достаём данные по сотруднику по его табельному номеру и дате

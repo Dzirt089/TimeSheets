@@ -12,7 +12,6 @@ namespace TimeSheets.Entitys
 		/// !!!!!ВНИМАНИЕ!!!!!
 		/// 1) При добавлении нового графика здесь <see cref="ShiftType"/>, 
 		/// 2) обязательно нужно внести новые данные в <see cref="ShiftData.CheckShiftAndGetHours"/>
-		/// 3) Затем в <see cref="WorkingSchedule.SetShift"/>
 		/// 4) Потом в статическом классе <see cref="ExpansionMethodsUtils"/> 
 		///		в методы расширения: 
 		///		<see cref="GetDaysHours"/>,
@@ -49,7 +48,6 @@ namespace TimeSheets.Entitys
 		public static ShiftType Hours5 = new(13, "5", "5", 5, 0);
 		/// <summary>административный отпуск</summary>
 		public static ShiftType AdministrativeLeave = new(14, "АД", "АД", 0, 0);
-
 		/// <summary>административный отпуск v2</summary>
 		public static ShiftType AdministrativeLeavev2 = new(15, "ДО", "ДО", 0, 0);
 		/// <summary>Демобилизованный на СВО</summary>

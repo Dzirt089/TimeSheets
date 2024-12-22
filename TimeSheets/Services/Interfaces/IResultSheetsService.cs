@@ -1,7 +1,7 @@
-﻿using TimeSheets.Entitys;
-using TimeSheets.Entitys.ResultTimeSheet;
+﻿using System.Collections.ObjectModel;
 
-using System.Collections.ObjectModel;
+using TimeSheets.Entitys;
+using TimeSheets.Entitys.ResultTimeSheet;
 
 namespace TimeSheets.Services.Interfaces
 {
@@ -19,9 +19,9 @@ namespace TimeSheets.Services.Interfaces
 			int shadowid);
 
 		Task<List<EmployeesInIndicator>> ProcessTimeSheetsOverdayOrUnderdayAsync(
-	ObservableCollection<TimeSheetItem> TimeSheets,
-	LocalUserData userDataCurrent,
-	bool overday);
+			ObservableCollection<TimeSheetItem> TimeSheets,
+			LocalUserData userDataCurrent,
+			bool overday);
 
 		Task<List<EmployeesInIndicator>> ProcessTimeSheetNightHoursAsync(
 			ObservableCollection<TimeSheetItem> TimeSheets,

@@ -127,7 +127,7 @@ namespace TimeSheets.Models
 			set => SetProperty(ref _photo, value);
 		}
 		private byte[]? _photo;
-		
+
 
 		/// <summary>
 		/// Описание сотрудника

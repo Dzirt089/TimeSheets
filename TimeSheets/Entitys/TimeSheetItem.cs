@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using TimeSheets.Models;
-using TimeSheets.Utils;
-
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+
+using TimeSheets.Models;
+using TimeSheets.Utils;
 
 namespace TimeSheets.Entitys
 {
@@ -61,7 +61,7 @@ namespace TimeSheets.Entitys
 		/// </summary>
 		public Brush Brush { get => _brush; set => SetProperty(ref _brush, value); }
 		private Brush _brush;
-		
+
 		/// <summary>
 		/// Список ФИО сотрудников ТО
 		/// </summary>
@@ -226,7 +226,7 @@ namespace TimeSheets.Entitys
 			get => _totalOverdayHours;
 			private set
 			{
-				SetProperty(ref _totalOverdayHours, value);				
+				SetProperty(ref _totalOverdayHours, value);
 			}
 		}
 		private double _totalOverdayHours;
@@ -311,10 +311,10 @@ namespace TimeSheets.Entitys
 				.AsParallel()
 				.Where(x => x.ValidationWorkingDays())
 				.Sum(x => x.Shift?.GetDaysHours() ?? 0);
-			
-				var tempCheckTDH = Math.Round(tempTotalDaysHours, 1); 
-			
-			if (daysShift) 
+
+			var tempCheckTDH = Math.Round(tempTotalDaysHours, 1);
+
+			if (daysShift)
 				tempCheckTDH -= CountPreholiday;
 
 			TotalDaysHours = tempCheckTDH < 0 ? 0 : tempCheckTDH;
@@ -325,7 +325,7 @@ namespace TimeSheets.Entitys
 				.Where(x => x.ValidationWorkingDays())
 				.Sum(y => y.Shift?.GetNightHours() ?? 0);
 
-			if(nightShift) 
+			if (nightShift)
 				tempTotalNightHours -= CountPreholiday;
 
 			TotalNightHours = Math.Round(tempTotalNightHours, 1);

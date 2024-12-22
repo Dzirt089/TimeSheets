@@ -19,12 +19,8 @@ namespace TimeSheets.Services
 		private readonly IDbContextFactory<ShiftTimesDbContext> _context = context;
 		private readonly IErrorLogger _errorLogger = errorLogger;
 
-		public List<Employee> TimeShidsEmployees { get; private set; }
-		public List<Employee> BestEmployees { get; private set; }
-		public List<Employee> EmployeeWithSifts { get; private set; }
-		public List<DepartmentProduction> DepartmentProductionsDb { get; private set; }
-		public List<DepartmentProduction> DepartmentProductionsBest { get; private set; }
-		public List<DepartmentProduction> DepartmentProductionsMissing { get; private set; }
+		public List<Employee>? EmployeeWithSifts { get; private set; }
+		public List<DepartmentProduction>? DepartmentProductionsDb { get; private set; }
 
 		/// <summary>
 		/// Добавляет нового сотрудника.
@@ -128,7 +124,6 @@ namespace TimeSheets.Services
 				return false;
 			}
 		}
-
 
 		/// <summary>
 		/// Обновляет данные сотрудника.
@@ -303,7 +298,6 @@ namespace TimeSheets.Services
 			}
 		}
 
-
 		/// <summary>
 		/// Обновляет данные об обеде у сотрудника по указанной дате.
 		/// </summary>
@@ -343,7 +337,6 @@ namespace TimeSheets.Services
 				return null;
 			}
 		}
-
 
 		/// <summary>
 		/// Получает все данные по участкам для картотеки.

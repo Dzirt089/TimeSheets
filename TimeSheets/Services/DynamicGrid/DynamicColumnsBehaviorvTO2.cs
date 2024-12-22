@@ -1,8 +1,5 @@
 ﻿using Microsoft.Xaml.Behaviors;
 
-using TimeSheets.Entitys;
-using TimeSheets.Utils;
-
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -14,6 +11,9 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
+
+using TimeSheets.Entitys;
+using TimeSheets.Utils;
 
 namespace TimeSheets.Services.DynamicGrid
 {
@@ -200,7 +200,6 @@ namespace TimeSheets.Services.DynamicGrid
 					Binding = new Binding("IsLunch"),
 					Width = 20,
 					CellStyle = styleCellCalcColl,
-
 				});
 
 				// Статический столбец для идентификаторов
@@ -300,12 +299,12 @@ namespace TimeSheets.Services.DynamicGrid
 					if (itemList.Contains(day))
 					{
 						coll.CellStyle = styleWeekendCell;
-					}
-					else
-						if (day == dayNow)
-						coll.CellStyle = styleDayNowCell;
+					}					
 					else
 						coll.CellStyle = cellStyle;
+					
+					if (day == dayNow)
+						coll.CellStyle = styleDayNowCell;
 
 					columns.Add(coll);
 				}

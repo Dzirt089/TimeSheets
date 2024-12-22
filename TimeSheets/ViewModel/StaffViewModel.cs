@@ -46,6 +46,8 @@ namespace TimeSheets.ViewModel
 
 				UserDataCurrent = await _timeSheetDb.GetLocalUserAsync() ??
 						new() { MachineName = string.Empty, UserName = string.Empty };
+				DepartmentProductions = await _timeSheetDb.GetAllDepartmentsAsync(UserDataCurrent);
+
 				HidenElemets();
 				VisibilityButtons = Visibility.Visible;
 				LoadPhotoCmd = new AsyncRelayCommand(LoadPhotoAsync);
@@ -281,6 +283,32 @@ namespace TimeSheets.ViewModel
 		#region Property
 
 		/// <summary>
+		/// Получает или задает коллекцию участков.
+		/// </summary>
+		public List<DepartmentProduction>? DepartmentProductions
+		{
+			get => _departmentProductions;
+			set => SetProperty(ref _departmentProductions, value);
+		}
+		private List<DepartmentProduction>? _departmentProductions;
+
+		/// <summary>
+		/// Выбранный участок из коллекцию участков.
+		/// </summary>
+		public DepartmentProduction? ItemDepartmentProductions
+		{
+			get => _itemDepartmentProductions;
+			set
+			{
+				SetProperty(ref _itemDepartmentProductions, value);
+
+				if (ItemDepartmentProductions != null && NewEmployeeForCartoteca != null)
+					NewEmployeeForCartoteca.DepartmentID = ItemDepartmentProductions.DepartmentID;
+			}
+		}
+		private DepartmentProduction? _itemDepartmentProductions;
+
+		/// <summary>
 		/// Получает или задает коллекцию сотрудников внешних организаций для картотеки.
 		/// </summary>
 		public ObservableCollection<Employee>? EmployeesForCartoteca
@@ -340,6 +368,10 @@ namespace TimeSheets.ViewModel
 				if (SelectedEmployeeForCartoteca != null)
 				{
 					NewEmployeeForCartoteca = SelectedEmployeeForCartoteca;
+					ItemDepartmentProductions = DepartmentProductions
+						.Where(x => x.DepartmentID == NewEmployeeForCartoteca.DepartmentID)
+						.FirstOrDefault();
+
 					HidenElemets();
 					CreateNewEmployeeFlag = false;
 				}

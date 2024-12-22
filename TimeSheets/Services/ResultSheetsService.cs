@@ -1,9 +1,9 @@
-﻿using TimeSheets.Entitys;
+﻿using System.Collections.ObjectModel;
+
+using TimeSheets.Entitys;
 using TimeSheets.Entitys.ResultTimeSheet;
 using TimeSheets.Services.Interfaces;
 using TimeSheets.Utils;
-
-using System.Collections.ObjectModel;
 
 namespace TimeSheets.Services
 {
@@ -51,7 +51,6 @@ namespace TimeSheets.Services
 				return new();
 			}
 		}
-
 
 		public async Task<List<EmployeesInIndicator>> ProcessTimeSheetsOverdayOrUnderdayAsync(
 			ObservableCollection<TimeSheetItem> TimeSheets,
@@ -138,8 +137,6 @@ namespace TimeSheets.Services
 			try
 			{
 				Indicator? indicatiorOne = null;
-				//if (employeesIns.Count > 0)
-				//{
 				indicatiorOne = new()
 				{
 					ShadowId = shadowid,
@@ -147,7 +144,6 @@ namespace TimeSheets.Services
 					CountDays = employeesIns.Sum(x => x.CountDays),
 					CountHours = employeesIns.Sum(x => x.CountHours)
 				};
-				//}
 
 				return indicatiorOne;
 			}
