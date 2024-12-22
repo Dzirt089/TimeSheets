@@ -145,7 +145,7 @@
                         Content="Загрузить фото" 
                         Command="{Binding LoadPhotoCmd}"/>
                 
-                <Image Grid.ColumnSpan="2" Grid.Row="8" Height="350"
+                <Image Grid.ColumnSpan="2" Grid.Row="8" Height="400"
                        Source="{Binding NewEmployeeForCartoteca.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
                     Converter={h:ByteArrayToImageConvertor}}"/>
 

@@ -16,12 +16,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<None Remove="calendar2024.json" />
+	<None Remove="calendar2025.json" />
 	<None Remove="Resources\scheduleNew.ico" />
 	<None Remove="scheduleNew.ico" />
 	<None Remove="Settings.settings" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="calendar2024.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="calendar2025.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\scheduleNew.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

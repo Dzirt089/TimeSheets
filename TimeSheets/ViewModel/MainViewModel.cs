@@ -6,6 +6,9 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -548,6 +551,51 @@ namespace TimeSheets.ViewModel
 		#region Methods	
 
 		/// <summary>
+		/// Метод преобразования json файлов производственного календаря за 2024 и 2025 год с сайта https://xmlcalendar.ru/index.php?country=ru
+		/// в список выходных дней для табеля.
+		/// </summary>
+		private async Task<bool> GetWeekendDaysAsync()
+		{
+			try
+			{
+				// Чтение содержимого JSON-файла
+				string json = File.ReadAllText($"calendar{ItemYearsTO.Name}.json");
+
+				// Десериализация JSON в объект
+				var calendarData = JsonConvert.DeserializeObject<JObject>(json);
+
+				// Получаем массив месяцев
+				var months = (JArray)calendarData["months"];
+
+				// Находим нужный месяц
+				var selectedMonth = months.FirstOrDefault(x => x.Value<int>("month") == ItemMonthsTO.Id);
+
+				if (selectedMonth != null)
+				{
+					// Получаем список выходных дней
+					string daysMonthString = selectedMonth.Value<string>("days");
+					var days = daysMonthString.Split(',', '*', '+');
+
+					// Преобразуем строки в числа, списка выходных дней.
+					NoWorkDaysTO = days
+						.Where(x => int.TryParse(x, out _))
+						.Select(x => int.Parse(x))
+						.ToList();
+				}
+				return true;
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger
+					.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName,
+					machine: UserDataCurrent.MachineName)
+					.ConfigureAwait(false);
+
+				return false;
+			}
+		}
+
+		/// <summary>
 		/// Устанавливает начальные значения месяца и года для производственного временного листа.
 		/// </summary>
 		private void SetMonthAndYear()
@@ -625,6 +673,8 @@ namespace TimeSheets.ViewModel
 				//Конфигурируем период дат, из выбранных в приложении месяца и года
 				StartDate = new DateTime(day: 1, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
 				EndDate = new DateTime(day: MaxDayTO, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
+
+				var checking = await GetWeekendDaysAsync();
 
 				var tempShifts = await _timeSheetDb.SetDataForTimeSheetAsync(
 					NamesDepartmentItem, StartDate, EndDate,
