@@ -25,6 +25,7 @@ namespace TimeSheets.DAL
 		public DbSet<ErrorLog>? ErrorLogs { get; set; }
 		public DbSet<DepartmentProduction>? DepartmentProductions { get; set; }
 		public DbSet<Employee>? ShiftDatas { get; set; }
+		public DbSet<EmployeePhoto>? EmployeePhotos { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -44,13 +45,21 @@ namespace TimeSheets.DAL
 						.HasConstraintName("FK_Employees");
 			});
 
+			modelBuilder.Entity<EmployeePhoto>(entity =>
+			{
+				entity.HasKey(x => x.EmployeeID);
+				entity.Property(e => e.Photo).HasColumnType("varbinary(max)");
+			});
+
 			modelBuilder.Entity<Employee>(entity =>
 			{
 				entity.HasIndex(i => new { i.EmployeeID, i.DepartmentID, i.NumGraf }).IsUnique();   //Устанавливаем индексы
 				entity.HasKey(e => e.EmployeeID);                                       //Устанавливаем PK
 				entity.Property(x => x.EmployeeID).ValueGeneratedNever();               //ID не должен генерироваться автоматически базой данных.
 																						//entity.Property(x => x.DepartmentID).HasDefaultValue("");				//На тот случай, если забудем прописать ПК для DepartmentProduction
-				entity.Property(e => e.Photo).HasColumnType("varbinary(max)");
+				entity.HasOne(x => x.EmployeePhotos)
+						.WithOne(z => z.Employee)
+						.HasForeignKey<EmployeePhoto>(c => c.EmployeeID);
 
 				entity.HasOne(d => d.DepartmentProduction)                              //Устанавливаем связь через навигационную сущность участков, связь "один - ко -
 						.WithMany(r => r.EmployeesList)                                 // - многим, указывая на коллекцию сущности сотрудников
