@@ -1,4 +1,6 @@
-﻿namespace TimeSheets.Models
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace TimeSheets.Models
 {
 	public class EmployeePhoto : ObservableObject
 	{
