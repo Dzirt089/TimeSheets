@@ -217,7 +217,11 @@ namespace TimeSheets.ViewModel
 					Photo = await File.ReadAllBytesAsync(filePath);
 
 					if (NewEmployeeForCartoteca != null)
-						NewEmployeeForCartoteca.Photo = Photo;
+					{
+						var emplPhoto = new EmployeePhoto();
+						emplPhoto.Photo = Photo;
+						NewEmployeeForCartoteca.EmployeePhotos = emplPhoto;
+					}
 				}
 			}
 			catch (Exception ex)

@@ -139,6 +139,7 @@ namespace TimeSheets.Services
 			{
 				var emp = await dbContext.Employees
 					.Where(x => x.EmployeeID == employee.EmployeeID)
+					.Include(x => x.EmployeePhotos)
 					.FirstOrDefaultAsync();
 
 				if (emp is null)
@@ -151,7 +152,7 @@ namespace TimeSheets.Services
 					emp.FullName = employee.FullName;
 					emp.ShortName = employee.ShortName;
 					emp.DateEmployment = employee.DateEmployment;
-					emp.Photo = employee.Photo;
+					emp.EmployeePhotos = employee.EmployeePhotos;
 					emp.Descriptions = employee.Descriptions;
 					emp.DepartmentID = employee.DepartmentID;
 					emp.NumGraf = employee.NumGraf;

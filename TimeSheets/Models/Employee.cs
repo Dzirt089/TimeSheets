@@ -119,14 +119,14 @@ namespace TimeSheets.Models
 		private IEnumerable<ShiftData>? _shifts;
 
 		/// <summary>
-		/// Фотографии людей
+		/// Связь с БД где храняться фотографии
 		/// </summary>
-		public byte[]? Photo
+		public EmployeePhoto? EmployeePhotos
 		{
-			get => _photo;
-			set => SetProperty(ref _photo, value);
+			get => _employeePhotos;
+			set => SetProperty(ref _employeePhotos, value);
 		}
-		private byte[]? _photo;
+		private EmployeePhoto? _employeePhotos;
 
 
 		/// <summary>
