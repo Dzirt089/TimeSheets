@@ -446,6 +446,7 @@ namespace TimeSheets.Services
 
 				var employeesForCartoteca = await dbContext.Employees
 					.Include(i => i.DepartmentProduction)
+					.Include(x => x.EmployeePhotos)
 					.OrderBy(o => o.ShortName)
 					.ToListAsync();
 

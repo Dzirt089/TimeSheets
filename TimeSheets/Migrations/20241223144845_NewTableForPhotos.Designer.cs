@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TimeSheets.DAL;
 
@@ -11,9 +12,11 @@ using TimeSheets.DAL;
 namespace TimeSheets.Migrations
 {
     [DbContext(typeof(ShiftTimesDbContext))]
-    partial class ShiftTimesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241223144845_NewTableForPhotos")]
+    partial class NewTableForPhotos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

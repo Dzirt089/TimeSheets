@@ -151,7 +151,7 @@
                         Command="{Binding LoadPhotoCmd}"/>
                 
                 <Image Grid.ColumnSpan="2" Grid.Row="8" Height="400"
-                       Source="{Binding NewEmployeeForCartoteca.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
+                       Source="{Binding NewEmployeeForCartoteca.EmployeePhotos.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
                     Converter={h:ByteArrayToImageConvertor}}"/>
 
             </Grid>
