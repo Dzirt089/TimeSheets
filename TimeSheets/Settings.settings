@@ -1,12 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ProductionControl" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TimeSheets" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="ConTimeSheet" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Server=RYZEN; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = ProductionControl; </Value>
+      <Value Profile="(Default)">Server=RYZEN; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = TimeSheets;</Value>
     </Setting>
     <Setting Name="ConTimeSheetN" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Server=ACER\SQLEXPRESS; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = ProductionControl; </Value>
+      <Value Profile="(Default)">Server=ACER\SQLEXPRESS; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name = TimeSheets;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

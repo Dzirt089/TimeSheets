@@ -26,8 +26,8 @@ namespace TimeSheets {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Server=RYZEN; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_Connection" +
-            "=True;  TrustServerCertificate=True; Encrypt=False; Application Name = Productio" +
-            "nControl; ")]
+            "=True;  TrustServerCertificate=True; Encrypt=False; Application Name = TimeSheet" +
+            "s;")]
         public string ConTimeSheet {
             get {
                 return ((string)(this["ConTimeSheet"]));
@@ -41,7 +41,7 @@ namespace TimeSheets {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Server=ACER\\SQLEXPRESS; Initial Catalog = TimeSheet; Database=TimeSheet; Trusted_" +
             "Connection=True;  TrustServerCertificate=True; Encrypt=False; Application Name =" +
-            " ProductionControl; ")]
+            " TimeSheets;")]
         public string ConTimeSheetN {
             get {
                 return ((string)(this["ConTimeSheetN"]));
