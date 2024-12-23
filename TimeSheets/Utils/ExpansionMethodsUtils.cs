@@ -254,8 +254,12 @@ namespace TimeSheets.Utils
 		{
 			if (employee.DateDismissal != DateTime.Parse("31.12.1876"))
 			{
+				if (employee.DateDismissal.Year < years)
+					return false;
+				else
 				if (employee.DateDismissal.Month >= months
-					&& employee.DateDismissal.Year <= years) return true;
+					&& employee.DateDismissal.Year <= years)
+					return true;
 				else
 					return false;
 			}
