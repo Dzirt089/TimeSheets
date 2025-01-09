@@ -32,7 +32,7 @@
             
             <DatePicker Grid.Column="1" Grid.Row="1" Margin="5"
                        FontSize="16" VerticalAlignment="Center" 
-                       SelectedDate="{Binding ManualDateDismissal}"/>
+                       SelectedDate="{Binding ManualDateDismissal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             
             <Button Grid.Column="0" Grid.Row="2" Content="Отмена" Margin="5"
                     Command="{Binding CloseCmd}"
