@@ -446,13 +446,14 @@ namespace TimeSheets.Services
 
 				var employeesForCartoteca = await dbContext.Employees
 					.Include(i => i.DepartmentProduction)
+					.Include(x => x.EmployeePhotos)
 					.OrderBy(o => o.ShortName)
 					.ToListAsync();
 
-				//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
-				employeesForCartoteca = employeesForCartoteca
-					.Where(x => x.VolidateEmployee(DateTime.Now.Month, DateTime.Now.Year) && x.IsDismissal == false)
-					.ToList();
+				////Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
+				//employeesForCartoteca = employeesForCartoteca
+				//	.Where(x => x.VolidateEmployee(DateTime.Now.Month, DateTime.Now.Year) && x.IsDismissal == false)
+				//	.ToList();
 
 				return employeesForCartoteca;
 			}

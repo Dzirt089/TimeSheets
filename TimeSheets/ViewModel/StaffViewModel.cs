@@ -550,7 +550,7 @@ namespace TimeSheets.ViewModel
 		/// <summary>
 		/// Получает или задает начальную дату.
 		/// </summary>
-		public DateTime StartDate { get; private set; }
+		public DateTime StartDate { get; private set; } = DateTime.Now.Date;
 		/// <summary>
 		/// Получает или задает конечную дату.
 		/// </summary>
