@@ -10,8 +10,10 @@
         xmlns:w="http://metro.mahapps.com/winfx/xaml/controls"      
         xmlns:ico="http://metro.mahapps.com/winfx/xaml/iconpacks" 
                
-        xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"         
-        dialog:DialogParticipation.Register="{Binding}" 
+	    xmlns:dia="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+		xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+			          
+        dia:DialogParticipation.Register="{Binding}" 
         WindowStartupLocation="CenterScreen" 
         
         Width="990" Height="940"
@@ -151,7 +153,7 @@
                         Command="{Binding LoadPhotoCmd}"/>
                 
                 <Image Grid.ColumnSpan="2" Grid.Row="8" Height="400"
-                       Source="{Binding NewEmployeeForCartoteca.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
+                       Source="{Binding NewEmployeeForCartoteca.EmployeePhotos.Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged,
                     Converter={h:ByteArrayToImageConvertor}}"/>
 
             </Grid>

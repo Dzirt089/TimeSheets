@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using MahApps.Metro.Controls.Dialogs;
+
 using Microsoft.Win32;
 
 using System.Collections.ObjectModel;
@@ -26,8 +28,10 @@ namespace TimeSheets.ViewModel
 	/// <param name="errorLogger">Сервис для логирования ошибок.</param>
 	public class StaffViewModel(
 		ITimeSheetDbService timeSheetDb,
-		IErrorLogger errorLogger) : ObservableObject
+		IErrorLogger errorLogger,
+		IDialogCoordinator coordinator) : ObservableObject
 	{
+		private readonly IDialogCoordinator _coordinator = coordinator;
 		private readonly ITimeSheetDbService _timeSheetDb = timeSheetDb;
 		private readonly IErrorLogger _errorLogger = errorLogger;
 		private StaffView? ExternalOrgView { get; set; }
@@ -55,9 +59,10 @@ namespace TimeSheets.ViewModel
 				EditEmployeeCmd = new AsyncRelayCommand(EditEmployeeAsync);
 				DismissalEmployeeCmd = new AsyncRelayCommand(DismissalEmployeeAsync);
 				RefreshCmd = new AsyncRelayCommand(RefreshAsync);
-				CloseCmd = new RelayCommand(Close);
+				CloseWindowCmd = new RelayCommand(Close);
 				SaveDataForEmployeeCmd = new AsyncRelayCommand(SaveEmployeeAsync);
-
+				UpdCmd = new AsyncRelayCommand(UpdAsync);
+				CloseCmd = new AsyncRelayCommand(CloseAsync);
 				await RefreshAsync();
 			}
 			catch (Exception ex)
@@ -152,10 +157,7 @@ namespace TimeSheets.ViewModel
 				}
 				else
 				{
-					IsEnabledDateDismissal = true;
-					IsEnabledTextBox = false;
-					VisibilityButtonLoad = Visibility.Hidden;
-					NewEmployeeForCartoteca.DateDismissal = DateTime.Now.Date;
+					await RunCustomDialogAsyncForDismissal();
 				}
 			}
 			catch (Exception ex)
@@ -164,7 +166,82 @@ namespace TimeSheets.ViewModel
 					machine: UserDataCurrent.MachineName).ConfigureAwait(false);
 			}
 		}
+		public CustomDialog CustomDialogs { get; private set; }
+		/// <summary>
+		/// Асинхронный метод запуска кастомного диалогового окна 
+		/// для установки даты уволнения сотрудника
+		/// </summary>
+		private async Task RunCustomDialogAsyncForDismissal()
+		{
+			try
+			{
+				ManualDateDismissal = StartDate;
+				//Создаём новое кастомное окно 
+				CustomDialogs = new CustomDialog
+				{
+					//Привязываем кастомное окно к нашей View-модели
+					Content = new DismissalEmployee(this)
+				};
 
+				//Настраиваем поведение анимации
+				MetroDialogSettings settings = new() { AnimateShow = true, AnimateHide = true };
+
+				//Показываем окно
+				await _coordinator.ShowMetroDialogAsync(this, CustomDialogs, settings);
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName, machine: UserDataCurrent.MachineName).ConfigureAwait(false);
+			}
+		}
+
+		/// <summary>
+		/// Асинхронный метод по обновлению даты уволнения у выбранного сотрудника
+		/// </summary>
+		private async Task UpdAsync()
+		{
+			try
+			{
+				//Проверки
+				if (NewEmployeeForCartoteca is null) return;
+				if (ManualDateDismissal == DefaultDateDismissal) return;
+
+
+				var check = await _timeSheetDb
+					.UpdateDismissalDataEmployeeAsync(
+					ManualDateDismissal, NewEmployeeForCartoteca.EmployeeID, UserDataCurrent);
+
+				//Закрываем окно
+				await _coordinator.HideMetroDialogAsync(this, CustomDialogs);
+
+				//Обновляем табель после изменений
+				if (check != true)
+					await _coordinator.ShowMessageAsync(this, "Ошибка",
+						"Не найден сотрудник по его табельному номеру");
+				else await RefreshAsync();
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName,
+					machine: UserDataCurrent.MachineName).ConfigureAwait(false);
+			}
+		}
+
+		/// <summary>
+		/// Асинхронный обработчик закрытия кастомного диалога
+		/// </summary>
+		/// <returns></returns>
+		private async Task CloseAsync()
+		{
+			try
+			{
+				await _coordinator.HideMetroDialogAsync(this, CustomDialogs);
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex, user: UserDataCurrent.UserName, machine: UserDataCurrent.MachineName).ConfigureAwait(false);
+			}
+		}
 		/// <summary>
 		/// Редактирует данные сотрудника внешней организации.
 		/// </summary>
@@ -285,7 +362,18 @@ namespace TimeSheets.ViewModel
 		#endregion
 
 		#region Property
-
+		/// <summary>
+		/// св-во для хранения ручного проставление даты уволнения для табеля
+		/// </summary>
+		public DateTime ManualDateDismissal
+		{
+			get => _manualDateDismissal;
+			set
+			{
+				SetProperty(ref _manualDateDismissal, value);
+			}
+		}
+		private DateTime _manualDateDismissal;
 		/// <summary>
 		/// Получает или задает коллекцию участков.
 		/// </summary>
@@ -345,6 +433,7 @@ namespace TimeSheets.ViewModel
 		private List<Employee>? _dubleEmployeesForCartoteca;
 
 		public bool CreateNewEmployeeFlag { get; private set; }
+		public DateTime DefaultDateDismissal { get; private set; } = DateTime.Parse("31.12.1876");
 
 		/// <summary>
 		/// Задает нового сотрудника внешней организации для картотеки.
@@ -473,12 +562,14 @@ namespace TimeSheets.ViewModel
 
 		#region Commands
 		public ICommand? RefreshCmd { get; set; }
-		public ICommand? CloseCmd { get; set; }
+		public ICommand? CloseWindowCmd { get; set; }
 		public ICommand? SaveDataForEmployeeCmd { get; set; }
 		public ICommand? DismissalEmployeeCmd { get; set; }
 		public ICommand? EditEmployeeCmd { get; set; }
 		public ICommand? CreateNewEmployeeCmd { get; set; }
 		public ICommand? LoadPhotoCmd { get; set; }
+		public ICommand? CloseCmd { get; private set; }
+		public ICommand? UpdCmd { get; private set; }
 		#endregion
 	}
 }

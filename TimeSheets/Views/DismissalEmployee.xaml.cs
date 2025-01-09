@@ -13,5 +13,11 @@ namespace TimeSheets.Views
 			InitializeComponent();
 			DataContext = viewModel;
 		}
+
+		public DismissalEmployee(StaffViewModel viewModel)
+		{
+			InitializeComponent();
+			DataContext = viewModel;
+		}
 	}
 }
