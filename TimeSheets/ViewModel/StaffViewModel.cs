@@ -320,7 +320,8 @@ namespace TimeSheets.ViewModel
 				NewEmployeeForCartoteca = new()
 				{
 					DateDismissal = DateTime.Parse("31.12.1876"),
-					DateEmployment = DateTime.Now.Date
+					DateEmployment = DateTime.Now.Date,
+					DepartmentID = ItemDepartmentProductions.DepartmentID
 				};
 				ShowAndHidenElemets();
 			}

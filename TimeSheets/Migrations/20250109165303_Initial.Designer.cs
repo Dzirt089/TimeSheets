@@ -12,8 +12,8 @@ using TimeSheets.DAL;
 namespace TimeSheets.Migrations
 {
     [DbContext(typeof(ShiftTimesDbContext))]
-    [Migration("20241220183817_InitializingShiftData")]
-    partial class InitializingShiftData
+    [Migration("20250109165303_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace TimeSheets.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProductionControl.Models.DepartmentProduction", b =>
+            modelBuilder.Entity("TimeSheets.Models.DepartmentProduction", b =>
                 {
                     b.Property<string>("DepartmentID")
                         .HasColumnType("nvarchar(450)");
@@ -70,7 +70,7 @@ namespace TimeSheets.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.Employee", b =>
+            modelBuilder.Entity("TimeSheets.Models.Employee", b =>
                 {
                     b.Property<long>("EmployeeID")
                         .HasColumnType("bigint");
@@ -103,9 +103,6 @@ namespace TimeSheets.Migrations
                     b.Property<int?>("NumberPass")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("Photo")
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<string>("ShortName")
                         .HasColumnType("nvarchar(max)");
 
@@ -120,7 +117,20 @@ namespace TimeSheets.Migrations
                     b.ToTable("Employee");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.ErrorLog", b =>
+            modelBuilder.Entity("TimeSheets.Models.EmployeePhoto", b =>
+                {
+                    b.Property<long>("EmployeeID")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("Photo")
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("EmployeeID");
+
+                    b.ToTable("EmployeePhotos");
+                });
+
+            modelBuilder.Entity("TimeSheets.Models.ErrorLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -157,7 +167,7 @@ namespace TimeSheets.Migrations
                     b.ToTable("ErrorLogs");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.ShiftData", b =>
+            modelBuilder.Entity("TimeSheets.Models.ShiftData", b =>
                 {
                     b.Property<long>("EmployeeID")
                         .HasColumnType("bigint");
@@ -188,9 +198,9 @@ namespace TimeSheets.Migrations
                     b.ToTable("ShiftsData");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.Employee", b =>
+            modelBuilder.Entity("TimeSheets.Models.Employee", b =>
                 {
-                    b.HasOne("ProductionControl.Models.DepartmentProduction", "DepartmentProduction")
+                    b.HasOne("TimeSheets.Models.DepartmentProduction", "DepartmentProduction")
                         .WithMany("EmployeesList")
                         .HasForeignKey("DepartmentID")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -200,9 +210,20 @@ namespace TimeSheets.Migrations
                     b.Navigation("DepartmentProduction");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.ShiftData", b =>
+            modelBuilder.Entity("TimeSheets.Models.EmployeePhoto", b =>
                 {
-                    b.HasOne("ProductionControl.Models.Employee", "Employee")
+                    b.HasOne("TimeSheets.Models.Employee", "Employee")
+                        .WithOne("EmployeePhotos")
+                        .HasForeignKey("TimeSheets.Models.EmployeePhoto", "EmployeeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("TimeSheets.Models.ShiftData", b =>
+                {
+                    b.HasOne("TimeSheets.Models.Employee", "Employee")
                         .WithMany("Shifts")
                         .HasForeignKey("EmployeeID")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -212,13 +233,15 @@ namespace TimeSheets.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.DepartmentProduction", b =>
+            modelBuilder.Entity("TimeSheets.Models.DepartmentProduction", b =>
                 {
                     b.Navigation("EmployeesList");
                 });
 
-            modelBuilder.Entity("ProductionControl.Models.Employee", b =>
+            modelBuilder.Entity("TimeSheets.Models.Employee", b =>
                 {
+                    b.Navigation("EmployeePhotos");
+
                     b.Navigation("Shifts");
                 });
 #pragma warning restore 612, 618

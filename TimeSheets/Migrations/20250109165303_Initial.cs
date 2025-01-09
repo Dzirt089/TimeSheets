@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace TimeSheets.Migrations
 {
     /// <inheritdoc />
-    public partial class Initializing : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,7 +59,6 @@ namespace TimeSheets.Migrations
                     DateDismissal = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDismissal = table.Column<bool>(type: "bit", nullable: false),
                     IsLunch = table.Column<bool>(type: "bit", nullable: false),
-                    Photo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     NumberPass = table.Column<int>(type: "int", nullable: true),
                     Descriptions = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -70,6 +71,24 @@ namespace TimeSheets.Migrations
                         principalTable: "DepartmentProductions",
                         principalColumn: "DepartmentID",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeePhotos",
+                columns: table => new
+                {
+                    EmployeeID = table.Column<long>(type: "bigint", nullable: false),
+                    Photo = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeePhotos", x => x.EmployeeID);
+                    table.ForeignKey(
+                        name: "FK_EmployeePhotos_Employee_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employee",
+                        principalColumn: "EmployeeID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,6 +112,17 @@ namespace TimeSheets.Migrations
                         principalTable: "Employee",
                         principalColumn: "EmployeeID",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "DepartmentProductions",
+                columns: new[] { "DepartmentID", "AccessRight", "NameDepartment" },
+                values: new object[,]
+                {
+                    { "01", 0, "Группа разработки" },
+                    { "02", 0, "Группа аналитики" },
+                    { "03", 0, "Группа тестирования" },
+                    { "04", 0, "Группа исследования" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -123,6 +153,9 @@ namespace TimeSheets.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "EmployeePhotos");
+
             migrationBuilder.DropTable(
                 name: "ErrorLogs");
 
