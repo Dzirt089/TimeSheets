@@ -59,10 +59,10 @@ namespace TimeSheets.ViewModel
 				EditEmployeeCmd = new AsyncRelayCommand(EditEmployeeAsync);
 				DismissalEmployeeCmd = new AsyncRelayCommand(DismissalEmployeeAsync);
 				RefreshCmd = new AsyncRelayCommand(RefreshAsync);
-				CloseWindowCmd = new RelayCommand(Close);
+				CloseWindowCmd = new AsyncRelayCommand(CloseAsync );
 				SaveDataForEmployeeCmd = new AsyncRelayCommand(SaveEmployeeAsync);
 				UpdCmd = new AsyncRelayCommand(UpdAsync);
-				CloseCmd = new AsyncRelayCommand(CloseAsync);
+				CloseCmd = new RelayCommand(Close);
 				await RefreshAsync();
 			}
 			catch (Exception ex)
