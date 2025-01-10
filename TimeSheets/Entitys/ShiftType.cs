@@ -27,7 +27,7 @@ namespace TimeSheets.Entitys
 		/// <summary>Третья Смена</summary>
 		public static ShiftType ThirdShift = new(3, "8", "3", 1, 7);
 		/// <summary>Ночная Смена</summary>
-		public static ShiftType NightShift = new(4, "10,5", "н", 4, 7);
+		public static ShiftType NightShift = new(4, "10,5", "н", 3.5, 7);
 		/// <summary>Дневная Смена</summary>
 		public static ShiftType DayShift = new(5, "11,5", "д", 11.5, 0);
 		/// <summary>Командировка</summary>
