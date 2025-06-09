@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace ProductionControl.ApiClients
@@ -46,6 +47,7 @@ namespace ProductionControl.ApiClients
 
 		public async Task<T> PostTJsonTAsync<T>(string requestUri, object content, CancellationToken token = default)
 		{
+			var text = (Encoding.UTF8.GetByteCount(JsonSerializer.Serialize(content)));
 			var response = await _httpClient.PostAsJsonAsync(requestUri, content, token);
 			response.EnsureSuccessStatusCode();
 			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");

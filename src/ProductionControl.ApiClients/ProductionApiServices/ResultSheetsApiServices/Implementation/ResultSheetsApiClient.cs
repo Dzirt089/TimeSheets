@@ -11,6 +11,6 @@ namespace ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServ
 		}
 
 		public async Task<ResultSheetResponseDto> GetDataResultSheetAsync(List<TimeSheetItemDto> copyTimeSheet, CancellationToken token = default) =>
-			await PostTJsonTAsync<ResultSheetResponseDto>($"/GetDataResultSheet", copyTimeSheet, token);
+			await PostTJsonTAsync<ResultSheetResponseDto>($"GetDataResultSheet", copyTimeSheet, token);
 	}
 }

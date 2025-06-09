@@ -63,7 +63,7 @@ namespace ProductionControl
 				#endregion
 
 				#region API-Сервисы и API-клиенты
-
+				
 				services.AddHttpClient("ProductionApi", client =>
 				{
 					client.BaseAddress = new Uri(Settings.Default.Test_Prodaction_API);

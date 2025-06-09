@@ -34,6 +34,7 @@ namespace ProductionControl.API
 			builder.Services.ConfigureHttpJsonOptions(options =>
 			{
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+				options.SerializerOptions.MaxDepth = 128;
 			});
 
 			#region Настраиваем dbContext в DI

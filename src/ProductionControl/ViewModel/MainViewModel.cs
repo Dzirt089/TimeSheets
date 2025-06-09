@@ -31,8 +31,10 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 
@@ -1748,6 +1750,16 @@ namespace ProductionControl.ViewModel
 				List<TimeSheetItemDto>? response = await _employeeSheetApi.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
 				List<TimeSheetItem>? tempShifts = _mapper.Map<List<TimeSheetItem>>(response);
 
+				foreach (var item in tempShifts)
+				{
+					var isDismissal = item.WorkerHours.Any(x => x.Employee.DateDismissal.Month == ItemMonthsTO.Id &&
+																x.Employee.DateDismissal.Year == ItemYearsTO.Id);
+					if (isDismissal)
+						item.Brush = Brushes.Red;
+					else
+						item.Brush = Brushes.Black;
+				}
+
 				////Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				//TimeSheets = tempShifts;
 				//DoubleTimeSheetsForSearch = new ObservableCollection<TimeSheetItem>(tempShifts);
@@ -2065,12 +2077,15 @@ namespace ProductionControl.ViewModel
 			try
 			{
 				if (e.PropertyName == nameof(ShiftDataDto.Hours) ||
-					e.PropertyName == nameof(ShiftDataDto.Overday)
-					|| e.PropertyName == nameof(ShiftDataDto.Shift))
+				e.PropertyName == nameof(ShiftDataDto.Overday)
+				|| e.PropertyName == nameof(ShiftDataDto.Shift))
 
 				{
-					if (sender is ShiftData shiftData)
+					if (sender is ShiftDataDto shiftDataDto)
+					{
+						var shiftData = _mapper.Map<ShiftData>(shiftDataDto);
 						await _employeeSheetApi.SetTotalWorksDaysAsync(shiftData).ConfigureAwait(false);
+					}
 				}
 			}
 			catch (Exception ex)
@@ -2396,10 +2411,11 @@ namespace ProductionControl.ViewModel
 				if (ValidationForTimeSheetsAndUserDataCurrent()) return;
 
 				List<TimeSheetItem>? copyTimeSheet = [.. TimeSheets.Select(x => x.Clone())];
-
+				var dataSize = JsonSerializer.Serialize(copyTimeSheet).Length;
+				var ds = JsonSerializer.Serialize(copyTimeSheet);
 				var result = _mapper.Map<List<TimeSheetItemDto>>(copyTimeSheet);
 
-				var Tuplet = await _resultSheetsApi.GetDataResultSheetAsync(result);
+				Tuplet = await _resultSheetsApi.GetDataResultSheetAsync(result);
 
 				Indicators = new ObservableCollection<IndicatorDto>(Tuplet.Indicators);
 
@@ -2554,22 +2570,7 @@ namespace ProductionControl.ViewModel
 		/// <summary>
 		/// Кортеж со списками данных для итогов табеля
 		/// </summary>
-		public (
-			ObservableCollection<IndicatorDto> Indicators,
-			List<EmployeesInIndicatorDto> NNList,
-			List<EmployeesInIndicatorDto> Underday,
-			List<EmployeesInIndicatorDto> Overday,
-			List<EmployeesInIndicatorDto> Night,
-			List<EmployeesInIndicatorDto> Vacation,
-			List<EmployeesInIndicatorDto> ADVacation,
-			List<EmployeesInIndicatorDto> SickLeave,
-			List<EmployeesInIndicatorDto> Demobilized,
-			List<EmployeesInIndicatorDto> ParentalLeave,
-			List<EmployeesInIndicatorDto> InvalidLeave,
-			List<EmployeesInIndicatorDto> Dismissal,
-			List<EmployeesInIndicatorDto> Lunching)
-			Tuplet
-		{ get; private set; }
+		public ResultSheetResponseDto Tuplet { get; private set; }
 
 		/// <summary>
 		/// Информация над показателями, к которым они относятся (участок, кол-во людей)

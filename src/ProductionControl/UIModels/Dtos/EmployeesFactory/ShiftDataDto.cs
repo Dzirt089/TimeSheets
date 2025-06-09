@@ -232,8 +232,8 @@ namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 		private bool Validation()
 		{
 			// Если Employee ещё не проинициализирован — считаем, что валидация не пройдена
-			if (Employee == null)
-				return false;
+			//if (Employee == null)
+			//	return false;
 
 			if (Employee.IsDismissal)
 				return false;

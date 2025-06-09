@@ -14,150 +14,261 @@ using System.Collections.ObjectModel;
 
 namespace ProductionControl.UIModels
 {
+
 	public class EmployeesFactoryProfile : Profile
 	{
 		public EmployeesFactoryProfile()
 		{
-			#region Employees Factory
-			CreateMap<DepartmentProduction, DepartmentProductionDto>().ReverseMap();
-			CreateMap<Employee, EmployeeDto>().ReverseMap();
-			CreateMap<EmployeeAccessRight, EmployeeAccessRightDto>().ReverseMap();
-
-			// 1) Правильный маппинг ShiftData → ShiftDataDto
-			CreateMap<ShiftData, ShiftDataDto>()
-				.ForMember(d => d.Brush, opt => opt.Ignore())
-				.ForMember(d => d.Shift, opt => opt.Ignore())
-				.ForMember(d => d.Overday, opt => opt.MapFrom(s => s.Overday))
-				.ForMember(d => d.WorkDate, opt => opt.MapFrom(s => s.WorkDate))
-				.ForMember(d => d.IsHaveLunch, opt => opt.MapFrom(s => s.IsHaveLunch))
-				.ForMember(d => d.IsPreHoliday, opt => opt.MapFrom(s => s.IsPreHoliday))
-				.ForMember(d => d.Employee, opt => opt.MapFrom(s => s.Employee))
-				.AfterMap((src, dst) =>
-				{
-					// Сначала Employee, потом Shift/Overday
-					dst.Shift = src.Shift ?? string.Empty;
-					dst.Overday = src.Overday ?? string.Empty;
-					// DTO сам пересчитает Hours/Brush
-				})
-				.ReverseMap()
-					.ForSourceMember(s => s.Brush, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.Shift, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.Overday, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.Hours, opt => opt.DoNotValidate());
-
-
-			CreateMap<ShiftDataEmployee, ShiftDataEmployeeDto>().ReverseMap();
+			#region Основные маппинги
 			CreateMap<MonthsOrYears, MonthsOrYearsDto>().ReverseMap();
 
-			// 2) Маппинг TimeSheetItemDto → TimeSheetItem, включая WorkerHours
-			CreateMap<TimeSheetItemDto, TimeSheetItem>()
-					// Brush в UI-модели считается внутри, игнорируем
-					.ForMember(d => d.Brush, opt => opt.Ignore())
-
-					// Вот как говорим: WorkerHours (ObsCol<ShiftData>) → ObsCol<ShiftDataDto>
-					.ForMember(d => d.WorkerHours, opt => opt.MapFrom((src, dest, _, ctx) =>
-						new ObservableCollection<ShiftDataDto>(
-							ctx.Mapper.Map<IEnumerable<ShiftDataDto>>(src.WorkerHours)
-						)))
-
-					// И после того, как все данные в WorkerHours прочитаны,
-					// запускаем пересчёт итогов (он у вас в SetTotalWorksDays и SetCalendarDayAndHours)
-					.AfterMap((src, dst) =>
-					{
-						dst.SetTotalWorksDays();
-						dst.SetCalendarDayAndHours();
-					})
-
-					// Обратный маппинг, если нужен
-					.ReverseMap()
-						.ForSourceMember(s => s.Brush, opt => opt.DoNotValidate())
-						.ForSourceMember(s => s.WorkerHours, opt => opt.DoNotValidate());
-
-			#region 1
-			////Если сотрудник уволен в выбранном месяце, то его ФИО красятся в красный. Все остальные случаи - в черный
-			//if (employee.DateDismissal.Month == itemMonthsTO.Id &&
-			//	employee.DateDismissal.Year == itemYearsTO.Id)
-			//	itemShift.Brush = Brushes.Red;
-			//else
-			//	itemShift.Brush = Brushes.Black;
-
-			//employee.Shifts.Foreach(x =>
-			//{
-			//	if (!string.IsNullOrEmpty(x.Shift))
-			//		x.Brush = x.Shift.GetBrush();
-			//});
-			#endregion
-
 			CreateMap<WorkingSchedule, WorkingScheduleDto>().ReverseMap();
-			#endregion
 
-			#region Employees External Organization
-			CreateMap<EmployeeExOrgAddInRegion, EmployeeExOrgAddInRegionDto>().ReverseMap();
-			CreateMap<EmployeeExOrg, EmployeeExOrgDto>().ReverseMap();
-			CreateMap<EmployeePhoto, EmployeePhotoDto>().ReverseMap();
-			// 1) Маппинг одной записи смены СО
-			CreateMap<ShiftDataExOrg, ShiftDataExOrgDto>()
-				// Brush не мапим — DTO сам его рассчитывает
-				.ForMember(d => d.Brush, opt => opt.Ignore())
-				// Устанавливаем Hours в AfterMap, чтобы Validation() увидел EmployeeExOrg
-				.ForMember(d => d.Hours, opt => opt.Ignore())
-				.ForMember(d => d.EmployeeExOrg, opt => opt.MapFrom(s => s.EmployeeExOrg))
-				.ForMember(d => d.WorkDate, opt => opt.MapFrom(s => s.WorkDate))
-				.ForMember(d => d.DepartmentID, opt => opt.MapFrom(s => s.DepartmentID))
-				.ForMember(d => d.CodeColor, opt => opt.Ignore())
-				.AfterMap((src, dst) =>
+			CreateMap<TimeSheetItemDto, TimeSheetItem>()
+				.ForMember(dest => dest.WorkerHours, opt => opt.MapFrom((src, _, _, ctx) =>
+					src.WorkerHours == null
+					? null
+					: ctx.Mapper.Map<ObservableCollection<ShiftData>>(src.WorkerHours)))
+				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
+				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
+				.ForMember(dest => dest.Brush, opt => opt.Ignore())
+				.AfterMap((src, dest) =>
 				{
-					// EmployeeExOrg уже установлен — можно присвоить Hours
-					dst.Hours = src.Hours ?? string.Empty;
+					dest.SetTotalWorksDays();
+					dest.SetCalendarDayAndHours();
 				})
 				.ReverseMap()
-					.ForSourceMember(s => s.Brush, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.Hours, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.CodeColor, opt => opt.DoNotValidate());
+				.ForMember(dest => dest.WorkerHours, opt => opt.MapFrom((src, _, _, ctx) =>
+					src.WorkerHours == null
+						? null
+						: ctx.Mapper.Map<ObservableCollection<ShiftData>>(src.WorkerHours)))
+				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
+				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday));
 
-			// 2) Маппинг всего табеля СО
-			CreateMap<TimeSheetItemExOrgDto, TimeSheetItemExOrg>()
-				// Brush в VM рассчитывается кодом, AutoMapper его игнорит
+			CreateMap<ShiftDataEmployeeDto, ShiftDataEmployee>()
+				.ForMember(dest => dest.ShortName, opt => opt.MapFrom(src => src.ShortName))
+				.ForMember(dest => dest.NameShift, opt => opt.MapFrom(src => src.NameShift))
+				.ForMember(dest => dest.NameOverday, opt => opt.MapFrom(src => src.NameOverday))
+				.ReverseMap();
+
+			CreateMap<ShiftData, ShiftDataDto>()
+				// Сначала маппим Employee
+				.ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Employee))
+				.ForMember(dest => dest.Brush, opt => opt.Ignore())
+				// Затем остальные свойства
+				.ForMember(dest => dest.WorkDate, opt => opt.MapFrom(src => src.WorkDate))
+				.ForMember(dest => dest.IsPreHoliday, opt => opt.MapFrom(src => src.IsPreHoliday))
+				.ForMember(dest => dest.IsHaveLunch, opt => opt.MapFrom(src => src.IsHaveLunch))
+				.ForMember(dest => dest.Shift, opt => opt.Ignore())  // Используем AfterMap для сложных вычислений
+				.ForMember(dest => dest.Hours, opt => opt.Ignore())  // Используем AfterMap для сложных вычислений
+				.ForMember(dest => dest.Overday, opt => opt.Ignore())  // Используем AfterMap для сложных вычислений
+				.AfterMap((src, dest) =>
+				{
+					// Убедиться, что Employee установлен до установки Shift
+					if (dest.Employee != null)
+					{
+						dest.Shift = src.Shift;
+						dest.Hours = src.Hours;  // Теперь безопасно
+						dest.Overday = src.Overday;  // Теперь безопасно
+
+						if (!string.IsNullOrEmpty(dest.Shift))
+							dest.Brush = dest.Shift.GetBrush(); // Установка цвета на основе Shift
+					}
+				})
+				.ReverseMap();
+
+
+			#endregion
+
+			#region Сложные маппинги с коллекциями
+
+			// Employee Mapping
+			CreateMap<Employee, EmployeeDto>()
+				.ForMember(dest => dest.DepartmentProduction, opt => opt.MapFrom(src => src.DepartmentProduction))
+				.ForMember(dest => dest.Shifts, opt => opt.MapFrom(src => src.Shifts))
+				.AfterMap((src, dest, context) => // Добавьте третий параметр ResolutionContext
+				{
+					if (src.Shifts != null)
+					{
+						dest.Shifts = context.Mapper.Map<IEnumerable<ShiftDataDto>>(src.Shifts);
+					}
+				})
+				.ReverseMap();
+
+			// EmployeeAccessRight <-> EmployeeAccessRightDto
+			CreateMap<EmployeeAccessRight, EmployeeAccessRightDto>()
+				.ReverseMap();
+
+			// DepartmentProduction <-> DepartmentProductionDto
+			CreateMap<DepartmentProduction, DepartmentProductionDto>()
+				.ForMember(dest => dest.EmployeesList, opt =>
+					opt.MapFrom(src => src.EmployeesList))
+				.ForMember(dest => dest.EmployeeAccessRight, opt =>
+					opt.MapFrom(src => src.EmployeeAccessRight))
+				.ReverseMap();
+
+
+
+			#endregion
+
+			#region Коллекции
+
+			// ObservableCollection<ShiftData> → ObservableCollection<ShiftDataDto>
+			CreateMap<ObservableCollection<ShiftData>, ObservableCollection<ShiftDataDto>>()
+				.ConvertUsing<ShiftDataCollectionConverter>();
+
+			// ObservableCollection<ShiftDataDto> → ObservableCollection<ShiftData>
+			CreateMap<ObservableCollection<ShiftDataDto>, ObservableCollection<ShiftData>>()
+				.ConvertUsing<ShiftDataDtoCollectionConverter>();
+
+			// IEnumerable<ShiftData> → IEnumerable<ShiftDataDto>
+			CreateMap<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>()
+				.ConvertUsing<ShiftDataEnumerableConverter>();
+
+			// IEnumerable<ShiftDataDto> → IEnumerable<ShiftData>
+			CreateMap<IEnumerable<ShiftDataDto>, IEnumerable<ShiftData>>()
+				.ConvertUsing<ShiftDataDtoEnumerableConverter>();
+
+			#endregion
+
+			#region SIZ
+
+			CreateMap<Siz, SizDto>().ReverseMap();
+			CreateMap<SizUsageRate, SizUsageRateDto>().ReverseMap();
+			CreateMap<UsageNorm, UsageNormDto>().ReverseMap();
+
+			#endregion
+
+			#region Внешние организации
+
+			CreateMap<EmployeeExOrgAddInRegion, EmployeeExOrgAddInRegionDto>().ReverseMap();
+			CreateMap<EmployeeExOrg, EmployeeExOrgDto>()
+				.ForMember(dest => dest.ShiftDataExOrgs, opt => opt.Ignore())
+				.ReverseMap()
+				.ForMember(dest => dest.ShiftDataExOrgs, opt => opt.Ignore());
+			CreateMap<EmployeePhoto, EmployeePhotoDto>().ReverseMap();
+
+			CreateMap<ShiftDataExOrg, ShiftDataExOrgDto>()
 				.ForMember(d => d.Brush, opt => opt.Ignore())
+				.ForMember(d => d.Hours, opt => opt.Ignore())
+				.ForMember(d => d.CodeColor, opt => opt.Ignore())
+				.ForMember(d => d.EmployeeExOrg, opt => opt.MapFrom(s => s.EmployeeExOrg))
+				.AfterMap((src, dst) =>
+				{
+					if (src.Hours != null)
+					{
+						dst.Hours = src.Hours;
+					}
+				})
+				.ReverseMap()
+				.ForMember(d => d.EmployeeExOrg, opt => opt.Ignore());
 
-				// Явно говорим, как собрать коллекцию WorkerHours:
+			CreateMap<TimeSheetItemExOrgDto, TimeSheetItemExOrg>()
+				.ForMember(d => d.Brush, opt => opt.Ignore())
 				.ForMember(d => d.WorkerHours, opt => opt.MapFrom((src, dest, _, ctx) =>
-					new ObservableCollection<ShiftDataExOrgDto>(
+				{
+					if (src.WorkerHours == null) return null;
+					return new ObservableCollection<ShiftDataExOrgDto>(
 						ctx.Mapper.Map<IEnumerable<ShiftDataExOrgDto>>(src.WorkerHours)
-					)))
-
-				// После того как WorkerHours готова, запускаем вашу логику:
+					);
+				}))
 				.AfterMap((src, dst) =>
 				{
 					dst.SetTotalWorksDays();
 					dst.SetCalendarDayAndHours();
 				})
-
 				.ReverseMap()
-					.ForSourceMember(s => s.Brush, opt => opt.DoNotValidate())
-					.ForSourceMember(s => s.WorkerHours, opt => opt.DoNotValidate());
-			#region 2
-			////Если сотрудник уволен в выбранном месяце, то его ФИО красятся в красный. Все остальные случаи - в черный
-			//if (employee.DateDismissal.Month == itemMonthsTO.Id &&
-			//	employee.DateDismissal.Year == itemYearsTO.Id)
-			//	itemShift.Brush = Brushes.Red;
-			//else
-			//	itemShift.Brush = Brushes.Black;
-
-			//employee.ShiftDataExOrgs.Foreach(x =>
-			//{
-			//	Brush brush = x.GetBrushARGB();
-			//	x.Brush = brush;
-			//});
-			#endregion
+				.ForMember(d => d.WorkerHours, opt => opt.MapFrom((src, dest, _, ctx) =>
+				{
+					if (src.WorkerHours == null) return null;
+					return ctx.Mapper.Map<IEnumerable<ShiftDataExOrgDto>>(src.WorkerHours);
+				}));
 
 			#endregion
+		}
+	}
 
-			#region Siz's
-			CreateMap<Siz, SizDto>().ReverseMap();
-			CreateMap<SizUsageRate, SizUsageRateDto>().ReverseMap();
-			CreateMap<UsageNorm, UsageNormDto>().ReverseMap();
-			#endregion
+	// Конвертер для ObservableCollection<ShiftData> → ObservableCollection<ShiftDataDto>
+	public class ShiftDataCollectionConverter : ITypeConverter<ObservableCollection<ShiftData>, ObservableCollection<ShiftDataDto>>
+	{
+		public ObservableCollection<ShiftDataDto> Convert(ObservableCollection<ShiftData> source, ObservableCollection<ShiftDataDto> destination, ResolutionContext context)
+		{
+			var result = new ObservableCollection<ShiftDataDto>();
+
+			foreach (var item in source)
+			{
+				var dto = context.Mapper.Map<ShiftDataDto>(item);
+
+				// Явно устанавливаем Employee из контекста
+				if (item.Employee != null && dto.Employee == null)
+				{
+					dto.Employee = context.Mapper.Map<EmployeeDto>(item.Employee);
+				}
+
+				result.Add(dto);
+			}
+
+			return result;
+		}
+	}
+
+	// Конвертер для IEnumerable<ShiftData> → IEnumerable<ShiftDataDto>
+	public class ShiftDataEnumerableConverter
+	: ITypeConverter<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>
+	{
+		public IEnumerable<ShiftDataDto> Convert(
+			IEnumerable<ShiftData> source,
+			IEnumerable<ShiftDataDto> destination,
+			ResolutionContext context)
+		{
+			if (source == null)
+				return null;
+
+			var result = new List<ShiftDataDto>();
+			foreach (var item in source)
+			{
+				if (item == null)
+				{
+					// либо пропускаем, либо добавляем null
+					// result.Add(null);
+					continue;
+				}
+
+				var dto = context.Mapper.Map<ShiftDataDto>(item);
+
+				// если Employee мапится в null, но исходный не null — заполним вручную
+				if (item.Employee != null && dto.Employee == null)
+				{
+					dto.Employee = context.Mapper.Map<EmployeeDto>(item.Employee);
+				}
+
+				result.Add(dto);
+			}
+
+			return result;
+		}
+	}
+
+
+	// Аналогичные конвертеры для обратного маппинга
+	public class ShiftDataDtoCollectionConverter : ITypeConverter<ObservableCollection<ShiftDataDto>, ObservableCollection<ShiftData>>
+	{
+		public ObservableCollection<ShiftData> Convert(ObservableCollection<ShiftDataDto> source, ObservableCollection<ShiftData> destination, ResolutionContext context)
+		{
+			var result = new ObservableCollection<ShiftData>();
+			foreach (var item in source)
+			{
+				result.Add(context.Mapper.Map<ShiftData>(item));
+			}
+			return result;
+		}
+	}
+
+	public class ShiftDataDtoEnumerableConverter : ITypeConverter<IEnumerable<ShiftDataDto>, IEnumerable<ShiftData>>
+	{
+		public IEnumerable<ShiftData> Convert(IEnumerable<ShiftDataDto> source, IEnumerable<ShiftData> destination, ResolutionContext context)
+		{
+			return source.Select(item => context.Mapper.Map<ShiftData>(item)).ToList();
 		}
 	}
 }
