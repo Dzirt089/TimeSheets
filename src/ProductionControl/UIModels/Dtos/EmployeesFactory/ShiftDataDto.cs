@@ -231,14 +231,17 @@ namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 		/// </summary>
 		private bool Validation()
 		{
-			if (Employee.IsDismissal) //Если уволенный сотрудник
-			{
+			// Если Employee ещё не проинициализирован — считаем, что валидация не пройдена
+			if (Employee == null)
 				return false;
-			}
-			else if (Employee.DateEmployment > WorkDate)
+
+			if (Employee.IsDismissal)
 				return false;
-			else
-				return true;
+
+			if (Employee.DateEmployment > WorkDate)
+				return false;
+
+			return true;
 		}
 	}
 }

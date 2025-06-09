@@ -1,5 +1,6 @@
 ﻿using MailerVKT;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Model;
 using ProductionControl.DataAccess.EntityFramework.DbContexts;
 using ProductionControl.ServiceLayer.Mail;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;
@@ -69,7 +70,7 @@ InnerException: {ex?.InnerException}.
 			string machine = "Machine Server",
 			string application = "API Production Control")
 		{
-			LogErrorAsync(ex, user, machine, application).GetAwaiter().GetResult();
+			LogErrorAsync(ex, user, machine, application).ConfigureAwait(false);
 		}
 
 		/// <summary>

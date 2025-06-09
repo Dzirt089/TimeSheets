@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         xmlns:local="clr-namespace:ProductionControl.Views"
         xmlns:viewmodel="clr-namespace:ProductionControl.ViewModel"
-        xmlns:h="clr-namespace:ProductionControl.Utils.Converters"       
+        xmlns:h="clr-namespace:ProductionControl.Converters"       
         xmlns:w="http://metro.mahapps.com/winfx/xaml/controls"      
         xmlns:ico="http://metro.mahapps.com/winfx/xaml/iconpacks" 
                

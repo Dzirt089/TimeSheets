@@ -8,7 +8,7 @@
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 		xmlns:b="clr-namespace:ProductionControl.Services.DynamicGrid"
 		xmlns:b2="clr-namespace:ProductionControl.Services.DynamicGrid.ExternalOrganization"
-		xmlns:v="clr-namespace:ProductionControl.Models"
+		xmlns:v="clr-namespace:ProductionControl.UIModels"
 		xmlns:vm="clr-namespace:ProductionControl.ViewModel"
 		xmlns:ico="http://metro.mahapps.com/winfx/xaml/iconpacks" 
 		xmlns:ma="http://metro.mahapps.com/winfx/xaml/controls"

@@ -8,7 +8,7 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 		/// <summary>
 		/// Получаем полные данные по СИЗ
 		/// </summary>
-		Task<List<SizUsageRate>> GetSizUsageRateAsync(CancellationToken token);
+		Task<List<SizUsageRate>> GetSizUsageRateAsync(CancellationToken token); //tyt
 
 		/// <summary>
 		/// Получение id склада 06-05, для создания заявки в ТНО (ИС-ПРО) о выдачи СИЗ со склада на склад участка.

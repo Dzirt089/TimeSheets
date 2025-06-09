@@ -1,51 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+	<TargetFramework>net9.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1591</NoWarn>
+	<!-- чтоб не плодить сотни CS1591 -->
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Report\ReportListEmployeeWithLunch.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ReportLunchForLastMonth.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ReportMonthlyForEmployeeExpOrg.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ReportMonthlySummary.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ReportResultSheet.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ReportSIZ.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+	<Content Include="Report\ReportListEmployeeWithLunch.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Report\ReportLunchForLastMonth.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Report\ReportMonthlyForEmployeeExpOrg.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Report\ReportMonthlySummary.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Report\ReportResultSheet.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="Report\ReportSIZ.frx">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="efpt.config.json.user" />
+	<None Include="efpt.config.json.user" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+	<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+	<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ProductionControl.ApiClients\ProductionControl.ApiClients.csproj" />
-    <ProjectReference Include="..\..\ProductionControl.DataAccess.Classes\ProductionControl.DataAccess.Classes.csproj" />
-    <ProjectReference Include="..\..\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj" />
-    <ProjectReference Include="..\..\ProductionControl.DataAccess.Sql\ProductionControl.DataAccess.Sql.csproj" />
-    <ProjectReference Include="..\..\ProductionControl.Infrastructure\ProductionControl.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\ProductionControl.ServiceLayer\ProductionControl.ServiceLayer.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.ApiClients\ProductionControl.ApiClients.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.DataAccess.Classes\ProductionControl.DataAccess.Classes.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.DataAccess.Sql\ProductionControl.DataAccess.Sql.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.Infrastructure\ProductionControl.Infrastructure.csproj" />
+	<ProjectReference Include="..\..\ProductionControl.ServiceLayer\ProductionControl.ServiceLayer.csproj" />
   </ItemGroup>
 
 </Project>

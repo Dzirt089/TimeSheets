@@ -200,7 +200,7 @@ namespace ProductionControl.UIModels.Model.ExternalOrganization
 		/// Установка плановых показателей:
 		/// Месячная норма рабочих дней и часов по производственному календарю 
 		/// </summary>
-		private void SetCalendarDayAndHours()
+		public void SetCalendarDayAndHours()
 		{
 			CalendarWorksDay = WorkerHours.Count - NoWorksDays.Count;
 		}
@@ -208,7 +208,7 @@ namespace ProductionControl.UIModels.Model.ExternalOrganization
 		/// <summary>
 		/// Установка общего кол-во рабочих дней, которые посетил сотрудник
 		/// </summary>
-		private void SetTotalWorksDays()
+		public void SetTotalWorksDays()
 		{
 			// Проверка, что список WorkerHours не пуст и не равен null
 			if (WorkerHours.Count == 0 || WorkerHours is null) return;

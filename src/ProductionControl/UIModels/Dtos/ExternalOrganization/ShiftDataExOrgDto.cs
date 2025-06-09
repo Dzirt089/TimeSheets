@@ -108,6 +108,9 @@ namespace ProductionControl.UIModels.Dtos.ExternalOrganization
 		/// </summary>
 		private bool Validation()
 		{
+			// Если Employee ещё не проинициализирован — считаем, что валидация не пройдена
+			if (EmployeeExOrg == null)
+				return false;
 			if (EmployeeExOrg.IsDismissal) //Если уволенный сотрудник
 			{
 				return false;

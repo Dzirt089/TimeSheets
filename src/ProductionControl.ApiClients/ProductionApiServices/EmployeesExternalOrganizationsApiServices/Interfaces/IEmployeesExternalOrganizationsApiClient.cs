@@ -2,9 +2,9 @@
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.HttpModels;
 
-namespace ProductionControl.Infrastructure.Repositories.Interfaces
+namespace ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Interfaces
 {
-	public interface IEmployeesExternalOrganizationsRepository
+	public interface IEmployeesExternalOrganizationsApiClient
 	{
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
@@ -15,9 +15,9 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 
 		Task<List<EmployeeExOrg>> GetEmployeeExOrgsAllAsync(CancellationToken token = default);
 
-		Task UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token = default);
+		Task<bool> UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token = default);
 
-		Task AddEmployeeExOrgAsync(EmployeeExOrg exOrg, CancellationToken token = default);
+		Task<bool> AddEmployeeExOrgAsync(EmployeeExOrg exOrg, CancellationToken token = default);
 
 		Task<List<EmployeeExOrg>> GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(
 			StartEndDateTime startEndDateTime, CancellationToken token = default);
@@ -25,12 +25,12 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 		/// <summary>
 		/// Асинхронный метод по обновлению даты уволнения у выбранного сотрудника
 		/// </summary>
-		Task<bool?> UpdateDismissalDataEmployeeAsync(IdEmployeeExOrgDateTime idEmployeeExOrgDate, CancellationToken token = default);
+		Task<bool> UpdateDismissalDataEmployeeAsync(IdEmployeeExOrgDateTime idEmployeeExOrgDate, CancellationToken token = default);
 
 		/// <summary>
 		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении
 		/// </summary>
-		Task SetTotalWorksDaysExOrgAsync(ShiftDataExOrg shiftDataExOrg, CancellationToken token = default);
+		Task<bool> SetTotalWorksDaysExOrgAsync(ShiftDataExOrg shiftDataExOrg, CancellationToken token = default);
 
 		Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(StartEndDateTime startEndDateTime, CancellationToken token = default);
 	}

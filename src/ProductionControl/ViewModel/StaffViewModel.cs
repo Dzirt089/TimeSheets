@@ -1,6 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AutoMapper;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.SizEmployeeApiServices.Interfaces;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.Services.ErrorLogsInformation;
 using ProductionControl.UIModels.Dtos.EmployeesFactory;
 using ProductionControl.UIModels.Dtos.Siz;
@@ -16,29 +21,29 @@ namespace ProductionControl.ViewModel
 {
 	public class StaffViewModel : ObservableObject
 	{
-		private readonly ITimeSheetDbService _timeSheetDb;
+		private readonly IEmployeeSheetApiClient _timeSheetDb;
+		private readonly ISizEmployeeApiClient _sizEmployeeApiClient;
 		private readonly IErrorLogger _errorLogger;
+		private readonly IMapper _mapper;
+
 		private StaffView StaffView { get; set; }
 		private readonly Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
 		public StaffViewModel(
-			ITimeSheetDbService timeSheetDb,
+			IEmployeeSheetApiClient timeSheetDb,
 			IErrorLogger errorLogger,
-			GlobalEmployeeSessionInfo userData
-			)
+			GlobalEmployeeSessionInfo userData,
+			IMapper mapper,
+			ISizEmployeeApiClient sizEmployeeApiClient)
 		{
-			try
-			{
-				_timeSheetDb = timeSheetDb;
-				_errorLogger = errorLogger;
-				MainVisib = Visibility.Collapsed;
-				//TODO: Сделать поиск как в табеле. Выпадающее меню для участка, графика, нормы
-				LoadStaffChanged += StaffViewModel_LoadTOChanged;
-			}
-			catch (Exception ex)
-			{
-				_errorLogger?.ProcessingErrorLog(ex);
-				throw;
-			}
+			_timeSheetDb = timeSheetDb;
+			_errorLogger = errorLogger;
+			MainVisib = Visibility.Collapsed;
+
+			//TODO: Сделать поиск как в табеле. Выпадающее меню для участка, графика, нормы
+			LoadStaffChanged += StaffViewModel_LoadTOChanged;
+
+			_mapper = mapper;
+			_sizEmployeeApiClient = sizEmployeeApiClient;
 		}
 
 		public void Dispose()
@@ -73,7 +78,8 @@ namespace ProductionControl.ViewModel
 				NamesDepartmentStaffItem = NamesDepartmentStaff.FirstOrDefault();
 
 
-				ListSizsForEmployeesOrig = await _timeSheetDb.GetSizUsageRateAsync();
+				var response = await _sizEmployeeApiClient.GetSizUsageRateAsync();
+				ListSizsForEmployeesOrig = _mapper.Map<List<SizUsageRateDto>>(response);
 
 				StaffRefreshCmd = new AsyncRelayCommand(GetEmployeeForCartotecasAsync);
 				SaveDataForEmployeeCmd = new AsyncRelayCommand(SaveDataForEmployeeAsync);
@@ -97,6 +103,7 @@ namespace ProductionControl.ViewModel
 			{
 				if (ItemEmployeeForCartoteca is null) return;
 				var tempID = ItemEmployeeForCartoteca.EmployeeID;
+
 				var newEmployee = new EmployeeDto
 				{
 					EmployeeID = ItemEmployeeForCartoteca.EmployeeID,
@@ -111,7 +118,9 @@ namespace ProductionControl.ViewModel
 					UsageNormID = NewSIZ,
 				};
 
-				await _timeSheetDb.SetDataEmployeeAsync(newEmployee);
+				var request = _mapper.Map<Employee>(newEmployee);
+
+				await _timeSheetDb.SetDataEmployeeAsync(request);
 				await GetEmployeeForCartotecasAsync();
 				ItemEmployeeForCartoteca = EmployeesForCartoteca.Where(x => x.EmployeeID == tempID).FirstOrDefault();
 			}
@@ -147,7 +156,13 @@ namespace ProductionControl.ViewModel
 					EmployeesForCartoteca = [];
 					return;
 				}
-				var employeesForCartoteca = await _timeSheetDb.GetEmployeeForCartotecasAsync(NamesDepartmentStaffItem).ConfigureAwait(false);
+
+				var request = _mapper.Map<DepartmentProduction>(NamesDepartmentStaffItem);
+				var response =
+					await _timeSheetDb.GetEmployeeForCartotecasAsync(request)
+					.ConfigureAwait(false);
+
+				var employeesForCartoteca = _mapper.Map<List<EmployeeDto>>(response);
 
 				//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
 				employeesForCartoteca = employeesForCartoteca
@@ -173,9 +188,12 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				var result = await _timeSheetDb.GetAllDepartmentsAsync().ConfigureAwait(false);
-				result.ForEach(x => x.FullNameDepartment =
-				$"{x.DepartmentID} : {x.NameDepartment}");
+				var response = await _timeSheetDb.GetAllDepartmentsAsync()
+					.ConfigureAwait(false);
+
+				var result = _mapper.Map<List<DepartmentProductionDto>>(response);
+
+				result.ForEach(x => x.FullNameDepartment = $"{x.DepartmentID} : {x.NameDepartment}");
 
 				return new ObservableCollection<DepartmentProductionDto>(result);
 			}
@@ -304,8 +322,6 @@ namespace ProductionControl.ViewModel
 		}
 		private Visibility _mainVisib;
 		#endregion
-
-
 
 		#region Команды
 		public ICommand DeleteStaffCmd { get; }

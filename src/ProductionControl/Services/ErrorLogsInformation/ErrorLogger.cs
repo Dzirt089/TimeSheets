@@ -48,7 +48,7 @@ InnerException: {ex?.InnerException}.
 		/// </summary>
 		public void ProcessingErrorLog(Exception ex)
 		{
-			LogErrorAsync(ex).ConfigureAwait(false).GetAwaiter().GetResult();
+			LogErrorAsync(ex).ConfigureAwait(false);
 		}
 
 		/// <summary>

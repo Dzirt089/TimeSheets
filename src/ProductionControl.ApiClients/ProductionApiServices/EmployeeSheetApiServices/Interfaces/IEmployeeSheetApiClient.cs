@@ -102,7 +102,9 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		/// Синхронный метод по очистке данных при завершении программы
 		/// </summary>
 		/// <returns></returns>
-		Task<bool> ClearIdAccessRightFromDepartmentDb(DataClearIdAccessRight dataClearId, CancellationToken token = default);
+		Task<bool> ClearIdAccessRightFromDepartmentDbAsync(DataClearIdAccessRight dataClearId, CancellationToken token = default);
+
+		public bool ClearIdAccessRightFromDepartmentDbSync(DataClearIdAccessRight dataClearId);
 
 		/// <summary>
 		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении

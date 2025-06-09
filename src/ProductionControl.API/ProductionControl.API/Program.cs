@@ -2,9 +2,11 @@ using MailerVKT;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 using ProductionControl.API.Middlewares;
 using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
 using ProductionControl.DataAccess.EntityFramework.DbContexts;
@@ -18,6 +20,9 @@ using ProductionControl.ServiceLayer.ResultSheetServicesAPI.Interfaces;
 using ProductionControl.ServiceLayer.ServicesAPI.Implementation;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;
 
+using System.Reflection;
+using System.Text.Json.Serialization;
+
 namespace ProductionControl.API
 {
 	public class Program
@@ -25,6 +30,11 @@ namespace ProductionControl.API
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+
+			builder.Services.ConfigureHttpJsonOptions(options =>
+			{
+				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+			});
 
 			#region Настраиваем dbContext в DI
 
@@ -60,7 +70,14 @@ namespace ProductionControl.API
 
 			builder.Services.AddAuthorization();
 			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen();
+			builder.Services.AddSwaggerGen(options =>
+			{
+				options.SwaggerDoc("v1", new OpenApiInfo { Title = "ProductionControl.API", Version = "v1" });
+				options.CustomSchemaIds(x => x.FullName);
+				var xmlFileName = Assembly.GetExecutingAssembly().GetName().Name + ".xml";
+				var xmlFilePath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
+				options.IncludeXmlComments(xmlFilePath);
+			}); ;
 
 			var app = builder.Build();
 			app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -339,7 +356,100 @@ namespace ProductionControl.API
 			#endregion
 
 			#region Employees External Organizations
+
 			var employeesExternalOrganizations = app.MapGroup("EmployeesExternalOrganizations");
+
+			employeesExternalOrganizations.MapPost("SetDataForTimeSheetExOrg",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] DataForTimeSheetExOrgs dataForTimeSheetEx,
+				CancellationToken token) =>
+				{
+					var result = await service.SetDataForTimeSheetExOrgAsync(dataForTimeSheetEx, token);
+					return Results.Ok(result);
+				});
+
+			employeesExternalOrganizations.MapPost("GetEmployeeExOrgsOnDate",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] StartEndDateTimeDepartmentID startEndDateTimeDepartmentID,
+				CancellationToken token) =>
+				{
+					var result = await service.GetEmployeeExOrgsOnDateAsync(startEndDateTimeDepartmentID, token);
+					return Results.Ok(result);
+				});
+
+			employeesExternalOrganizations.MapGet("GetEmployeeExOrgsAll",
+				async (IEmployeesExternalOrganizationsRepository service, CancellationToken token) =>
+				{
+					var result = await service.GetEmployeeExOrgsAllAsync(token);
+					return Results.Ok(result);
+				});
+
+			employeesExternalOrganizations.MapPost("UpdateEmployeeExOrg",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg,
+				CancellationToken token) =>
+				{
+					await service.UpdateEmployeeExOrgAsync(dataForUpdateEmloyeeExOrg, token);
+					return Results.Ok(true);
+				});
+
+			employeesExternalOrganizations.MapPost("AddEmployeeExOrg",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] EmployeeExOrg exOrg,
+				CancellationToken token) =>
+				{
+					await service.AddEmployeeExOrgAsync(exOrg, token);
+					return Results.Ok(true);
+				});
+
+			employeesExternalOrganizations.MapPost("GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgs",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] StartEndDateTime startEndDateTime,
+				CancellationToken token) =>
+				{
+					var result = await service
+					.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(startEndDateTime, token);
+					return Results.Ok(result);
+				});
+
+			employeesExternalOrganizations.MapPost("UpdateDismissalDataEmployee",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] IdEmployeeExOrgDateTime idEmployeeExOrgDate,
+				CancellationToken token) =>
+				{
+					var result = await service.UpdateDismissalDataEmployeeAsync(idEmployeeExOrgDate, token);
+					return Results.Ok(result);
+				});
+
+			employeesExternalOrganizations.MapPost("SetTotalWorksDaysExOrg",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] ShiftDataExOrg shiftDataExOrg,
+				CancellationToken token) =>
+				{
+					await service.SetTotalWorksDaysExOrgAsync(shiftDataExOrg, token);
+					return Results.Ok(true);
+				});
+
+			employeesExternalOrganizations.MapPost("GetEmployeeExOrgs",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] StartEndDateTime startEndDateTime,
+				CancellationToken token) =>
+				{
+					var result = await service.GetEmployeeExOrgsAsync(startEndDateTime, token);
+					return Results.Ok(result);
+				});
+
+			#endregion
+
+			#region Siz Employee
+
+			var sizs = app.MapGroup("SizEmployee");
+			sizs.MapGet("GetSizUsageRate",
+				async (ISizsRepository service, CancellationToken token) =>
+				{
+					var result = await service.GetSizUsageRateAsync(token);
+					return Results.Ok(result);
+				});
 
 			#endregion
 

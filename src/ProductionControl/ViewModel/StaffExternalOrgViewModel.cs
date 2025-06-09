@@ -7,6 +7,7 @@ using MahApps.Metro.Controls.Dialogs;
 
 using Microsoft.Win32;
 
+using ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Interfaces;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.HttpModels;
 using ProductionControl.Services.ErrorLogsInformation;
@@ -33,13 +34,13 @@ namespace ProductionControl.ViewModel
 	/// <param name="errorLogger">Сервис для логирования ошибок.</param>
 	public class StaffExternalOrgViewModel(
 		IMapper mapper,
-		ITimeSheetDbService timeSheetDb,
+		IEmployeesExternalOrganizationsApiClient timeSheetDb,
 		IErrorLogger errorLogger,
 		IDialogCoordinator coordinator,
 		GlobalEmployeeSessionInfo userData) : ObservableObject
 	{
 		private readonly IDialogCoordinator _coordinator = coordinator;
-		private readonly ITimeSheetDbService _timeSheetDb = timeSheetDb;
+		private readonly IEmployeesExternalOrganizationsApiClient _timeSheetDb = timeSheetDb;
 		private readonly IErrorLogger _errorLogger = errorLogger;
 		private readonly IMapper _mapper = mapper;
 		private StaffExternalOrgView? ExternalOrgView { get; set; }
@@ -159,12 +160,24 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				EmployeesForCartotecaExOrgList = await _timeSheetDb.GetEmployeeExOrgsAllAsync()
+				var response = await _timeSheetDb.GetEmployeeExOrgsAllAsync()
+					.ConfigureAwait(false);
+				EmployeesForCartotecaExOrgList = _mapper.Map<List<EmployeeExOrgDto>>(response);
+
+				if (string.IsNullOrEmpty(ValueDepartmentID))
+					return;
+
+				StartEndDateTimeDepartmentID startEndDateTimeDepartmentID = new StartEndDateTimeDepartmentID
+				{
+					StartDate = StartDate,
+					EndDate = EndDate,
+					ValueDepartmentID = ValueDepartmentID
+				};
+
+				var response2 = await _timeSheetDb.GetEmployeeExOrgsOnDateAsync(startEndDateTimeDepartmentID)
 					.ConfigureAwait(false);
 
-				InfoWorksEmployees = await _timeSheetDb.GetEmployeeExOrgsOnDateAsync(
-					StartDate, EndDate, ValueDepartmentID)
-					.ConfigureAwait(false);
+				InfoWorksEmployees = _mapper.Map<List<EmployeeExOrgDto>>(response2);
 
 				EmployeesForCartotecaExOrg = new ObservableCollection<EmployeeExOrgDto>(EmployeesForCartotecaExOrgList);
 				DubleEmployeesForCartotecaExOrg = new List<EmployeeExOrgDto>(EmployeesForCartotecaExOrgList);
@@ -243,8 +256,11 @@ namespace ProductionControl.ViewModel
 				if (NewEmployeeForCartotecaExOrg is null) return;
 				if (ManualDateDismissal == DefaultDateDismissal) return;
 
-				IdEmployeeDateTime idEmployeeDateTime =
-					new IdEmployeeDateTime { Date = ManualDateDismissal, IdEmployee = NewEmployeeForCartotecaExOrg.EmployeeExOrgID };
+				IdEmployeeExOrgDateTime idEmployeeDateTime = new IdEmployeeExOrgDateTime
+				{
+					Date = ManualDateDismissal,
+					IdEmployee = NewEmployeeForCartotecaExOrg.EmployeeExOrgID
+				};
 
 				var check = await _timeSheetDb.UpdateDismissalDataEmployeeAsync(idEmployeeDateTime);
 
@@ -255,7 +271,8 @@ namespace ProductionControl.ViewModel
 				if (check != true)
 					await _coordinator.ShowMessageAsync(this, "Ошибка",
 						"Не найден сотрудник по его табельному номеру");
-				else await RefreshAsync();
+				else
+					await RefreshAsync();
 			}
 			catch (Exception ex)
 			{

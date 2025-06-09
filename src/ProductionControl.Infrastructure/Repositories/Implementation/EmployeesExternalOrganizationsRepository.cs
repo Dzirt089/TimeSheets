@@ -168,9 +168,8 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			return tempShifts;
 		}
 
-		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(StartEndDateTime startEndDateTime, CancellationToken token)
+		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(StartEndDateTime startEndDateTime, CancellationToken token = default)
 		{
-
 			var employeeExOrgs = await _context.EmployeeExOrgs
 				.AsNoTracking()
 				.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
@@ -189,13 +188,13 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// </summary>
 		/// <param name="exOrg">Сотрудник для добавления.</param>
 		/// <returns>True, если сотрудник успешно добавлен, иначе False.</returns>
-		public async Task AddEmployeeExOrgAsync(EmployeeExOrg exOrg, CancellationToken token)
+		public async Task AddEmployeeExOrgAsync(EmployeeExOrg exOrg, CancellationToken token = default)
 		{
 			await _context.EmployeeExOrgs.AddAsync(exOrg, token);
 			await _context.SaveChangesAsync();
 		}
 
-		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAllAsync(CancellationToken token)
+		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAllAsync(CancellationToken token = default)
 		{
 			var listResult = await _context.EmployeeExOrgs
 					.AsNoTracking()
@@ -214,7 +213,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="valueDepartmentID">Идентификатор отдела.</param>
 		/// <returns>Список сотрудников.</returns>
 		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(
-			StartEndDateTimeDepartmentID startEndDateTimeDepartmentID, CancellationToken token)
+			StartEndDateTimeDepartmentID startEndDateTimeDepartmentID, CancellationToken token = default)
 		{
 			var listResult = await _context.EmployeeExOrgs
 					.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
@@ -237,7 +236,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="endDate">Конечная дата периода.</param>
 		/// <returns>Список сотрудников.</returns>
 		public async Task<List<EmployeeExOrg>> GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(
-			StartEndDateTime startEndDateTime, CancellationToken token)
+			StartEndDateTime startEndDateTime, CancellationToken token = default)
 		{
 			//Выбираем только тех сотрудников, которые принадлежат выбранному участку и датам
 			var list = await _context.EmployeeExOrgs
@@ -259,13 +258,10 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <summary>
 		/// Обработчик вызываемого события, который обновляет данные о сменах в табеле, при непосредственном его изменении
 		/// </summary>
-		public async Task SetTotalWorksDaysExOrgAsync(object? sender, CancellationToken token)
+		public async Task SetTotalWorksDaysExOrgAsync(ShiftDataExOrg shiftDataExOrg, CancellationToken token = default)
 		{
-			if (sender is ShiftDataExOrg shiftData)
-			{
-				_context.ShiftDataExOrgs?.Update(shiftData);
-				await _context.SaveChangesAsync(token);
-			}
+			_context.ShiftDataExOrgs?.Update(shiftDataExOrg);
+			await _context.SaveChangesAsync(token);
 		}
 
 		/// <summary>
@@ -275,18 +271,18 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="idEmployee">Табельный номер сотрудника.</param>
 		/// <param name="userDataCurrent">Текущие данные пользователя.</param>
 		/// <returns>Результат обновления.</returns>
-		public async Task<bool?> UpdateDismissalDataEmployeeAsync(DateTime date, int idEmployee, CancellationToken token)
+		public async Task<bool?> UpdateDismissalDataEmployeeAsync(IdEmployeeExOrgDateTime idEmployeeExOrgDate, CancellationToken token = default)
 		{
 			//Достаём данные по сотруднику по его табельному номеру
 			var itemEmployee = await _context.EmployeeExOrgs
 				.Include(i => i.ShiftDataExOrgs)
-				.SingleOrDefaultAsync(e => e.EmployeeExOrgID == idEmployee, token);
+				.SingleOrDefaultAsync(e => e.EmployeeExOrgID == idEmployeeExOrgDate.IdEmployee, token);
 
 			if (itemEmployee is null) return false;
 
 			//Обнуляем все проставленные наперёд данные по табелю
 			itemEmployee?.ShiftDataExOrgs?
-				.Where(x => x.WorkDate > date)
+				.Where(x => x.WorkDate > idEmployeeExOrgDate.Date)
 				.ToList()
 				.ForEach(f =>
 				{
@@ -294,7 +290,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 				});
 
 			//Обновляем дату уволнения
-			itemEmployee.DateDismissal = date;
+			itemEmployee.DateDismissal = idEmployeeExOrgDate.Date;
 			//Ставим флаг уволнения, после которого нельзя редактировать данные
 			itemEmployee.IsDismissal = true;
 
@@ -310,7 +306,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="exOrg">Сотрудник для обновления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
-		public async Task UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token)
+		public async Task UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token = default)
 		{
 			var empExOrg = await _context.EmployeeExOrgs
 						.Where(x => x.EmployeeExOrgID == dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID)

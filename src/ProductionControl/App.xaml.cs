@@ -9,12 +9,16 @@ using Microsoft.Extensions.Hosting;
 
 using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Implementation;
 using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Implementation;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Implementation;
 using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Implementation;
 using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Implementation;
 using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.SizEmployeeApiServices.Implementation;
+using ProductionControl.ApiClients.ProductionApiServices.SizEmployeeApiServices.Interfaces;
 using ProductionControl.Services.DynamicGrid;
 using ProductionControl.Services.DynamicGrid.ExternalOrganization;
 using ProductionControl.Services.ErrorLogsInformation;
@@ -77,6 +81,8 @@ namespace ProductionControl
 				services.AddScoped<IResultSheetsApiClient, ResultSheetsApiClient>();
 				services.AddScoped<IEmployeeSheetApiClient, EmployeeSheetApiClient>();
 				services.AddScoped<IDefinitionOfNonWorkingDaysApiClient, DefinitionOfNonWorkingDaysApiClient>();
+				services.AddScoped<IEmployeesExternalOrganizationsApiClient, EmployeesExternalOrganizationsApiClient>();
+				services.AddScoped<ISizEmployeeApiClient, SizEmployeeApiClient>();
 
 				#endregion
 
@@ -123,7 +129,7 @@ namespace ProductionControl
 						Recipients = ["teho19@vkt-vent.ru"],
 						Subject = "Errors in Production Control",
 						SenderName = "Production Control",
-					}).GetAwaiter().GetResult();
+					}).ConfigureAwait(false);
 					MessageBox.Show("Ошибка в запуске приложения! Обратитесь, пожалуйста, к разработчикам ТО");
 				}
 			}
@@ -144,7 +150,8 @@ namespace ProductionControl
 				// Обработчик необработанных исключений в Task
 				TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-
+				var mapper = Host.Services.GetRequiredService<IMapper>();
+				mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
 				MailServices = Host.Services.GetRequiredService<MailService>();
 				var mainWindow = new MainWindow();
@@ -154,8 +161,7 @@ namespace ProductionControl
 				await viewModel.InitializeAsync();
 				mainWindow.DataContext = viewModel;
 
-				var mapper = Host.Services.GetRequiredService<IMapper>();
-				mapper.ConfigurationProvider.AssertConfigurationIsValid();
+
 
 				base.OnStartup(e);
 			}
@@ -216,7 +222,7 @@ namespace ProductionControl
 			try
 			{
 				var mail = Host.Services.GetRequiredService<ErrorLogger>();
-				mail.ProcessingErrorLogAsync(ex).ConfigureAwait(false).GetAwaiter().GetResult();
+				mail.ProcessingErrorLogAsync(ex).ConfigureAwait(false);
 
 				MessageBox.Show(
 				"Произошла критическая ошибка. Приложение будет закрыто.",

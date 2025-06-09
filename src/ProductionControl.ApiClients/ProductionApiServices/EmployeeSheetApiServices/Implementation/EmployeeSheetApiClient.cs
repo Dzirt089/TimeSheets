@@ -19,8 +19,11 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		public async Task<bool> CleareDataForFormulateReportForLunchEveryDayDbAsync(CancellationToken token = default) =>
 			await DeleteTJsonTAsync<bool>("CleareDataForFormulateReportForLunchEveryDayDb", token);
 
-		public async Task<bool> ClearIdAccessRightFromDepartmentDb(DataClearIdAccessRight dataClearId, CancellationToken token = default) =>
+		public async Task<bool> ClearIdAccessRightFromDepartmentDbAsync(DataClearIdAccessRight dataClearId, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("ClearIdAccessRightFromDepartmentDb", dataClearId, token);
+
+		public bool ClearIdAccessRightFromDepartmentDbSync(DataClearIdAccessRight dataClearId) =>
+			PostTJsonT<bool>("ClearIdAccessRightFromDepartmentDb", dataClearId);
 
 		public async Task<bool> ClearLastDeport(DataForClearLastDeport dataForClear, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("ClearLastDeport", dataForClear, token);

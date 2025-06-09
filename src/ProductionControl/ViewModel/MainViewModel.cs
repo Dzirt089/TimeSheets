@@ -8,10 +8,12 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
 using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Interfaces;
 using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Interfaces;
 using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
 using ProductionControl.Services.ErrorLogsInformation;
@@ -43,6 +45,7 @@ namespace ProductionControl.ViewModel
 		private readonly IEmployeeSheetApiClient _employeeSheetApi;
 		private readonly IResultSheetsApiClient _resultSheetsApi;
 		private readonly IReportsApiClient _reportsApi;
+		private readonly IEmployeesExternalOrganizationsApiClient _employeeExOrgSheetApi;
 
 		private readonly IDialogCoordinator _coordinator;
 		private readonly IErrorLogger _errorLogger;
@@ -75,6 +78,7 @@ namespace ProductionControl.ViewModel
 			StaffViewModel staffViewModel,
 			FAQViewModel fAQViewModel,
 			StaffExternalOrgViewModel staffExternalOrgView,
+
 			GlobalSettingsProperty globalProperty,
 			GlobalEmployeeSessionInfo userData,
 
@@ -82,26 +86,33 @@ namespace ProductionControl.ViewModel
 			IEmployeeSheetApiClient employeeSheetApi,
 			IResultSheetsApiClient resultSheetsApi,
 			IReportsApiClient reportsApi,
+			IEmployeesExternalOrganizationsApiClient employeeExOrgSheetApi,
 
 			IDialogCoordinator coordinator,
 			IErrorLogger errorLogger,
-			IMapper mapper)
+			IMapper mapper
+			)
 		{
-			UserDataCurrent = userData;
-			GlobalProperty = globalProperty;
-
 			Visibility = Visibility.Collapsed;
 			VisibilityButtonAdditionally = Visibility.Collapsed;
-
-			_errorLogger = errorLogger;
-			_daysApi = daysApi;
-			_coordinator = coordinator;
 			FlagShowResultSheet = false;
+
 			StaffViewModel = staffViewModel;
 			FAQViewModel = fAQViewModel;
 			ExternalOrgViewModel = staffExternalOrgView;
 
+			GlobalProperty = globalProperty;
+			UserDataCurrent = userData;
+
+			_daysApi = daysApi;
+			_employeeSheetApi = employeeSheetApi;
+			_resultSheetsApi = resultSheetsApi;
+			_reportsApi = reportsApi;
+			_employeeExOrgSheetApi = employeeExOrgSheetApi;
+
+			_coordinator = coordinator;
 			_mapper = mapper;
+			_errorLogger = errorLogger;
 		}
 		#endregion
 		public void Dispose()
@@ -634,7 +645,9 @@ namespace ProductionControl.ViewModel
 					NoWorkDaysTO = NoWorkDaysTO,
 					FlagAllEmployeeExOrg = GlobalProperty.FlagAllEmployeeExOrg
 				};
-				var tempShifts = await _timeSheetDb.SetDataForTimeSheetExOrgAsync(dataForTimeSheetEx).ConfigureAwait(false);
+				var response = await _employeeExOrgSheetApi.SetDataForTimeSheetExOrgAsync(dataForTimeSheetEx).ConfigureAwait(false);
+
+				var tempShifts = _mapper.Map<List<TimeSheetItemExOrg>>(response);
 
 				//Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				if (!string.IsNullOrEmpty(FilterName))
@@ -645,7 +658,7 @@ namespace ProductionControl.ViewModel
 				else
 				{
 					//Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
-					TimeSheetsExOrg = tempShifts;
+					TimeSheetsExOrg = new ObservableCollection<TimeSheetItemExOrg>(tempShifts);
 					DoubleTimeSheetsExOrgForSearch = new ObservableCollection<TimeSheetItemExOrg>(tempShifts);
 				}
 			}
@@ -838,7 +851,14 @@ namespace ProductionControl.ViewModel
 			try
 			{
 				if (e.PropertyName == nameof(ShiftDataExOrgDto.Hours) || e.PropertyName == nameof(ShiftDataExOrgDto.CodeColor))
-					await _timeSheetDb.SetTotalWorksDaysExOrgAsync(sender).ConfigureAwait(false);
+				{
+					if (sender is ShiftDataExOrgDto shiftDataExOrgDto)
+					{
+						var shiftDataExOrg = _mapper.Map<ShiftDataExOrg>(shiftDataExOrgDto);
+						await _employeeExOrgSheetApi.SetTotalWorksDaysExOrgAsync(shiftDataExOrg).ConfigureAwait(false);
+					}
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -873,7 +893,7 @@ namespace ProductionControl.ViewModel
 			{
 				_errorLogger.ProcessingErrorLog(ex);
 
-				ShowErrorInfoAsync(textError).ConfigureAwait(false).GetAwaiter().GetResult();
+				ShowErrorInfoAsync(textError).ConfigureAwait(false);
 			}
 		}
 
@@ -1387,8 +1407,11 @@ namespace ProductionControl.ViewModel
 					StartDate = StartDate,
 					EndDate = EndDate
 				};
-				var listExpOrgs = await _api
-					.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(startEndDateTime).ConfigureAwait(false);
+
+				var response2 = await _employeeExOrgSheetApi
+					.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(startEndDateTime)
+					.ConfigureAwait(false);
+				var listExpOrgs = _mapper.Map<List<EmployeeExOrgDto>>(response2);
 
 				listExpOrgs = listExpOrgs.Where(x => x.ValidateEmployee(months: StartDate.Month, years: StartDate.Year)).ToList();
 				listExpOrgs = listExpOrgs.Where(x => x.EmployeeExOrgAddInRegions != null && x.EmployeeExOrgAddInRegions.Any()).ToList();
@@ -1722,8 +1745,8 @@ namespace ProductionControl.ViewModel
 					NoWorkDaysTO = NoWorkDaysTO,
 					CheckingSeeOrWriteBool = CheckingSeeOrWriteBool
 				};
-				var response = await _employeeSheetApi.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
-				var tempShifts = _mapper.Map<List<TimeSheetItem>>(response);
+				List<TimeSheetItemDto>? response = await _employeeSheetApi.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
+				List<TimeSheetItem>? tempShifts = _mapper.Map<List<TimeSheetItem>>(response);
 
 				////Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				//TimeSheets = tempShifts;
@@ -1769,11 +1792,10 @@ namespace ProductionControl.ViewModel
 					};
 
 					if (LastAccessRightBool == true && LastSelectedDepartmentID != string.Empty)
-						return _employeeSheetApi
-							.ClearIdAccessRightFromDepartmentDb(dataClearId)
-							.ConfigureAwait(false)
-							.GetAwaiter()
-							.GetResult();
+					{
+						var result = _employeeSheetApi.ClearIdAccessRightFromDepartmentDbSync(dataClearId);
+						return result;
+					}
 				}
 				return true;
 			}
@@ -1781,9 +1803,7 @@ namespace ProductionControl.ViewModel
 			{
 				_errorLogger.ProcessingErrorLog(ex);
 				ShowErrorInfoAsync(textError)
-					.ConfigureAwait(false)
-					.GetAwaiter()
-					.GetResult();
+					.ConfigureAwait(false);
 				return true;
 			}
 		}
@@ -2086,7 +2106,7 @@ namespace ProductionControl.ViewModel
 			{
 				_errorLogger.ProcessingErrorLog(ex);
 
-				ShowErrorInfoAsync(textError).ConfigureAwait(false).GetAwaiter().GetResult();
+				ShowErrorInfoAsync(textError).ConfigureAwait(false);
 				throw;
 			}
 		}
