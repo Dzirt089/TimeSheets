@@ -1,6 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 
 namespace ProductionControl.Infrastructure.Repositories.Interfaces
 {
@@ -49,22 +49,22 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 		/// Достаём данные по сотруднику по его табельному номеру и дате
 		/// </summary>
 		/// <returns></returns>
-		Task<Employee>? GetEmployeeIdAndDateAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
+		Task<Employee> GetEmployeeIdAndDateAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
 
 		/// <summary>
 		/// Асинхронный метод по обновлению даты уволнения у выбранного сотрудника
 		/// </summary>
-		Task<bool?> UpdateDismissalDataEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
+		Task<bool> UpdateDismissalDataEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
 
 		/// <summary>
 		/// Отменяем уволнение сотрудника
 		/// </summary>
-		Task<bool?> CancelDismissalEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
+		Task<bool> CancelDismissalEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
 
 		/// <summary>
 		/// Отменяем или наоборот, проставляем обед у сотрудника по указанной дате
 		/// </summary>
-		Task<bool?> UpdateLunchEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
+		Task<bool> UpdateLunchEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default);
 
 		/// <summary>
 		/// запрашиваем все данные по доступам.
@@ -128,10 +128,10 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 
 		Task SetDataEmployeeAsync(Employee employee, CancellationToken token = default);
 
-		Task<DepartmentProduction?> GetDepartmentProductionAsync(string depId, CancellationToken token = default);
+		Task<DepartmentProduction> GetDepartmentProductionAsync(string depId, CancellationToken token = default);
 
-		Task UpdateDepartamentAsync(DepartmentProduction? itemDepartment, CancellationToken token = default);
+		Task UpdateDepartamentAsync(DepartmentProduction itemDepartment, CancellationToken token = default);
 
-		Task<EmployeeAccessRight?> GetEmployeeByIdAsync(DepartmentProduction? itemDepartment, CancellationToken token = default);
+		Task<EmployeeAccessRight?> GetEmployeeByIdAsync(DepartmentProduction itemDepartment, CancellationToken token = default);
 	}
 }

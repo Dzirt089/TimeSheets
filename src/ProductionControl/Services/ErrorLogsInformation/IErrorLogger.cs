@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.Services.Interfaces
+﻿namespace ProductionControl.Services.ErrorLogsInformation
 {
 	public interface IErrorLogger
 	{

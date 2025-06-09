@@ -1,6 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.DataAccess.Sql.Interfaces;
 using ProductionControl.Infrastructure.Repositories.Interfaces;

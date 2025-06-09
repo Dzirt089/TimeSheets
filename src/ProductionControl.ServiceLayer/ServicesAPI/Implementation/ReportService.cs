@@ -1,9 +1,9 @@
 ﻿using FastReport;
 using FastReport.Export.OoXML;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.Infrastructure.Repositories.Interfaces;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;

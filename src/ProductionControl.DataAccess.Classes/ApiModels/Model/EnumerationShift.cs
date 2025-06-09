@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ProductionControl.DataAccess.Classes.Models.Model
+namespace ProductionControl.DataAccess.Classes.ApiModels.Model
 {
 	/// <summary>
 	/// Класс перечесления вместо типов перечисления, скорректирован для учета рабочего времени (Табель ТО)

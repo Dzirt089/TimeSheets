@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.DataAccess.Classes.Models.Dtos
+﻿namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 {
 	/// <summary>Показатели в иотогах табеля</summary>
 	public record IndicatorDto

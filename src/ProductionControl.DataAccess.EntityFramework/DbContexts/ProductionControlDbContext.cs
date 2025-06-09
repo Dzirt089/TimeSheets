@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Model;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
-using ProductionControl.DataAccess.Classes.Models.Model;
 
 namespace ProductionControl.DataAccess.EntityFramework.DbContexts
 {

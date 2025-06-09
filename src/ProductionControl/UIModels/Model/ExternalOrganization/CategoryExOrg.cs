@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ProductionControl.Models.Entitys.ExternalOrganization
+namespace ProductionControl.UIModels.Model.ExternalOrganization
 {
 	public class CategoryExOrg : ObservableObject
 	{

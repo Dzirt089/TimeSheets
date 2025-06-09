@@ -1,6 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.Models.Dtos;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 
-namespace ProductionControl.ApiClients.ApiServices.ResultSheetsApiServices.Interfaces
+namespace ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Interfaces
 {
 	public interface IResultSheetsApiClient
 	{

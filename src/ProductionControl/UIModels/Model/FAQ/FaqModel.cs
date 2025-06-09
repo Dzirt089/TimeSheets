@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ProductionControl.Models.Entitys.FAQ
+namespace ProductionControl.UIModels.Model.FAQ
 {
 	public class FaqModel : ObservableObject
 	{

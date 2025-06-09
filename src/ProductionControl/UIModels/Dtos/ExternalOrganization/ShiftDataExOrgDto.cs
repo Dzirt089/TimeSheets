@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.Models.Entitys.GlobalPropertys;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Windows.Media;
 
 
 
-namespace ProductionControl.Models.Dtos.ExternalOrganization
+namespace ProductionControl.UIModels.Dtos.ExternalOrganization
 {
 	public class ShiftDataExOrgDto : ObservableObject
 	{

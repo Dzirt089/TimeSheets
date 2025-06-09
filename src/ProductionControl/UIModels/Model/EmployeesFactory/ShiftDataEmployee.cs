@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ProductionControl.Models.Entitys.EmployeesFactory
+namespace ProductionControl.UIModels.Model.EmployeesFactory
 {
 	/// <summary>
 	/// Класс, который отображает краткие сведения о сотруднике в Табеле: ФИО, смена, переработка

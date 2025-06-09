@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.Models.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProductionControl.Models.Dtos.EmployeesFactory
+namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 {
 	public class DepartmentProductionDto : ObservableObject
 	{

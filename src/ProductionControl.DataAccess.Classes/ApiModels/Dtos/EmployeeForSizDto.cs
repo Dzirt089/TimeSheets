@@ -1,6 +1,6 @@
 ﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 
-namespace ProductionControl.DataAccess.Classes.Models.Dtos
+namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 {
 	public class EmployeeForSizDto
 	{

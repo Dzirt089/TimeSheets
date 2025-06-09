@@ -1,5 +1,5 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 
 namespace ProductionControl.DataAccess.Classes.HttpModels
 {

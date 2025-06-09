@@ -1,6 +1,6 @@
 ﻿using ProductionControl.DataAccess.Classes.Utils;
-using ProductionControl.Models.Dtos.EmployeesFactory;
-using ProductionControl.Models.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Dtos.EmployeesFactory;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
 
 using System.Windows.Media;
 

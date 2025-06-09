@@ -11,6 +11,6 @@
 		/// <param name="year">Год отчёта.</param>
 		/// <param name="token">Токен отмены операции.</param>
 		/// <returns>Задача без результата. Исключения логируются внутри.</returns>
-		Task GetDataForMonthlySummary(int month, int year, CancellationToken token);
+		Task GetDataForMonthlySummary(DateTime monht_year, CancellationToken token);
 	}
 }

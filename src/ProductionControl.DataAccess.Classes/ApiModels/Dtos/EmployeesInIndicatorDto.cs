@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.DataAccess.Classes.Models.Dtos
+﻿namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 {
 	/// <summary>Показатели (данные) сотрудников на выбранный <see cref="IndicatorDto"/></summary>
 	public record EmployeesInIndicatorDto

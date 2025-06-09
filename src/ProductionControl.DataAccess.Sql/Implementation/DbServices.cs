@@ -1,8 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.Sql.Interfaces;
 
 namespace ProductionControl.DataAccess.Sql.Implementation

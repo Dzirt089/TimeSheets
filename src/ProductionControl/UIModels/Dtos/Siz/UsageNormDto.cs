@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.Models.Dtos.Siz
+﻿namespace ProductionControl.UIModels.Dtos.Siz
 {
 	public class UsageNormDto
 	{

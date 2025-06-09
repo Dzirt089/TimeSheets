@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xaml.Behaviors;
 
-using ProductionControl.Models.Entitys.EmployeesFactory;
+using ProductionControl.UIModels.Model.EmployeesFactory;
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;

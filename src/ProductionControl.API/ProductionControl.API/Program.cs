@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using ProductionControl.API.Middlewares;
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.EntityFramework.DbContexts;
 using ProductionControl.DataAccess.Sql.Implementation;
 using ProductionControl.DataAccess.Sql.Interfaces;
@@ -76,203 +76,253 @@ namespace ProductionControl.API
 
 			app.MapGet("/", () => "Hello, World!");
 
-			#region ResultSheets
-			app.MapPost("/GetDataResultSheet",
-				async (IResultSheetsService service, [FromBody] List<TimeSheetItemDto> copyTimeSheet, CancellationToken token) =>
-				{
-					return await service.ShowResultSheet(copyTimeSheet, token);
-				});
-			#endregion
+			#region Report's для службы VKT, вызываются по рассписанию.
 
-			#region Report's
-			app.MapGet("/SetScheduleForEmployee",
+			//Вызывается из службы VKT, которая формирует Excel ведомость по СИЗ-ам
+			app.MapGet("GetStatementSiz",
+				async (ISizService service, CancellationToken token) =>
+				{
+					await service.DivisionLogikalCalcSizAsync(token);
+					return Results.Ok(true);
+				});
+
+			//Вызывается из службы VKT, которая заполняет график сотрудника на месяц по его графику из ИС-ПРО
+			app.MapGet("SetScheduleForEmployee",
 				async (IScheduleForEmployeeService schedule,
 					CancellationToken token) =>
 				{
 					await schedule.SetScheduleForEmployee(token);
+					return Results.Ok(true);
 				});
-			app.MapGet("/GetOrderForLunch",
+
+			#endregion
+
+			#region ResultSheets
+
+			var resultSheets = app.MapGroup("ResultSheets");
+			resultSheets.MapPost("GetDataResultSheet",
+				async (IResultSheetsService service, [FromBody] List<TimeSheetItemDto> copyTimeSheet, CancellationToken token) =>
+				{
+					var result = await service.ShowResultSheet(copyTimeSheet, token);
+					return Results.Ok(result);
+				});
+
+			#endregion
+
+			#region Report's
+			var reports = app.MapGroup("Reports");
+
+			reports.MapGet("GetOrderForLunch",
 				async (IReportService service,
 					CancellationToken token) =>
 				{
 					await service.ProcessingDataReportForLUnchEveryDayAsync(token);
+					return Results.Ok(true);
 				});
-			app.MapGet("/CreateOrderLunchLastMonth/{totalSum}",
-				async (IReportService service, string totalSum,
+
+			reports.MapPost("CreateOrderLunchLastMonth",
+				async (IReportService service, [FromBody] string totalSum,
 					CancellationToken token) =>
 				{
 					await service.ProcessingDataForReportLunchLastMonth(totalSum, token);
+					return Results.Ok(true);
 				});
-			app.MapPost("/CreateReportForResultSheet",
+
+			reports.MapPost("CreateReportForResultSheet",
 				async (IReportService service, [FromBody] List<EmployeesInIndicatorDto> indica,
 					CancellationToken token) =>
 				{
-					return await service.CreateReportForResultSheetAsync(indica, token);
+					var result = await service.CreateReportForResultSheetAsync(indica, token);
+					return Results.Ok(result);
 				});
-			app.MapGet("/GetStatementSiz",
-				async (ISizService service, CancellationToken token) =>
-				{
-					await service.DivisionLogikalCalcSizAsync(token);
-				});
-			app.MapGet("/CreateReportForMonthlySummary/{month}/{year}",
-				async (IMonthlySummaryService service, int month, int year,
+
+			reports.MapGet("CreateReportForMonthlySummary",
+				async (IMonthlySummaryService service, [FromBody] DateTime date,
 					CancellationToken token) =>
 				{
-					await service.GetDataForMonthlySummary(month, year, token);
+					await service.GetDataForMonthlySummary(date, token);
+					return Results.Ok(true);
 				});
-			app.MapGet("/CreateReportForMonthlySummaryEmployeeExpOrg/{startPeriod}/{endPeriod}",
-				async (IMonthlySummaryEmployeeExpOrgsService service, string startPeriod, string endPeriod,
+
+			reports.MapPost("CreateReportForMonthlySummaryEmployeeExpOrg",
+				async (IMonthlySummaryEmployeeExpOrgsService service, [FromBody] StartEndDateTime startEndDate,
 					CancellationToken token) =>
 				{
-					await service.CreateReportEmployeeExpOrgAsync(startPeriod, endPeriod, token);
+					await service.CreateReportEmployeeExpOrgAsync(startEndDate, token);
+					return Results.Ok(true);
 				});
+
 			#endregion
 
 			#region EmployeeSheet
 			var employeeSheets = app.MapGroup("EmployeeSheet");
 
-			employeeSheets.MapPost("/UpdateEmployees",
+			employeeSheets.MapPost("UpdateEmployees",
 			async (IEmployeesFactorysRepository service, [FromBody] List<Employee> allPeople, CancellationToken token) =>
 				{
-					return await service.UpdateEmployeesAsync(allPeople, token);
+					var result = await service.UpdateEmployeesAsync(allPeople, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/SetDataForTimeSheet",
+			employeeSheets.MapPost("SetDataForTimeSheet",
 			async (IEmployeesFactorysRepository service, [FromBody] DataForTimeSheet dataForTimeSheet, CancellationToken token) =>
 				{
-					return await service.SetDataForTimeSheetAsync(dataForTimeSheet, token);
+					var result = await service.SetDataForTimeSheetAsync(dataForTimeSheet, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployeesForReportLunch",
+			employeeSheets.MapPost("GetEmployeesForReportLunch",
 				async (IEmployeesFactorysRepository service, [FromBody] StartEndDateTime startEndDate, CancellationToken token) =>
 				{
-					return await service.GetEmployeesForReportLunchAsync(startEndDate, token);
+					var result = await service.GetEmployeesForReportLunchAsync(startEndDate, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployeesForLunch",
+			employeeSheets.MapGet("GetEmployeesForLunch",
 				async (IEmployeesFactorysRepository service, CancellationToken token) =>
 				{
-					return await service.GetEmployeesForLunchAsync(token);
+					var result = await service.GetEmployeesForLunchAsync(token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployees",
+			employeeSheets.MapPost("GetEmployees",
 				async (IEmployeesFactorysRepository service, [FromBody] StartEndDateTime startEndDate, CancellationToken token) =>
 				{
-					return await service.GetEmployeesAsync(startEndDate, token);
+					var result = await service.GetEmployeesAsync(startEndDate, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/CancelDismissalEmployee",
+			employeeSheets.MapPost("CancelDismissalEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] IdEmployeeDateTime idEmployeeDateTime, CancellationToken token) =>
 				{
-					return await service.CancelDismissalEmployeeAsync(idEmployeeDateTime, token);
+					var result = await service.CancelDismissalEmployeeAsync(idEmployeeDateTime, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/CleareDataForFormulateReportForLunchEveryDayDb",
+			employeeSheets.MapDelete("CleareDataForFormulateReportForLunchEveryDayDb",
 				async (IEmployeesFactorysRepository service, CancellationToken token) =>
 				{
 					await service.CleareDataForFormulateReportForLunchEveryDayDbAsync(token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/ClearIdAccessRightFromDepartmentDb",
+			employeeSheets.MapPost("ClearIdAccessRightFromDepartmentDb",
 				async (IEmployeesFactorysRepository service, [FromBody] DataClearIdAccessRight dataClearId, CancellationToken token) =>
 				{
-					return await service.ClearIdAccessRightFromDepartmentDb(dataClearId, token);
+					var result = await service.ClearIdAccessRightFromDepartmentDb(dataClearId, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/ClearLastDeport",
+			employeeSheets.MapPost("ClearLastDeport",
 				async (IEmployeesFactorysRepository service, [FromBody] DataForClearLastDeport dataForClear, CancellationToken token) =>
 				{
 					await service.ClearLastDeport(dataForClear, token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/GetAccessRightsEmployee",
+			employeeSheets.MapPost("GetAccessRightsEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] string userName, CancellationToken token) =>
 				{
-					return await service.GetAccessRightsEmployeeAsync(userName, token);
+					var result = await service.GetAccessRightsEmployeeAsync(userName, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetAllDepartments",
+			employeeSheets.MapGet("GetAllDepartments",
 				async (IEmployeesFactorysRepository service, CancellationToken token) =>
 				{
-					return await service.GetAllDepartmentsAsync(token);
+					var result = await service.GetAllDepartmentsAsync(token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetDepartmentProduction",
+			employeeSheets.MapPost("GetDepartmentProduction",
 				async (IEmployeesFactorysRepository service, [FromBody] string depId, CancellationToken token) =>
 				{
-					return await service.GetDepartmentProductionAsync(depId, token);
+					var result = await service.GetDepartmentProductionAsync(depId, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployeeById",
-				async (IEmployeesFactorysRepository service, [FromBody] DepartmentProduction? itemDepartment, CancellationToken token) =>
+			employeeSheets.MapPost("GetEmployeeById",
+				async (IEmployeesFactorysRepository service, [FromBody] DepartmentProduction itemDepartment, CancellationToken token) =>
 				{
-					return await service.GetEmployeeByIdAsync(itemDepartment, token);
+					var result = await service.GetEmployeeByIdAsync(itemDepartment, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployeeForCartotecas",
+			employeeSheets.MapPost("GetEmployeeForCartotecas",
 				async (IEmployeesFactorysRepository service, [FromBody] DepartmentProduction department, CancellationToken token) =>
 				{
-					return await service.GetEmployeeForCartotecasAsync(department, token);
+					var result = await service.GetEmployeeForCartotecasAsync(department, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetEmployeeIdAndDate",
+			employeeSheets.MapPost("GetEmployeeIdAndDate",
 				async (IEmployeesFactorysRepository service, [FromBody] IdEmployeeDateTime idEmployeeDateTime, CancellationToken token) =>
 				{
-					return await service.GetEmployeeIdAndDateAsync(idEmployeeDateTime, token);
+					var result = await service.GetEmployeeIdAndDateAsync(idEmployeeDateTime, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/GetTotalWorkingHoursWithOverdayHoursForRegions043and044",
+			employeeSheets.MapPost("GetTotalWorkingHoursWithOverdayHoursForRegions043and044",
 				async (IEmployeesFactorysRepository service, [FromBody] StartEndDateTime startEndDate, CancellationToken token) =>
 				{
-					return await service.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate, token);
+					var result = await service.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/SetDataEmployee",
+			employeeSheets.MapPost("SetDataEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] Employee employee, CancellationToken token) =>
 				{
 					await service.SetDataEmployeeAsync(employee, token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/SetNamesDepartment",
+			employeeSheets.MapGet("SetNamesDepartment",
 				async (IEmployeesFactorysRepository service, CancellationToken token) =>
 				{
 					await service.SetNamesDepartmentAsync(token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/SetTotalWorksDays",
+			employeeSheets.MapPost("SetTotalWorksDays",
 				async (IEmployeesFactorysRepository service, [FromBody] ShiftData shiftData, CancellationToken token) =>
 				{
 					await service.SetTotalWorksDaysAsync(shiftData, token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/UpdateDataTableNewEmployee",
+			employeeSheets.MapPost("UpdateDataTableNewEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] DateTime periodDate, CancellationToken token) =>
 				{
-					return await service.UpdateDataTableNewEmployeeAsync(periodDate, token);
+					var result = await service.UpdateDataTableNewEmployeeAsync(periodDate, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/UpdateDepartament",
-				async (IEmployeesFactorysRepository service, [FromBody] DepartmentProduction? itemDepartment, CancellationToken token) =>
+			employeeSheets.MapPost("UpdateDepartament",
+				async (IEmployeesFactorysRepository service, [FromBody] DepartmentProduction itemDepartment, CancellationToken token) =>
 				{
 					await service.UpdateDepartamentAsync(itemDepartment, token);
+					return Results.Ok(true);
 				});
 
-			employeeSheets.MapPost("/UpdateDismissalDataEmployee",
+			employeeSheets.MapPost("UpdateDismissalDataEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] IdEmployeeDateTime idEmployeeDateTime, CancellationToken token) =>
 				{
-					return await service.UpdateDismissalDataEmployeeAsync(idEmployeeDateTime, token);
+					var result = await service.UpdateDismissalDataEmployeeAsync(idEmployeeDateTime, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/UpdateIsLunchingDb",
+			employeeSheets.MapPost("UpdateIsLunchingDb",
 				async (IEmployeesFactorysRepository service, [FromBody] long idEmployee, CancellationToken token) =>
 				{
-					return await service.UpdateIsLunchingDbAsync(idEmployee, token);
+					var result = await service.UpdateIsLunchingDbAsync(idEmployee, token);
+					return Results.Ok(result);
 				});
 
-			employeeSheets.MapPost("/UpdateLunchEmployee",
+			employeeSheets.MapPost("UpdateLunchEmployee",
 				async (IEmployeesFactorysRepository service, [FromBody] IdEmployeeDateTime idEmployeeDateTime, CancellationToken token) =>
 				{
-					return await service.UpdateLunchEmployeeAsync(idEmployeeDateTime, token);
+					var result = await service.UpdateLunchEmployeeAsync(idEmployeeDateTime, token);
+					return Results.Ok(result);
 				});
 
 			//employeeSheets.MapPost("/",
@@ -286,6 +336,11 @@ namespace ProductionControl.API
 			//	{
 			//		return await service.();
 			//	});
+			#endregion
+
+			#region Employees External Organizations
+			var employeesExternalOrganizations = app.MapGroup("EmployeesExternalOrganizations");
+
 			#endregion
 
 			app.Run();

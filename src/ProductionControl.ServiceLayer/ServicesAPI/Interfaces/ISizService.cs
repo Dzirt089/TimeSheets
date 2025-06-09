@@ -1,5 +1,5 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
 
 namespace ProductionControl.ServiceLayer.ServicesAPI.Interfaces
 {

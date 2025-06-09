@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using ProductionControl.Models.Dtos.EmployeesFactory;
-using ProductionControl.Models.Dtos.Siz;
-using ProductionControl.Models.Entitys.GlobalPropertys;
-using ProductionControl.Services.Interfaces;
+using ProductionControl.Services.ErrorLogsInformation;
+using ProductionControl.UIModels.Dtos.EmployeesFactory;
+using ProductionControl.UIModels.Dtos.Siz;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 using ProductionControl.Views;
 
 using System.Collections.ObjectModel;
@@ -23,7 +23,7 @@ namespace ProductionControl.ViewModel
 		public StaffViewModel(
 			ITimeSheetDbService timeSheetDb,
 			IErrorLogger errorLogger,
-			LocalUserData userData
+			GlobalEmployeeSessionInfo userData
 			)
 		{
 			try

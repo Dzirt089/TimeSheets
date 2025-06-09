@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.DataAccess.Classes.Models.Model
+﻿namespace ProductionControl.DataAccess.Classes.ApiModels.Model
 {
 	/// <summary>
 	/// Шаблон - конструктор для смены на производстве. 

@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
+using ProductionControl.DataAccess.Classes.HttpModels;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.DataAccess.EntityFramework.DbContexts;
 using ProductionControl.Infrastructure.Repositories.Interfaces;
@@ -14,6 +15,11 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 	{
 		private readonly ProductionControlDbContext _context;
 
+		public EmployeesExternalOrganizationsRepository(ProductionControlDbContext context)
+		{
+			_context = context;
+		}
+
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для сотрудников Сторонних Организаций.
 		/// </summary>
@@ -24,23 +30,22 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="itemYearsTO">Выбранный год.</param>
 		/// <param name="noWorkDaysTO">Список нерабочих дней.</param>
 		/// <returns>Коллекция элементов табеля.</returns>
-		public async Task<ObservableCollection<TimeSheetItemExOrgDto>> SetDataForTimeSheetExOrgAsync(
-			string valueDepartmentID, DateTime startDate, DateTime endDate,
-			MonthsOrYearsDto itemMonthsTO, MonthsOrYearsDto itemYearsTO, List<int> noWorkDaysTO, bool flagAllEmployeeExOrg)
+		public async Task<List<TimeSheetItemExOrgDto>> SetDataForTimeSheetExOrgAsync(
+			DataForTimeSheetExOrgs dataForTimeSheetEx, CancellationToken token = default)
 		{
 			//Временная (на время расчетов) коллекция для сбора всех данных о сотрудниках для табеля
-			var tempShifts = new ObservableCollection<TimeSheetItemExOrgDto>();
+			var tempShifts = new List<TimeSheetItemExOrgDto>();
 			int id = 1;
 
 			List<EmployeeExOrg> EmployeeExOrgWithSifts = [];
-			if (flagAllEmployeeExOrg)
+			if (dataForTimeSheetEx.FlagAllEmployeeExOrg)
 			{
 				//Выбираем только тех сотрудников, которые принадлежат к датам
 				EmployeeExOrgWithSifts = await _context.EmployeeExOrgs
 					.Include(i => i.ShiftDataExOrgs
-						.Where(s => s.WorkDate >= startDate && s.WorkDate <= endDate))
+						.Where(s => s.WorkDate >= dataForTimeSheetEx.StartDate && s.WorkDate <= dataForTimeSheetEx.EndDate))
 					.OrderBy(o => o.FullName)
-					.ToListAsync();
+					.ToListAsync(cancellationToken: token);
 			}
 			else
 			{
@@ -48,27 +53,28 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 				EmployeeExOrgWithSifts = await _context.EmployeeExOrgs
 					.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
 					.Include(i => i.ShiftDataExOrgs
-						.Where(s => s.WorkDate >= startDate &&
-												s.WorkDate <= endDate && s.DepartmentID == valueDepartmentID))
+						.Where(s => s.WorkDate >= dataForTimeSheetEx.StartDate &&
+												s.WorkDate <= dataForTimeSheetEx.EndDate && s.DepartmentID == dataForTimeSheetEx.ValueDepartmentID))
 					.Include(x => x.EmployeeExOrgAddInRegions
-						.Where(x => x.DepartmentID == valueDepartmentID &&
+						.Where(x => x.DepartmentID == dataForTimeSheetEx.ValueDepartmentID &&
 												x.WorkingInTimeSheetEmployeeExOrg == true))
 					.OrderBy(o => o.FullName)
-					.ToListAsync();
+					.ToListAsync(cancellationToken: token);
 			}
 
 			if (EmployeeExOrgWithSifts.Count == 0) return [];
 
 			//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
 			EmployeeExOrgWithSifts = EmployeeExOrgWithSifts
-				.Where(x => x.ValidateEmployee(itemMonthsTO.Id, itemYearsTO.Id))
+				.Where(x => x.ValidateEmployee(
+					dataForTimeSheetEx.ItemMonthsTO.Id, dataForTimeSheetEx.ItemYearsTO.Id))
 				.ToList();
 
 			//Циклы в которых,
 			//Создаём и заполняем на каждого сотрудника "Пустой" график работ. Который будет заполняться в ручную и автоматически раз в месяц.
 			foreach (var employee in EmployeeExOrgWithSifts)
 			{
-				if (flagAllEmployeeExOrg)
+				if (dataForTimeSheetEx.FlagAllEmployeeExOrg)
 				{
 					var shiftList = employee.ShiftDataExOrgs
 						.GroupBy(x => x.WorkDate)
@@ -95,7 +101,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 					var shiftDict = employee.ShiftDataExOrgs?
 						.ToDictionary(x => x.WorkDate) ?? [];
 
-					for (var date = startDate; date <= endDate; date = date.AddDays(1))
+					for (var date = dataForTimeSheetEx.StartDate; date <= dataForTimeSheetEx.EndDate; date = date.AddDays(1))
 					{
 						if (!shiftDict.ContainsKey(date))
 						{
@@ -105,7 +111,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 								WorkDate = date,
 								EmployeeExOrg = employee,
 								Hours = string.Empty,
-								DepartmentID = valueDepartmentID,
+								DepartmentID = dataForTimeSheetEx.ValueDepartmentID,
 							};
 						}
 					}
@@ -113,11 +119,12 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 				}
 				else
 				{
-					if (!employee.EmployeeExOrgAddInRegions.Any()) continue;
+					if (!employee.EmployeeExOrgAddInRegions.Any())
+						continue;
 
 					var shiftDict = employee.ShiftDataExOrgs?.ToDictionary(x => x.WorkDate) ?? [];
 
-					for (var date = startDate; date <= endDate; date = date.AddDays(1))
+					for (var date = dataForTimeSheetEx.StartDate; date <= dataForTimeSheetEx.EndDate; date = date.AddDays(1))
 					{
 						if (!shiftDict.ContainsKey(date))
 						{
@@ -127,7 +134,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 								WorkDate = date,
 								EmployeeExOrg = employee,
 								Hours = string.Empty,
-								DepartmentID = valueDepartmentID,
+								DepartmentID = dataForTimeSheetEx.ValueDepartmentID,
 							};
 						}
 					}
@@ -142,15 +149,15 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 							ShortName = employee.ShortName
 						},
 						workerHours: new ObservableCollection<ShiftDataExOrg>(employee.ShiftDataExOrgs),
-						noWorksDay: noWorkDaysTO,
-						seeOrWrite: flagAllEmployeeExOrg
+						noWorksDay: dataForTimeSheetEx.NoWorkDaysTO,
+						seeOrWrite: dataForTimeSheetEx.FlagAllEmployeeExOrg
 						);
 
 				tempShifts.Add(itemShift);
 				id++;
 			}
 
-			if (!flagAllEmployeeExOrg)
+			if (!dataForTimeSheetEx.FlagAllEmployeeExOrg)
 			{
 				if (_context.ChangeTracker.HasChanges())
 				{
@@ -161,24 +168,20 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			return tempShifts;
 		}
 
-		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(DateTime startDate, DateTime endDate, CancellationToken token)
+		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(StartEndDateTime startEndDateTime, CancellationToken token)
 		{
 
 			var employeeExOrgs = await _context.EmployeeExOrgs
 				.AsNoTracking()
 				.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
 				.Include(i => i.ShiftDataExOrgs
-					.Where(w => w.WorkDate >= startDate && w.WorkDate <= endDate))
+					.Where(w => w.WorkDate >= startEndDateTime.StartDate
+										&& w.WorkDate <= startEndDateTime.EndDate))
 				.Include(i => i.EmployeeExOrgAddInRegions)
 				.OrderBy(o => o.NumCategory)
 				.ToListAsync(token);
 
 			return employeeExOrgs;
-		}
-
-		public EmployeesExternalOrganizationsRepository(ProductionControlDbContext context)
-		{
-			_context = context;
 		}
 
 		/// <summary>
@@ -211,14 +214,16 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="valueDepartmentID">Идентификатор отдела.</param>
 		/// <returns>Список сотрудников.</returns>
 		public async Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(
-			DateTime startDate, DateTime endDate, string valueDepartmentID, CancellationToken token)
+			StartEndDateTimeDepartmentID startEndDateTimeDepartmentID, CancellationToken token)
 		{
 			var listResult = await _context.EmployeeExOrgs
 					.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
 					.AsNoTracking()
 					.Include(x => x.EmployeeExOrgAddInRegions)
 					.Include(x => x.ShiftDataExOrgs
-						.Where(r => r.WorkDate >= startDate && r.WorkDate <= endDate && r.DepartmentID == valueDepartmentID))
+						.Where(r => r.WorkDate >= startEndDateTimeDepartmentID.StartDate
+										&& r.WorkDate <= startEndDateTimeDepartmentID.EndDate
+										&& r.DepartmentID == startEndDateTimeDepartmentID.ValueDepartmentID))
 					.Where(s => s.IsDismissal == false)
 					.ToListAsync(token);
 
@@ -232,16 +237,19 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="endDate">Конечная дата периода.</param>
 		/// <returns>Список сотрудников.</returns>
 		public async Task<List<EmployeeExOrg>> GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(
-			DateTime startDate, DateTime endDate, CancellationToken token)
+			StartEndDateTime startEndDateTime, CancellationToken token)
 		{
 			//Выбираем только тех сотрудников, которые принадлежат выбранному участку и датам
 			var list = await _context.EmployeeExOrgs
 				.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
 				.AsNoTracking()
 				.Include(i => i.ShiftDataExOrgs
-					.Where(s => s.WorkDate >= startDate && s.WorkDate <= endDate && s.DepartmentID.Contains("044")))
+					.Where(s => s.WorkDate >= startEndDateTime.StartDate
+							&& s.WorkDate <= startEndDateTime.EndDate
+							&& s.DepartmentID.Contains("044")))
 				.Include(x => x.EmployeeExOrgAddInRegions
-					.Where(x => x.DepartmentID.Contains("044") && x.WorkingInTimeSheetEmployeeExOrg == true))
+					.Where(x => x.DepartmentID.Contains("044")
+							&& x.WorkingInTimeSheetEmployeeExOrg == true))
 				.OrderBy(o => o.FullName)
 				.ToListAsync(token);
 
@@ -302,30 +310,31 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="exOrg">Сотрудник для обновления.</param>
 		/// <param name="userDataCurrent">Данные текущего пользователя.</param>
 		/// <returns>True, если данные успешно обновлены, иначе False.</returns>
-		public async Task UpdateEmployeeExOrgAsync(EmployeeExOrg exOrg, string valueDepId, bool addWorkInReg, CancellationToken token)
+		public async Task UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token)
 		{
 			var empExOrg = await _context.EmployeeExOrgs
-						.Where(x => x.EmployeeExOrgID == exOrg.EmployeeExOrgID)
+						.Where(x => x.EmployeeExOrgID == dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID)
 						.Include(x => x.EmployeeExOrgAddInRegions
-							.Where(w => w.DepartmentID == valueDepId && w.EmployeeExOrgID == exOrg.EmployeeExOrgID))
+							.Where(w => w.DepartmentID == dataForUpdateEmloyeeExOrg.ValueDepId
+												&& w.EmployeeExOrgID == dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID))
 						.Include(z => z.EmployeePhotos)
 						.FirstOrDefaultAsync(token);
 
 			if (empExOrg is null)
 			{
-				await AddEmployeeExOrgAsync(exOrg, token);
+				await AddEmployeeExOrgAsync(dataForUpdateEmloyeeExOrg.ExOrg, token);
 			}
 			else
 			{
-				empExOrg.DateDismissal = exOrg.DateDismissal;
-				empExOrg.IsDismissal = exOrg.IsDismissal;
-				empExOrg.NumberPass = exOrg.NumberPass;
-				empExOrg.FullName = exOrg.FullName;
-				empExOrg.ShortName = exOrg.ShortName;
-				empExOrg.DateEmployment = exOrg.DateEmployment;
-				empExOrg.EmployeePhotos = exOrg.EmployeePhotos;
-				empExOrg.Descriptions = exOrg.Descriptions;
-				empExOrg.NumCategory = exOrg.NumCategory;
+				empExOrg.DateDismissal = dataForUpdateEmloyeeExOrg.ExOrg.DateDismissal;
+				empExOrg.IsDismissal = dataForUpdateEmloyeeExOrg.ExOrg.IsDismissal;
+				empExOrg.NumberPass = dataForUpdateEmloyeeExOrg.ExOrg.NumberPass;
+				empExOrg.FullName = dataForUpdateEmloyeeExOrg.ExOrg.FullName;
+				empExOrg.ShortName = dataForUpdateEmloyeeExOrg.ExOrg.ShortName;
+				empExOrg.DateEmployment = dataForUpdateEmloyeeExOrg.ExOrg.DateEmployment;
+				empExOrg.EmployeePhotos = dataForUpdateEmloyeeExOrg.ExOrg.EmployeePhotos;
+				empExOrg.Descriptions = dataForUpdateEmloyeeExOrg.ExOrg.Descriptions;
+				empExOrg.NumCategory = dataForUpdateEmloyeeExOrg.ExOrg.NumCategory;
 			}
 
 			if (empExOrg.EmployeeExOrgAddInRegions.Any())
@@ -333,22 +342,22 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 				empExOrg.EmployeeExOrgAddInRegions
 					.Foreach(x =>
 					{
-						x.WorkingInTimeSheetEmployeeExOrg = addWorkInReg;
+						x.WorkingInTimeSheetEmployeeExOrg = dataForUpdateEmloyeeExOrg.AddWorkInReg;
 					});
 			}
 			else
 			{
-				if (addWorkInReg)
+				if (dataForUpdateEmloyeeExOrg.AddWorkInReg)
 				{
 					var exOrgInRegDict = empExOrg.EmployeeExOrgAddInRegions.ToDictionary(x => x.EmployeeExOrgID) ?? [];
-					if (!exOrgInRegDict.ContainsKey(exOrg.EmployeeExOrgID))
+					if (!exOrgInRegDict.ContainsKey(dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID))
 					{
-						exOrgInRegDict[exOrg.EmployeeExOrgID] = new EmployeeExOrgAddInRegion
+						exOrgInRegDict[dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID] = new EmployeeExOrgAddInRegion
 						{
-							DepartmentID = valueDepId,
-							EmployeeExOrgID = exOrg.EmployeeExOrgID,
-							EmployeeExOrg = exOrg,
-							WorkingInTimeSheetEmployeeExOrg = addWorkInReg
+							DepartmentID = dataForUpdateEmloyeeExOrg.ValueDepId,
+							EmployeeExOrgID = dataForUpdateEmloyeeExOrg.ExOrg.EmployeeExOrgID,
+							EmployeeExOrg = dataForUpdateEmloyeeExOrg.ExOrg,
+							WorkingInTimeSheetEmployeeExOrg = dataForUpdateEmloyeeExOrg.AddWorkInReg
 						};
 					}
 					empExOrg.EmployeeExOrgAddInRegions = [.. exOrgInRegDict.Values];

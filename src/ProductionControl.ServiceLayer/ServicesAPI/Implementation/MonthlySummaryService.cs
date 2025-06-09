@@ -1,6 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.Infrastructure.Repositories.Interfaces;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;
@@ -30,13 +30,28 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 		/// <param name="year">Год отчёта.</param>
 		/// <param name="token">Токен отмены операции.</param>
 		/// <returns>Задача без результата. Исключения логируются внутри.</returns>
-		public async Task GetDataForMonthlySummary(int month, int year, CancellationToken token)
+		public async Task GetDataForMonthlySummary(DateTime monht_year, CancellationToken token)
 		{
 			try
 			{
 				// 1) Устанавливаем даты на начало и конец прогнозируемого месяца
-				var startDate = new DateTime(year: year, month: month, day: 1);
-				var endDate = new DateTime(year: year, month: month, day: DateTime.DaysInMonth(year: year, month: month));
+				var startDate = new DateTime
+				(
+					year: monht_year.Year,
+					month: monht_year.Month,
+					day: 1
+				);
+
+				var endDate = new DateTime
+				(
+					year: monht_year.Year,
+					month: monht_year.Month,
+					day: DateTime.DaysInMonth
+					(
+						year: monht_year.Year,
+						month: monht_year.Month
+					)
+				);
 
 				StartEndDateTime startEndDate = new StartEndDateTime { StartDate = startDate, EndDate = endDate };
 
@@ -49,7 +64,7 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 				// 3) Проводим валидацию сотрудников на обстоятельства: уволнение и приёма на работу. 
 				//Например: Уволенный в июне 2020 сотрудник не должен быть в табеле в июле 2024.
 				//И нанятый новый человек в августе 2024 не должен быть в табеле 2023 года.
-				AllPeople = AllPeople.Where(x => x.ValidateEmployee(month, year)).ToList();
+				AllPeople = AllPeople.Where(x => x.ValidateEmployee(monht_year.Month, monht_year.Year)).ToList();
 
 				// 4) Подготовим список DTO для итогового отчёта
 				List<MonthlySummaryDto> monthlySummaries = [];
@@ -80,15 +95,14 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 						}
 						// d) Записываем часы в соответствующее свойство Day1…Day31
 						SetDayHours(summary, date.Day, shiftDict[date].Hours);
-
 					}
 
 					// e) Сохраняем обратно список смен (на случай, если где-то изменили)
 					employee.Shifts = shiftDict.Values.ToList();
 
 					// f) Заполняем поля DTO по сотруднику и месяцу
-					summary.Year = year;
-					summary.MonthName = GetMonthName(month);
+					summary.Year = monht_year.Year;
+					summary.MonthName = GetMonthName(monht_year.Month);
 					summary.EmployeeID = employee.EmployeeID;
 					summary.ShortName = employee.ShortName;
 					summary.DepartmentID = int.TryParse(employee.DepartmentID, out int res) ? res : 0;

@@ -1,4 +1,4 @@
-﻿using ProductionControl.DataAccess.Classes.Models.Dtos;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 
 namespace ProductionControl.ServiceLayer.ServicesAPI.Interfaces
 {

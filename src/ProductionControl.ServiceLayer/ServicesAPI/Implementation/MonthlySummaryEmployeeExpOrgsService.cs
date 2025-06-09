@@ -1,5 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
+using ProductionControl.DataAccess.Classes.HttpModels;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.Infrastructure.Repositories.Interfaces;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;
@@ -32,13 +33,13 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 		/// true, если отчёт успешно создан и отправлен; 
 		/// false в случае ошибок парсинга дат, отсутствия данных или внутренних исключений.
 		/// </returns>
-		public async Task<bool> CreateReportEmployeeExpOrgAsync(string _startPeriodString, string _endPeriodString, CancellationToken token)
+		public async Task<bool> CreateReportEmployeeExpOrgAsync(StartEndDateTime startEndDate, CancellationToken token)
 		{
 			try
 			{
 				// Парсим входные строки в DateTime. Если не получается — возвращаем false.
-				if (!DateTime.TryParse(_startPeriodString, out var startPeriod)) return false;
-				if (!DateTime.TryParse(_endPeriodString, out var endPeriod)) return false;
+				var startPeriod = startEndDate.StartDate;
+				var endPeriod = startEndDate.EndDate;
 
 				// Определяем первые и последние дни месяца по дате начала
 				int month = startPeriod.Month;
@@ -50,13 +51,19 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 				List<EmployeesExOrgForReportDto> orgForReports = [];
 				Dictionary<string, double> departmentAllHoursDict = [];
 
+				StartEndDateTime startEndDateTime = new StartEndDateTime
+				{
+					StartDate = startDate,
+					EndDate = endDate
+				};
+
 				// Загружаем данные по сменам сотрудников за период
-				var employeeExOrgs = await _services.GetEmployeeExOrgsAsync(startDate, endDate, token);
+				var employeeExOrgs = await _services.GetEmployeeExOrgsAsync(startEndDateTime, token);
 
 				// Фильтруем по валидности данных (метод ValidateEmployee проверяет, что у сотрудника есть необходимые данные)
 				employeeExOrgs = employeeExOrgs
-									.Where(x => x.ValidateEmployee(startDate.Month, startDate.Year))
-									.ToList();
+					.Where(x => x.ValidateEmployee(startDate.Month, startDate.Year))
+					.ToList();
 
 				// Если нет валидных сотрудников — прерываем
 				if (employeeExOrgs.Count == 0) return false;

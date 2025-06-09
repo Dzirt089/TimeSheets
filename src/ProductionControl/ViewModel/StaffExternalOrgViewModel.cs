@@ -1,15 +1,18 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AutoMapper;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using MahApps.Metro.Controls.Dialogs;
 
 using Microsoft.Win32;
 
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.Models.Dtos.ExternalOrganization;
-using ProductionControl.Models.Entitys.ExternalOrganization;
-using ProductionControl.Models.Entitys.GlobalPropertys;
-using ProductionControl.Services.Interfaces;
+using ProductionControl.Services.ErrorLogsInformation;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Model.ExternalOrganization;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 using ProductionControl.Views;
 
 using System.Collections.ObjectModel;
@@ -29,14 +32,16 @@ namespace ProductionControl.ViewModel
 	/// <param name="timeSheetDb">Сервис для работы с базой данных табелей.</param>
 	/// <param name="errorLogger">Сервис для логирования ошибок.</param>
 	public class StaffExternalOrgViewModel(
+		IMapper mapper,
 		ITimeSheetDbService timeSheetDb,
 		IErrorLogger errorLogger,
 		IDialogCoordinator coordinator,
-		LocalUserData userData) : ObservableObject
+		GlobalEmployeeSessionInfo userData) : ObservableObject
 	{
 		private readonly IDialogCoordinator _coordinator = coordinator;
 		private readonly ITimeSheetDbService _timeSheetDb = timeSheetDb;
 		private readonly IErrorLogger _errorLogger = errorLogger;
+		private readonly IMapper _mapper = mapper;
 		private StaffExternalOrgView? ExternalOrgView { get; set; }
 
 		/// <summary>
@@ -118,9 +123,21 @@ namespace ProductionControl.ViewModel
 				int idEmpLast = NewEmployeeForCartotecaExOrg.EmployeeExOrgID;
 
 				if (CheckingBoolUpdate())
-					await _timeSheetDb.UpdateEmployeeExOrgAsync(NewEmployeeForCartotecaExOrg, ValueDepartmentID, AddWorkingInReg);
+				{
+					DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg = new DataForUpdateEmloyeeExOrg
+					{
+						ExOrg = _mapper.Map<EmployeeExOrg>(NewEmployeeForCartotecaExOrg),
+						ValueDepId = ValueDepartmentID,
+						AddWorkInReg = AddWorkingInReg
+					};
+
+					await _timeSheetDb.UpdateEmployeeExOrgAsync(dataForUpdateEmloyeeExOrg);
+				}
 				else
-					await _timeSheetDb.AddEmployeeExOrgAsync(NewEmployeeForCartotecaExOrg);
+				{
+					var newEmployee = _mapper.Map<EmployeeExOrg>(NewEmployeeForCartotecaExOrg);
+					await _timeSheetDb.AddEmployeeExOrgAsync(newEmployee);
+				}
 
 				VisibilityAddMainRegion = Visibility.Visible;
 

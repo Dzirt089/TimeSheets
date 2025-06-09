@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.Models.Dtos.Siz;
+using ProductionControl.UIModels.Dtos.Siz;
 
-namespace ProductionControl.Models.Dtos.EmployeesFactory
+namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 {
 	/// <summary>
 	/// Модель класса, описывающая сотрудника.

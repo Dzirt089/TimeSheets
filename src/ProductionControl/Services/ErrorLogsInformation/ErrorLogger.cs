@@ -1,14 +1,13 @@
-﻿using ProductionControl.Models.Entitys.GlobalPropertys;
-using ProductionControl.Services.Interfaces;
-using ProductionControl.Services.Mail;
+﻿using ProductionControl.Services.Mail;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 
-namespace ProductionControl.Services
+namespace ProductionControl.Services.ErrorLogsInformation
 {
 	/// <summary>
 	/// Класс для логгирования ошибок в БД и дублирование в письме
 	/// </summary>
 	/// <param name="mailService">Сервис по отправке писем, сконфигурирорван под предприятие</param>
-	public class ErrorLogger(MailService mailService, LocalUserData userData) : IErrorLogger
+	public class ErrorLogger(MailService mailService, GlobalEmployeeSessionInfo userData) : IErrorLogger
 	{
 
 		/// <summary>

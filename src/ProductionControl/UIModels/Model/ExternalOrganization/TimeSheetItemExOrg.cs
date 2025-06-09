@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.Models.Dtos.ExternalOrganization;
-using ProductionControl.Models.Entitys.EmployeesFactory;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Model.EmployeesFactory;
 
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 
-namespace ProductionControl.Models.Entitys.ExternalOrganization
+namespace ProductionControl.UIModels.Model.ExternalOrganization
 {
 	/// <summary>
 	/// Главный класс для работы с табелем учёта рабочего времени сотрудников ТО

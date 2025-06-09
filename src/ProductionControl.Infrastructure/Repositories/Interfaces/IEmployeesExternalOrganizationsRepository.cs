@@ -1,7 +1,6 @@
-﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
-
-using System.Collections.ObjectModel;
+﻿using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
+using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
+using ProductionControl.DataAccess.Classes.HttpModels;
 
 namespace ProductionControl.Infrastructure.Repositories.Interfaces
 {
@@ -10,20 +9,18 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
-		Task<ObservableCollection<TimeSheetItemExOrgDto>> SetDataForTimeSheetExOrgAsync(
-			string valueDepartmentID, DateTime startDate, DateTime endDate,
-			MonthsOrYearsDto itemMonthsTO, MonthsOrYearsDto itemYearsTO, List<int> noWorkDaysTO, bool flagAllEmployeeExOrg);
+		Task<List<TimeSheetItemExOrgDto>> SetDataForTimeSheetExOrgAsync(DataForTimeSheetExOrgs dataForTimeSheetEx, CancellationToken token = default);
 
-		Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(DateTime startDate, DateTime endDate, string valueDepartmentID, CancellationToken token);
+		Task<List<EmployeeExOrg>> GetEmployeeExOrgsOnDateAsync(StartEndDateTimeDepartmentID startEndDateTimeDepartmentID, CancellationToken token);
 
 		Task<List<EmployeeExOrg>> GetEmployeeExOrgsAllAsync(CancellationToken token);
 
-		Task UpdateEmployeeExOrgAsync(EmployeeExOrg exOrg, string valueDepId, bool addWorkInReg, CancellationToken token);
+		Task UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token);
 
 		Task AddEmployeeExOrgAsync(EmployeeExOrg exOrg, CancellationToken token);
 
 		Task<List<EmployeeExOrg>> GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(
-			DateTime startDate, DateTime endDate, CancellationToken token);
+			StartEndDateTime startEndDateTime, CancellationToken token);
 
 		/// <summary>
 		/// Асинхронный метод по обновлению даты уволнения у выбранного сотрудника
@@ -35,6 +32,6 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 		/// </summary>
 		Task SetTotalWorksDaysExOrgAsync(object? sender, CancellationToken token);
 
-		Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(DateTime startDate, DateTime endDate, CancellationToken token);
+		Task<List<EmployeeExOrg>> GetEmployeeExOrgsAsync(StartEndDateTime startEndDateTime, CancellationToken token);
 	}
 }

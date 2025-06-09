@@ -1,4 +1,6 @@
-﻿namespace ProductionControl.ServiceLayer.ServicesAPI.Interfaces
+﻿using ProductionControl.DataAccess.Classes.HttpModels;
+
+namespace ProductionControl.ServiceLayer.ServicesAPI.Interfaces
 {
 	public interface IMonthlySummaryEmployeeExpOrgsService
 	{
@@ -13,6 +15,6 @@
 		/// true, если отчёт успешно создан и отправлен; 
 		/// false в случае ошибок парсинга дат, отсутствия данных или внутренних исключений.
 		/// </returns>
-		Task<bool> CreateReportEmployeeExpOrgAsync(string startPeriod, string endPeriod, CancellationToken token);
+		Task<bool> CreateReportEmployeeExpOrgAsync(StartEndDateTime startEndDate, CancellationToken token);
 	}
 }

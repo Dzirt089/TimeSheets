@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.DataAccess.Classes.Models.Dtos
+﻿namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 {
 	/// <summary>
 	/// Класс, который отображает краткие сведения о сотруднике в Табеле: ФИО, смена, переработка

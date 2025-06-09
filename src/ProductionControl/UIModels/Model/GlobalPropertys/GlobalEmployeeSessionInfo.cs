@@ -1,9 +1,9 @@
-﻿namespace ProductionControl.Models.Entitys.GlobalPropertys
+﻿namespace ProductionControl.UIModels.Model.GlobalPropertys
 {
 	/// <summary>
 	/// Содержит имена сотрудника и его компьютера
 	/// </summary>
-	public class LocalUserData
+	public class GlobalEmployeeSessionInfo
 	{
 		/// <summary>
 		/// Сокращенное ФИО сотрудника

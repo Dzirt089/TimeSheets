@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ProductionControl.Models.Dtos.EmployeesFactory
+namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 {
 	public class EmployeeAccessRightDto : ObservableObject
 	{

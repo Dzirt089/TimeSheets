@@ -2,7 +2,7 @@
 
 using System.Collections.ObjectModel;
 
-namespace ProductionControl.DataAccess.Classes.Models.Dtos
+namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 {
 	/// <summary>
 	/// Главный класс для работы с табелем учёта рабочего времени сотрудников ТО

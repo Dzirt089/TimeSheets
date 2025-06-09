@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.DataAccess.Classes.Models.Model;
+using ProductionControl.DataAccess.Classes.ApiModels.Model;
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 
-namespace ProductionControl.Models.Dtos.EmployeesFactory
+namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 {
 	/// <summary>
 	/// Модель учёта времени отработанного на производстве. Включает в себя часы в смене, тип смены, время переработки\недоработки

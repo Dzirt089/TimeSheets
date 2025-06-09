@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
 using ProductionControl.DataAccess.Classes.Utils;
 using ProductionControl.DataAccess.EntityFramework.DbContexts;
 using ProductionControl.DataAccess.Sql.Interfaces;
@@ -173,14 +173,14 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="defaultDateDismissal">Дата увольнения по умолчанию.</param>
 		/// <param name="userDataCurrent">Текущие данные пользователя.</param>
 		/// <returns>Результат отмены увольнения.</returns>
-		public async Task<bool?> CancelDismissalEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
+		public async Task<bool> CancelDismissalEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
 		{
 			//Достаём данные по сотруднику по его табельному номеру
 			var itemEmployee = await _context.Employees
 				.Where(w => w.EmployeeID == idEmployeeDateTime.IdEmployee)
 				.SingleOrDefaultAsync(token);
 
-			if (itemEmployee is null) return null;
+			if (itemEmployee is null) return false;
 
 
 			//Если уволен - отменяем увольнение. 
@@ -297,7 +297,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			return departmentProductionsDb;
 		}
 
-		public async Task<DepartmentProduction?> GetDepartmentProductionAsync(string depId, CancellationToken token = default)
+		public async Task<DepartmentProduction> GetDepartmentProductionAsync(string depId, CancellationToken token = default)
 		{
 			return await _context.DepartmentProductions
 					.AsNoTracking()
@@ -305,7 +305,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 					x.DepartmentID == depId, token);
 		}
 
-		public async Task<EmployeeAccessRight?> GetEmployeeByIdAsync(DepartmentProduction? itemDepartment, CancellationToken token = default)
+		public async Task<EmployeeAccessRight> GetEmployeeByIdAsync(DepartmentProduction itemDepartment, CancellationToken token = default)
 		{
 			return await _context.EmployeeAccessRights
 					.AsNoTracking()
@@ -337,7 +337,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="idEmployee">Табельный номер сотрудника.</param>
 		/// <param name="date">Дата.</param>
 		/// <returns>Сотрудник.</returns>
-		public async Task<Employee?> GetEmployeeIdAndDateAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
+		public async Task<Employee> GetEmployeeIdAndDateAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
 		{
 			return await _context.Employees
 					.AsNoTracking()
@@ -518,7 +518,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			return report;
 		}
 
-		public async Task UpdateDepartamentAsync(DepartmentProduction? itemDepartment, CancellationToken token = default)
+		public async Task UpdateDepartamentAsync(DepartmentProduction itemDepartment, CancellationToken token = default)
 		{
 			await using var transaction = await _context.Database.BeginTransactionAsync(token);
 			_context.DepartmentProductions.Update(itemDepartment);
@@ -532,7 +532,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="date">Дата увольнения.</param>
 		/// <param name="idEmployee">Табельный номер сотрудника.</param>
 		/// <returns>Результат обновления.</returns>
-		public async Task<bool?> UpdateDismissalDataEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
+		public async Task<bool> UpdateDismissalDataEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
 		{
 			//Достаём данные по сотруднику по его табельному номеру
 			var itemEmployee = await _context.Employees
@@ -589,7 +589,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <param name="idEmployee">Табельный номер сотрудника.</param>
 		/// <param name="manualLastDateLunch">Дата последнего обеда.</param>
 		/// <returns>Результат обновления.</returns>
-		public async Task<bool?> UpdateLunchEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
+		public async Task<bool> UpdateLunchEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default)
 		{
 			//Достаём данные по сотруднику по его табельному номеру
 			var itemEmployee = await _context.Employees

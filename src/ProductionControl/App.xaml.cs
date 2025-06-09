@@ -7,18 +7,19 @@ using MailerVKT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using ProductionControl.ApiClients.ApiServices.ReportsApiServices.Implementation;
-using ProductionControl.ApiClients.ApiServices.ReportsApiServices.Interfaces;
-using ProductionControl.ApiClients.ApiServices.ResultSheetsApiServices.Implementation;
-using ProductionControl.ApiClients.ApiServices.ResultSheetsApiServices.Interfaces;
-using ProductionControl.Models.Dtos.ExternalOrganization;
-using ProductionControl.Models.Entitys.GlobalPropertys;
-using ProductionControl.Services;
-using ProductionControl.Services.API;
-using ProductionControl.Services.API.Interfaces;
+using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Implementation;
+using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Implementation;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Implementation;
+using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Implementation;
+using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Interfaces;
 using ProductionControl.Services.DynamicGrid;
 using ProductionControl.Services.DynamicGrid.ExternalOrganization;
-using ProductionControl.Services.Interfaces;
+using ProductionControl.Services.ErrorLogsInformation;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 using ProductionControl.ViewModel;
 
 using System.Windows;
@@ -50,7 +51,14 @@ namespace ProductionControl
 		{
 			try
 			{
-				services.AddSingleton<HttpClientForProject>();
+				#region Глобальные модели свойств
+
+				services.AddSingleton<GlobalEmployeeSessionInfo>();
+				services.AddSingleton<GlobalSettingsProperty>();
+
+				#endregion
+
+				#region API-Сервисы и API-клиенты
 
 				services.AddHttpClient("ProductionApi", client =>
 				{
@@ -58,25 +66,45 @@ namespace ProductionControl
 					client.DefaultRequestHeaders.Add("Accept", "application/json");
 					client.Timeout = TimeSpan.FromSeconds(30);
 				});
+				services.AddHttpClient("VKTApi", client =>
+				{
+					client.BaseAddress = new Uri(Settings.Default.VKT_API);
+					client.DefaultRequestHeaders.Add("Accept", "application/json");
+					client.Timeout = TimeSpan.FromSeconds(30);
+				});
 
-				services.AddSingleton<LocalUserData>();
-				services.AddSingleton<GlobalSettingsProperty>();
-
-				services.AddScoped<IProductionApiClient, ProductionApiClient>();
+				services.AddScoped<IReportsApiClient, ReportsApiClient>();
 				services.AddScoped<IResultSheetsApiClient, ResultSheetsApiClient>();
+				services.AddScoped<IEmployeeSheetApiClient, EmployeeSheetApiClient>();
+				services.AddScoped<IDefinitionOfNonWorkingDaysApiClient, DefinitionOfNonWorkingDaysApiClient>();
+
+				#endregion
+
+				#region ViewModels
 
 				services.AddScoped<StaffViewModel>();
 				services.AddScoped<StaffExternalOrgViewModel>();
 				services.AddScoped<FAQViewModel>();
+				services.AddScoped<MainViewModel>();
+
+				#endregion
+
+				#region Email и логирование ошибок
+
 				services.AddScoped<IErrorLogger, ErrorLogger>();
 				services.AddScoped<Sender>();
 				services.AddScoped<MailService>();
-				services.AddScoped<IDefinitionOfNonWorkingDays, DefinitionOfNonWorkingDays>();
+
+				#endregion
+
+				#region Регистрация сервисов для работы с динамическими колонками
+
 				services.AddSingleton<DynamicColumnsBehaviorvTO2>();
 				services.AddSingleton<DynamicColumnsBehaviorvExpOrg>();
-				services.AddScoped<IDialogCoordinator, DialogCoordinator>();
-				services.AddScoped<MainViewModel>();
 
+				#endregion
+
+				services.AddScoped<IDialogCoordinator, DialogCoordinator>();
 				services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 			}
 			catch (Exception ex)
@@ -237,8 +265,6 @@ namespace ProductionControl
 			OneClick = null;
 			Timer.Dispose();
 		}
-
-
 
 		/// <summary>
 		/// Обработчик события левого щелчка мыши на элементе `TextBlock`.
@@ -612,7 +638,6 @@ namespace ProductionControl
 				SendMailWithErrors(ex, text);
 			}
 		}
-
 
 		/*	Пояснения к коду ниже (обработка цветами смен для СО):
 		 

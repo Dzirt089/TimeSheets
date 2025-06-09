@@ -7,18 +7,19 @@ using MahApps.Metro.Controls.Dialogs;
 
 using Microsoft.Win32;
 
-using ProductionControl.ApiClients.ApiServices.ReportsApiServices.Interfaces;
-using ProductionControl.ApiClients.ApiServices.ResultSheetsApiServices.Interfaces;
+using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.ReportsApiServices.Interfaces;
+using ProductionControl.ApiClients.ProductionApiServices.ResultSheetsApiServices.Interfaces;
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
-using ProductionControl.Models.Dtos.EmployeesFactory;
-using ProductionControl.Models.Dtos.ExternalOrganization;
-using ProductionControl.Models.Entitys.EmployeesFactory;
-using ProductionControl.Models.Entitys.ExternalOrganization;
-using ProductionControl.Models.Entitys.GlobalPropertys;
-using ProductionControl.Services.API.Interfaces;
-using ProductionControl.Services.Interfaces;
+using ProductionControl.Services.ErrorLogsInformation;
+using ProductionControl.UIModels.Dtos.EmployeesFactory;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Model.EmployeesFactory;
+using ProductionControl.UIModels.Model.ExternalOrganization;
+using ProductionControl.UIModels.Model.GlobalPropertys;
 using ProductionControl.Views;
 
 using System.Collections.Concurrent;
@@ -38,11 +39,13 @@ namespace ProductionControl.ViewModel
 	public class MainViewModel : ObservableObject
 	{
 		#region Поля		
-		private readonly IDefinitionOfNonWorkingDays _definition;
+		private readonly IDefinitionOfNonWorkingDaysApiClient _daysApi;
+		private readonly IEmployeeSheetApiClient _employeeSheetApi;
+		private readonly IResultSheetsApiClient _resultSheetsApi;
+		private readonly IReportsApiClient _reportsApi;
+
 		private readonly IDialogCoordinator _coordinator;
 		private readonly IErrorLogger _errorLogger;
-		private readonly IProductionApiClient _api;
-		private readonly IResultSheetsApiClient _sheetsService;
 		private readonly IMapper _mapper;
 
 		private readonly Dispatcher dispatcher = Application.Current.Dispatcher;
@@ -56,7 +59,7 @@ namespace ProductionControl.ViewModel
 		/// <summary>
 		/// Данные с именами сотрудника и его компьютера
 		/// </summary>
-		private LocalUserData UserDataCurrent { get; set; }
+		private GlobalEmployeeSessionInfo UserDataCurrent { get; set; }
 		#endregion
 
 		#region Конструктор
@@ -64,39 +67,40 @@ namespace ProductionControl.ViewModel
 		/// <summary>
 		/// Инициализирует новый экземпляр класса MainViewModel.
 		/// </summary>	
-		/// <param name="definition">Интерфейс сервиса «Определение нерабочих дней».</param>		
+		/// <param name="daysApi">Интерфейс сервиса «Определение нерабочих дней».</param>		
 		/// <param name="coordinator">Интерфейс координатора диалогов</param>
 		/// <param name="errorLogger">Интерфейс регистратора ошибок.</param>
-		/// <param name="context">Интерфейс фабрики DbContext</param>
 
 		public MainViewModel(
-			IDefinitionOfNonWorkingDays definition,
-			IDialogCoordinator coordinator,
-			IErrorLogger errorLogger,
-			IResultSheetsApiClient sheetsService,
 			StaffViewModel staffViewModel,
 			FAQViewModel fAQViewModel,
 			StaffExternalOrgViewModel staffExternalOrgView,
 			GlobalSettingsProperty globalProperty,
-			LocalUserData userData,
-			IProductionApiClient api,
+			GlobalEmployeeSessionInfo userData,
+
+			IDefinitionOfNonWorkingDaysApiClient daysApi,
+			IEmployeeSheetApiClient employeeSheetApi,
+			IResultSheetsApiClient resultSheetsApi,
+			IReportsApiClient reportsApi,
+
+			IDialogCoordinator coordinator,
+			IErrorLogger errorLogger,
 			IMapper mapper)
 		{
 			UserDataCurrent = userData;
+			GlobalProperty = globalProperty;
 
 			Visibility = Visibility.Collapsed;
 			VisibilityButtonAdditionally = Visibility.Collapsed;
 
 			_errorLogger = errorLogger;
-			_definition = definition;
+			_daysApi = daysApi;
 			_coordinator = coordinator;
-			_sheetsService = sheetsService;
 			FlagShowResultSheet = false;
 			StaffViewModel = staffViewModel;
 			FAQViewModel = fAQViewModel;
 			ExternalOrgViewModel = staffExternalOrgView;
-			GlobalProperty = globalProperty;
-			_api = api;
+
 			_mapper = mapper;
 		}
 		#endregion
@@ -136,7 +140,9 @@ namespace ProductionControl.ViewModel
 
 			UpdateDateLunchChanged -= MainViewModel_UpdateDateLunchChanged;
 		}
+
 		#region Инициализация
+
 		/// <summary>
 		/// Асинхронно инициализирует ViewModel.
 		/// </summary>
@@ -148,15 +154,12 @@ namespace ProductionControl.ViewModel
 				CashListNoWorksDict = [];
 				NoWorkDaysTO = [];
 				Indicators = [];
+
 				LoadTOChanged += MainViewModel_LoadTOChanged;
 				LoadSOChanged += MainViewModelExOrg_LoadTOChanged;
-
 				LoadApplyFilterExOrgHanged += MainViewModel_LoadApplyFilterExOrghanged;
 				LoadApplyFilterHanged += MainViewModel_LoadApplyFilterHanged;
-
 				UpdateDateLunchChanged += MainViewModel_UpdateDateLunchChanged;
-
-				//await _timeSheetDb.SetNameUsersAsync();
 
 				await SetMonthAndYear();
 
@@ -283,12 +286,12 @@ namespace ProductionControl.ViewModel
 
 				controller.SetIndeterminate();
 
-				var resultCheck = await _api.CreateReportMonthlySummaryForEmployeeExpOrgsAsync(StardPeriod, EndPeriod).ConfigureAwait(false);
-
+				StartEndDateTime startEndDate = new StartEndDateTime { StartDate = StardPeriod, EndDate = EndPeriod };
+				var resultCheck = await _reportsApi.CreateReportMonthlySummaryForEmployeeExpOrgsAsync(startEndDate).ConfigureAwait(false);
 
 				await controller.CloseAsync();
 
-				if (resultCheck.IsSuccessStatusCode)
+				if (resultCheck)
 					await _coordinator.ShowMessageAsync(this, "Формирование отчётов", "Отчёты сформированы");
 				else
 					await _coordinator.ShowMessageAsync(this, "Формирование отчётов", "Ошибки в формировании отчётов");
@@ -296,7 +299,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -324,10 +326,10 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
+
 		private bool AccesForExOrg()
 		{
 			ValueDepartmentID = UserDataCurrent.UserName.GetDepartmentAsync();//Environment.UserName.GetDepartmentAsync();
@@ -342,26 +344,22 @@ namespace ProductionControl.ViewModel
 				var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет формирование заявки...");
 				controller.SetIndeterminate();
 
-
-				var resultCheck = await _api.CreateReportMonthlySummaryAsync(ItemMonthsTO.Id, ItemYearsTO.Id).ConfigureAwait(false);
-
+				DateTime date = new DateTime(day: 1, month: ItemMonthsTO.Id, year: ItemYearsTO.Id);
+				var resultCheck = await _reportsApi.CreateReportMonthlySummaryAsync(date).ConfigureAwait(false);
 
 				await controller.CloseAsync();
 
-				if (resultCheck.IsSuccessStatusCode)
+				if (resultCheck)
 				{
 					await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Отчёт сформирован");
 					await SetTimeSheetItemsAsync();
 				}
 				else
 					await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Ошибки в формировании отчёта");
-
-
 			}
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -373,11 +371,12 @@ namespace ProductionControl.ViewModel
 		private bool AccessButtonAddition()
 		{
 			return UserDataCurrent.UserName.Equals("okad01", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("brvp03", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("ceh06", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
+					UserDataCurrent.UserName.Equals("brvp03", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("ceh06", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
 		}
+
 		/// <summary>
 		/// Проверка прав на компы Мастеров 43/44 участков, программистов. Чтобы показывать кнопку "Плановая трудоемкость", только им.
 		/// </summary>
@@ -385,9 +384,10 @@ namespace ProductionControl.ViewModel
 		private bool AccessForRegions043_044()
 		{
 			return UserDataCurrent.UserName.Equals("ceh06", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
+					UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
 		}
+
 		/// <summary>
 		/// Проверка прав на компы Наливайко, программистов. Чтобы показывать вложенные кнопки в "Дополнительно", только им.
 		/// </summary>
@@ -414,9 +414,9 @@ namespace ProductionControl.ViewModel
 		private bool LunchAndMonthlySummaryAccess()
 		{
 			return UserDataCurrent.UserName.Equals("okad01", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("brvp03", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
-								UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
+					UserDataCurrent.UserName.Equals("brvp03", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("teho19", StringComparison.OrdinalIgnoreCase) ||
+					UserDataCurrent.UserName.Equals("teho12", StringComparison.OrdinalIgnoreCase);
 		}
 
 		public event Func<Task> LoadTOChanged;
@@ -428,6 +428,7 @@ namespace ProductionControl.ViewModel
 		#region Handler
 
 		public event Func<Task> LoadSOChanged;
+
 		/// <summary>
 		/// Обновляет свойство IsLoadedTO на основе выбранных месяца, года и отдела.
 		/// </summary>
@@ -460,7 +461,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -491,14 +491,10 @@ namespace ProductionControl.ViewModel
 				await Task.Delay(400, token).ConfigureAwait(false);
 				await ApplyFilterExOrg().ConfigureAwait(false);
 			}
-			catch (OperationCanceledException)
-			{
-
-			}
+			catch (OperationCanceledException) { }
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 
@@ -506,6 +502,7 @@ namespace ProductionControl.ViewModel
 
 
 		#endregion
+
 		public string FilterNameExOrg
 		{
 			get => _filterNameExOrg;
@@ -627,11 +624,17 @@ namespace ProductionControl.ViewModel
 				//Проверяем, если прав нет и стоит заглушка в выбранном участке - то выходим из расчёта
 				if (string.IsNullOrEmpty(ValueDepartmentID) && !SOAccess()) return;
 
-
-				var tempShifts = await _timeSheetDb.SetDataForTimeSheetExOrgAsync(
-					NamesDepartmentItemOExOrg.DepartmentID, StartDateExOrg, EndDateExOrg, ItemMonthsTOExOrg, ItemYearsTOExOrg, NoWorkDaysTO)
-					.ConfigureAwait(false);
-
+				DataForTimeSheetExOrgs dataForTimeSheetEx = new DataForTimeSheetExOrgs
+				{
+					ValueDepartmentID = ValueDepartmentID,
+					StartDate = StartDateExOrg,
+					EndDate = EndDateExOrg,
+					ItemMonthsTO = _mapper.Map<MonthsOrYearsDto>(ItemMonthsTOExOrg),
+					ItemYearsTO = _mapper.Map<MonthsOrYearsDto>(ItemYearsTOExOrg),
+					NoWorkDaysTO = NoWorkDaysTO,
+					FlagAllEmployeeExOrg = GlobalProperty.FlagAllEmployeeExOrg
+				};
+				var tempShifts = await _timeSheetDb.SetDataForTimeSheetExOrgAsync(dataForTimeSheetEx).ConfigureAwait(false);
 
 				//Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				if (!string.IsNullOrEmpty(FilterName))
@@ -893,10 +896,7 @@ namespace ProductionControl.ViewModel
 		public DateTime ManualDateDismissal
 		{
 			get => _manualDateDismissal;
-			set
-			{
-				SetProperty(ref _manualDateDismissal, value);
-			}
+			set => SetProperty(ref _manualDateDismissal, value);
 		}
 		private DateTime _manualDateDismissal;
 
@@ -1017,8 +1017,8 @@ namespace ProductionControl.ViewModel
 					.FirstOrDefault();
 
 				IdEmployeeDateTime idEmployeeDateTime = new IdEmployeeDateTime { IdEmployee = idEmployee, Date = ManualLastDateLunch };
-
-				var itemEmployee = await _timeSheetDb.GetEmployeeIdAndDateAsync(idEmployeeDateTime).ConfigureAwait(false);
+				var response = await _employeeSheetApi.GetEmployeeIdAndDateAsync(idEmployeeDateTime).ConfigureAwait(false);
+				var itemEmployee = _mapper.Map<EmployeeDto>(response);
 
 				if (itemEmployee == null) return;
 
@@ -1038,7 +1038,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 				throw;
 			}
@@ -1057,7 +1056,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1074,7 +1072,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1098,7 +1095,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1113,6 +1109,7 @@ namespace ProductionControl.ViewModel
 				//Проверки
 				if (TimeSheetOne is null) return;
 				if (ManualDateDismissal == DefaultDateDismissal) return;
+
 				//Получаем табельный номер сотрудника
 				var idEmployee = TimeSheetOne.WorkerHours
 					.Select(x => x.EmployeeID)
@@ -1120,7 +1117,7 @@ namespace ProductionControl.ViewModel
 
 				IdEmployeeDateTime idEmployeeDateTime = new IdEmployeeDateTime { Date = ManualDateDismissal, IdEmployee = idEmployee };
 
-				var check = await _timeSheetDb.UpdateDismissalDataEmployeeAsync(idEmployeeDateTime);
+				var check = await _employeeSheetApi.UpdateDismissalDataEmployeeAsync(idEmployeeDateTime);
 
 				//Закрываем окно
 				await _coordinator.HideMetroDialogAsync(this, CustomDialogs);
@@ -1135,7 +1132,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1165,7 +1161,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1184,10 +1179,7 @@ namespace ProductionControl.ViewModel
 				if (idEmployee == 0) return;
 
 				IdEmployeeDateTime idEmployeeDateTime = new IdEmployeeDateTime { Date = DefaultDateDismissal, IdEmployee = idEmployee };
-
-				var check = await _timeSheetDb.CancelDismissalEmployeeAsync(idEmployeeDateTime);
-
-				if (check is null) return;
+				var check = await _employeeSheetApi.CancelDismissalEmployeeAsync(idEmployeeDateTime);
 
 				if (check == true)
 					//Обновляем табель после изменений
@@ -1198,7 +1190,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1215,8 +1206,7 @@ namespace ProductionControl.ViewModel
 				var idEmployee = TimeSheetOne.WorkerHours.Select(x => x.EmployeeID).FirstOrDefault();
 
 				IdEmployeeDateTime idEmployeeDateTime = new IdEmployeeDateTime { IdEmployee = idEmployee, Date = ManualLastDateLunch };
-
-				var check = await _timeSheetDb.UpdateLunchEmployeeAsync(idEmployeeDateTime);
+				var check = await _employeeSheetApi.UpdateLunchEmployeeAsync(idEmployeeDateTime);
 
 				if (check == true)
 				{
@@ -1226,23 +1216,18 @@ namespace ProductionControl.ViewModel
 				{
 					//Закрываем окно
 					await _coordinator.HideMetroDialogAsync(this, CustomDialogsForLunch);
-
-					await _coordinator.ShowMessageAsync(this, "Ошибка",
-						"Данный сотрудник уволен, нельзя проставить ему обед");
+					await _coordinator.ShowMessageAsync(this, "Ошибка", "Данный сотрудник уволен, нельзя проставить ему обед");
 				}
-				else if (check is null)
+				else
 				{
 					//Закрываем окно
 					await _coordinator.HideMetroDialogAsync(this, CustomDialogsForLunch);
-
-					await _coordinator.ShowMessageAsync(this, "Ошибка",
-						"Не найден сотрудник по его табельному номеру");
+					await _coordinator.ShowMessageAsync(this, "Ошибка", "Не найден сотрудник по его табельному номеру");
 				}
 			}
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1275,7 +1260,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1323,7 +1307,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 
@@ -1350,7 +1333,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1391,16 +1373,22 @@ namespace ProductionControl.ViewModel
 			try
 			{
 				StartEndDateTime startEndDate = new StartEndDateTime { StartDate = StartDate, EndDate = EndDate };
+
 				// Получение данных о рабочих часах и сверхурочных часах за указанный период для текущего пользователя
-				var list = await _timeSheetDb
-					.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
-					startEndDate).ConfigureAwait(false);
+				var response = await _employeeSheetApi
+					.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate).ConfigureAwait(false);
+
+				var list = _mapper.Map<List<EmployeeDto>>(response);
 
 				list = list.Where(x => x.ValidateEmployee(StartDate.Month, years: StartDate.Year)).ToList();
 
-
-				var listExpOrgs = await _timeSheetDb.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(
-					StartDate, EndDate).ConfigureAwait(false);
+				StartEndDateTime startEndDateTime = new StartEndDateTime
+				{
+					StartDate = StartDate,
+					EndDate = EndDate
+				};
+				var listExpOrgs = await _api
+					.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(startEndDateTime).ConfigureAwait(false);
 
 				listExpOrgs = listExpOrgs.Where(x => x.ValidateEmployee(months: StartDate.Month, years: StartDate.Year)).ToList();
 				listExpOrgs = listExpOrgs.Where(x => x.EmployeeExOrgAddInRegions != null && x.EmployeeExOrgAddInRegions.Any()).ToList();
@@ -1498,7 +1486,6 @@ namespace ProductionControl.ViewModel
 			{
 				// Логирование ошибки
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1533,7 +1520,6 @@ namespace ProductionControl.ViewModel
 
 				if (DateTime.Now.Month == 12) currentYear += 1;
 
-
 				for (int i = 2020; i <= currentYear; i++)
 					ListYearsTO.Add(new MonthsOrYears(i, i.ToString()));
 
@@ -1543,7 +1529,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1592,7 +1577,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1607,7 +1591,8 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				var employeeAccesses = await _timeSheetDb.GetAccessRightsEmployeeAsync(UserDataCurrent.UserName);
+				var response = await _employeeSheetApi.GetAccessRightsEmployeeAsync(UserDataCurrent.UserName);
+				var employeeAccesses = _mapper.Map<List<EmployeeAccessRightDto>>(response);
 
 				if (employeeAccesses is null || employeeAccesses.Count == 0)
 				{
@@ -1621,7 +1606,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 				return [];
 			}
@@ -1641,8 +1625,7 @@ namespace ProductionControl.ViewModel
 					return _listNoWork;
 				else
 				{
-					var listNoWork = await SetDaysNoWorkInMonthAsync(year, month)
-						.ConfigureAwait(false);
+					var listNoWork = await SetDaysNoWorkInMonthAsync(year, month).ConfigureAwait(false);
 					CashListNoWorksDict[(month, year)] = listNoWork;
 					return listNoWork;
 				}
@@ -1650,7 +1633,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 				return [];
 			}
@@ -1663,14 +1645,14 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!",
-					"Идет обновление данных персонала...");
+				var controller =
+					await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет обновление данных персонала...");
+
 				controller.SetIndeterminate();
 
 				var periodDate = new DateTime(year: ItemYearsTO.Id, month: ItemMonthsTO.Id, 1);
 
-				string report = await _timeSheetDb.UpdateDataTableNewEmployeeAsync(
-					periodDate).ConfigureAwait(false);
+				string report = await _employeeSheetApi.UpdateDataTableNewEmployeeAsync(periodDate).ConfigureAwait(false);
 
 				if (!string.IsNullOrEmpty(report))
 					await SetTimeSheetItemsAsync().ConfigureAwait(false);
@@ -1683,7 +1665,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1725,7 +1706,7 @@ namespace ProductionControl.ViewModel
 					};
 
 					if (LastAccessRightBool == true && !string.IsNullOrEmpty(LastSelectedDepartmentID))
-						await _timeSheetDb.ClearLastDeport(dataForClear).ConfigureAwait(false);
+						await _employeeSheetApi.ClearLastDeport(dataForClear).ConfigureAwait(false);
 				}
 
 				LastSelectedDepartmentID = NamesDepartmentItem.DepartmentID;
@@ -1741,9 +1722,8 @@ namespace ProductionControl.ViewModel
 					NoWorkDaysTO = NoWorkDaysTO,
 					CheckingSeeOrWriteBool = CheckingSeeOrWriteBool
 				};
-
-				var tempShifts = await _timeSheetDb.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
-
+				var response = await _employeeSheetApi.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
+				var tempShifts = _mapper.Map<List<TimeSheetItem>>(response);
 
 				////Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				//TimeSheets = tempShifts;
@@ -1767,7 +1747,6 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
 			}
 		}
@@ -1790,15 +1769,21 @@ namespace ProductionControl.ViewModel
 					};
 
 					if (LastAccessRightBool == true && LastSelectedDepartmentID != string.Empty)
-						return _timeSheetDb.ClearIdAccessRightFromDepartmentDb(dataClearId);
+						return _employeeSheetApi
+							.ClearIdAccessRightFromDepartmentDb(dataClearId)
+							.ConfigureAwait(false)
+							.GetAwaiter()
+							.GetResult();
 				}
 				return true;
 			}
 			catch (Exception ex)
 			{
 				_errorLogger.ProcessingErrorLog(ex);
-
-				ShowErrorInfoAsync(textError).ConfigureAwait(false).GetAwaiter().GetResult();
+				ShowErrorInfoAsync(textError)
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
 				return true;
 			}
 		}
@@ -1817,15 +1802,25 @@ namespace ProductionControl.ViewModel
 
 				//Если прошлый запрос на редактирование был успешный, то перед переходом на другой участок - освобождаем занятый нами же участок 
 				if (LastAccessRightBool == true && !string.IsNullOrEmpty(LastSelectedDepartmentID))
-					await _timeSheetDb.ClearLastDeport(
-						LastAccessRightBool, LastSelectedDepartmentID, EmployeeAccesses);
+				{
+					var DataForClearLastDeport = new DataForClearLastDeport
+					{
+						LastAccessRightBool = LastAccessRightBool,
+						LastSelectedDepartmentID = LastSelectedDepartmentID,
+						EmployeeAccesses = _mapper.Map<List<EmployeeAccessRight>>(EmployeeAccesses)
+					};
+					await _employeeSheetApi.ClearLastDeport(DataForClearLastDeport);
+				}
 
 				var currentMonths = DateTime.Now.Month;
 				var currentYears = DateTime.Now.Year;
 				var currentDay = DateTime.Now.Day;
 
 				//Получаем состояние выбранного участка из БД
-				var itemDepartment = await _timeSheetDb.GetDepartmentProductionAsync(employeeAccessRight.DepartmentID).ConfigureAwait(false);
+				var response = await _employeeSheetApi.GetDepartmentProductionAsync(employeeAccessRight.DepartmentID)
+					.ConfigureAwait(false);
+
+				var itemDepartment = _mapper.Map<DepartmentProductionDto>(response);
 
 				//Если нет данных об участке
 				if (itemDepartment is null) return false;
@@ -1850,14 +1845,15 @@ namespace ProductionControl.ViewModel
 					{
 						//Если не занят, то занимаем собой. И обновляем и сохраняем таблицу в БД
 						itemDepartment.AccessRight = employeeAccessRight.EmployeeAccessRightId;
-						await _timeSheetDb.UpdateDepartamentAsync(itemDepartment).ConfigureAwait(false);
-						return true;
+						var request = _mapper.Map<DepartmentProduction>(itemDepartment);
+						return await _employeeSheetApi.UpdateDepartamentAsync(request).ConfigureAwait(false);
 					}
 					else
 					{
+						var request = _mapper.Map<DepartmentProduction>(itemDepartment);
 						//Узнаём кто занял занял участок на редактирование
-						EmployeeAccessRightDto? employeeOccupied = await _timeSheetDb.GetEmployeeByIdAsync(itemDepartment);
-
+						var response2 = await _employeeSheetApi.GetEmployeeByIdAsync(request);
+						EmployeeAccessRightDto? employeeOccupied = _mapper.Map<EmployeeAccessRightDto>(response2);
 
 						//Сообщаем об этом пользователю
 						await _coordinator.ShowMessageAsync(this, "Данные по сотруднику",
@@ -1875,9 +1871,7 @@ namespace ProductionControl.ViewModel
 			catch (Exception ex)
 			{
 				await _errorLogger.ProcessingErrorLogAsync(ex);
-
 				await ShowErrorInfoAsync(textError);
-
 				return false;
 				throw;
 			}
@@ -1915,6 +1909,113 @@ namespace ProductionControl.ViewModel
 
 			return StartDate.Month == nextMonth && StartDate.Year == nextYear && currentDay < 15;
 		}
+
+		/// <summary>
+		/// Формируем заказ обедов на актуальную дату, до 9:30 можно перезаписать данные.
+		/// Заказ присылается на почту.
+		/// </summary>
+		private async Task FormulateReportForLunchEveryDayAsync()
+		{
+			try
+			{
+				var currentDate = DateTime.Now;
+				if (currentDate.Hour <= 10)
+				{
+
+					var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет формирование заявки...");
+					controller.SetIndeterminate();
+
+					await _employeeSheetApi.CleareDataForFormulateReportForLunchEveryDayDbAsync().ConfigureAwait(false);
+
+					//Дёргаем апишку, чтобы она сформировала заказ обедов на сегодня, и записала новые данные
+					var resultCheck = await _reportsApi.GetOrderForLunchEveryDayAsync();
+
+					await controller.CloseAsync();
+
+					if (resultCheck)
+					{
+						await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Отчёт сформирован");
+						await SetTimeSheetItemsAsync();
+					}
+					else
+						await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Ошибки в формировании отчёта");
+				}
+				else
+					await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Заказывать обед уже поздно. Данные не поменять.");
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex);
+				await ShowErrorInfoAsync(textError);
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Запускаем формирование на сервере отчёта в Excel, по обедам за прошлый месяц.
+		/// Также человек должен внести в диалогое окно сумму по счёту, на основе которой будет распределение денежной массы
+		/// </summary>
+		private async Task FormulateReportForLunchLastMonhtAsync()
+		{
+			try
+			{
+				//сумма по счёту, на основе которой будет распределение денежной массы на все обеды в прошлом месяце
+				var totalSum = await _coordinator.ShowInputAsync(this, "Формируем отчёт по обедам за прошлый месяц", "Введите окончательную сумму за обеды за прошлый месяц");
+
+				if (decimal.TryParse(totalSum, out decimal totalSumDecimal))
+				{
+					var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет формирование отчёта Excel...");
+
+					controller.SetIndeterminate();
+
+					var resultCheck = await _reportsApi.CreateOrderLunchLastMonthAsync(totalSum);
+
+					await controller.CloseAsync();
+
+					if (resultCheck)
+						await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Отчёт сформирован и отправлен на почту");
+					else
+						await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Ошибки в формировании отчёта. Сообщите разработчикам ТО");
+				}
+				else
+					await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Вы ввели некорректную сумму. Исправьте и повторите, пожалуйста.");
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex);
+				await ShowErrorInfoAsync(textError);
+			}
+		}
+
+		/// <summary>
+		/// Если сотрудник обедает, то в его данных отображается инфа, что он кушает, и на него заказывается обед
+		/// </summary>
+		/// <param name="item">Сотрудник, выбранный в табеле</param>
+		private async Task IsLunchingAsync()
+		{
+			try
+			{
+				if (TimeSheetOne is null) return;
+
+				//Получаем табельный номер сотрудника
+				var idEmployee = TimeSheetOne.WorkerHours.Select(x => x.EmployeeID).FirstOrDefault();
+				if (idEmployee == 0) return;
+
+				var check = await _employeeSheetApi.UpdateIsLunchingDbAsync(
+					idEmployee).ConfigureAwait(false);
+
+				if (check == true)
+					//Обновляем табель после изменений
+					await SetTimeSheetItemsAsync().ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				await _errorLogger.ProcessingErrorLogAsync(ex);
+
+				await ShowErrorInfoAsync(textError);
+				throw;
+			}
+		}
 		#endregion
 
 		#region Event Handlers
@@ -1949,7 +2050,7 @@ namespace ProductionControl.ViewModel
 
 				{
 					if (sender is ShiftData shiftData)
-						await _timeSheetDb.SetTotalWorksDaysAsync(shiftData).ConfigureAwait(false);
+						await _employeeSheetApi.SetTotalWorksDaysAsync(shiftData).ConfigureAwait(false);
 				}
 			}
 			catch (Exception ex)
@@ -2197,111 +2298,7 @@ namespace ProductionControl.ViewModel
 		public ICommand RunCreateReportCmd { get; set; }
 		public ICommand CloseSelectedDateCmd { get; set; }
 
-		/// <summary>
-		/// Формируем заказ обедов на актуальную дату, до 9:30 можно перезаписать данные.
-		/// Заказ присылается на почту.
-		/// </summary>
-		private async Task FormulateReportForLunchEveryDayAsync()
-		{
-			try
-			{
-				var currentDate = DateTime.Now;
-				if (currentDate.Hour <= 10)
-				{
 
-					var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет формирование заявки...");
-					controller.SetIndeterminate();
-
-					await _timeSheetDb.CleareDataForFormulateReportForLunchEveryDayDbAsync().ConfigureAwait(false);
-
-					//Дёргаем апишку, чтобы она сформировала заказ обедов на сегодня, и записала новые данные
-					var resultCheck = await _api.GetOrderForLunchEveryDayAsync();
-
-					await controller.CloseAsync();
-
-					if (resultCheck.IsSuccessStatusCode)
-					{
-						await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Отчёт сформирован");
-						await SetTimeSheetItemsAsync();
-					}
-					else
-						await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Ошибки в формировании отчёта");
-				}
-				else
-					await _coordinator.ShowMessageAsync(this, "Формирование отчёта", "Заказывать обед уже поздно. Данные не поменять.");
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex);
-
-				await ShowErrorInfoAsync(textError);
-				throw;
-			}
-		}
-
-		/// <summary>
-		/// Запускаем формирование на сервере отчёта в Excel, по обедам за прошлый месяц.
-		/// Также человек должен внести в диалогое окно сумму по счёту, на основе которой будет распределение денежной массы
-		/// </summary>
-		private async Task FormulateReportForLunchLastMonhtAsync()
-		{
-			try
-			{
-				//сумма по счёту, на основе которой будет распределение денежной массы на все обеды в прошлом месяце
-				var totalSum = await _coordinator.ShowInputAsync(this, "Формируем отчёт по обедам за прошлый месяц", "Введите окончательную сумму за обеды за прошлый месяц");
-
-				if (decimal.TryParse(totalSum, out decimal totalSumDecimal)) //
-				{
-					var controller = await _coordinator.ShowProgressAsync(this, "Пожалуйста, подождите!", "Идет формирование отчёта Excel...");
-					controller.SetIndeterminate();
-
-					var resultCheck = await _api.CreateOrderLunchLastMonthAsync(totalSum);
-					await controller.CloseAsync();
-					if (resultCheck.IsSuccessStatusCode)
-						await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Отчёт сформирован и отправлен на почту");
-					else
-						await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Ошибки в формировании отчёта. Сообщите разработчикам ТО");
-				}
-				else
-					await _coordinator.ShowMessageAsync(this, "Формирование отчёта Excel", "Вы ввели некорректную сумму. Исправьте и повторите, пожалуйста.");
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex);
-
-				await ShowErrorInfoAsync(textError);
-			}
-		}
-
-		/// <summary>
-		/// Если сотрудник обедает, то в его данных отображается инфа, что он кушает, и на него заказывается обед
-		/// </summary>
-		/// <param name="item">Сотрудник, выбранный в табеле</param>
-		private async Task IsLunchingAsync()
-		{
-			try
-			{
-				if (TimeSheetOne is null) return;
-
-				//Получаем табельный номер сотрудника
-				var idEmployee = TimeSheetOne.WorkerHours.Select(x => x.EmployeeID).FirstOrDefault();
-				if (idEmployee == 0) return;
-
-				var check = await _timeSheetDb.UpdateIsLunchingDbAsync(
-					idEmployee).ConfigureAwait(false);
-
-				if (check == true)
-					//Обновляем табель после изменений
-					await SetTimeSheetItemsAsync().ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				await _errorLogger.ProcessingErrorLogAsync(ex);
-
-				await ShowErrorInfoAsync(textError);
-				throw;
-			}
-		}
 		#endregion
 
 		#endregion
@@ -2309,11 +2306,14 @@ namespace ProductionControl.ViewModel
 		#region Итоги Табеля
 
 		#region Commands
+
 		public ICommand UpdateResultSheetCmd { get; set; }
 		public ICommand CreateReportResultSheetCmd { get; set; }
+
 		#endregion
 
 		#region Methods
+
 		/// <summary>
 		/// Сохраняем отчёт по выбранному показателю в Итогах Табеля
 		/// </summary>
@@ -2346,8 +2346,7 @@ namespace ProductionControl.ViewModel
 				bool? resultSave = dialog.ShowDialog();
 				if (resultSave == true)
 				{
-					var path = await _api.GetReportResultSheetsAsync(
-						[.. EmpIndicators]);
+					var path = await _reportsApi.GetReportResultSheetsAsync([.. EmpIndicators]);
 
 					if (string.IsNullOrEmpty(path)) return;
 
@@ -2380,7 +2379,7 @@ namespace ProductionControl.ViewModel
 
 				var result = _mapper.Map<List<TimeSheetItemDto>>(copyTimeSheet);
 
-				var Tuplet = await _sheetsService.GetDataResultSheetAsync(result);
+				var Tuplet = await _resultSheetsApi.GetDataResultSheetAsync(result);
 
 				Indicators = new ObservableCollection<IndicatorDto>(Tuplet.Indicators);
 
@@ -2443,7 +2442,7 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
-				return await _definition.GetWeekendsInMonthAsync(year, month).ConfigureAwait(false);
+				return await _daysApi.GetWeekendsInMonthAsync(year, month).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -2737,5 +2736,4 @@ namespace ProductionControl.ViewModel
 				await _coordinator.ShowMessageAsync(this, "Информация", text);
 		}
 	}
-
 }

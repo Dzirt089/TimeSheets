@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.DataAccess.Classes.Models.Model;
+using ProductionControl.DataAccess.Classes.ApiModels.Model;
 
-namespace ProductionControl.Models.Entitys.EmployeesFactory
+namespace ProductionControl.UIModels.Model.EmployeesFactory
 {
 	/// <summary>
 	/// Прокси класс (вспомогательный), через который преобразуется график с данными о сменах и часах из ИС-ПРО в понятную нам модель в приложении 

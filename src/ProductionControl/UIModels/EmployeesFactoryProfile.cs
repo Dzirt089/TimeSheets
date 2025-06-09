@@ -1,18 +1,18 @@
 ﻿using AutoMapper;
 
+using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
-using ProductionControl.DataAccess.Classes.Models.Dtos;
-using ProductionControl.Models.Dtos.EmployeesFactory;
-using ProductionControl.Models.Dtos.ExternalOrganization;
-using ProductionControl.Models.Dtos.Siz;
-using ProductionControl.Models.Entitys.EmployeesFactory;
-using ProductionControl.Models.Entitys.ExternalOrganization;
+using ProductionControl.UIModels.Dtos.EmployeesFactory;
+using ProductionControl.UIModels.Dtos.ExternalOrganization;
+using ProductionControl.UIModels.Dtos.Siz;
+using ProductionControl.UIModels.Model.EmployeesFactory;
+using ProductionControl.UIModels.Model.ExternalOrganization;
 
 using System.Windows.Media;
 
-namespace ProductionControl.Models
+namespace ProductionControl.UIModels
 {
 	public class EmployeesFactoryProfile : Profile
 	{

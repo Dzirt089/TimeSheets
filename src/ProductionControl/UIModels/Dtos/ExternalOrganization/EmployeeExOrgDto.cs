@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ProductionControl.Models.Dtos.ExternalOrganization
+namespace ProductionControl.UIModels.Dtos.ExternalOrganization
 {
 	public class EmployeeExOrgDto : ObservableObject
 	{

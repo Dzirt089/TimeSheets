@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using ProductionControl.DataAccess.Classes.Models.Model;
-using ProductionControl.Models.Entitys.FAQ;
+using ProductionControl.DataAccess.Classes.ApiModels.Model;
+using ProductionControl.UIModels.Model.FAQ;
 
 using System.Collections.ObjectModel;
 

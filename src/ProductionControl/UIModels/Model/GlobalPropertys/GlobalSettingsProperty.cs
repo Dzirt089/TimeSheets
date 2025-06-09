@@ -1,4 +1,4 @@
-﻿namespace ProductionControl.Models.Entitys.GlobalPropertys
+﻿namespace ProductionControl.UIModels.Model.GlobalPropertys
 {
 	public class GlobalSettingsProperty
 	{

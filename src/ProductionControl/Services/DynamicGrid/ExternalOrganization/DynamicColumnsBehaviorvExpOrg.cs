@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xaml.Behaviors;
 
-using ProductionControl.Models.Entitys.ExternalOrganization;
+using ProductionControl.UIModels.Model.ExternalOrganization;
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
