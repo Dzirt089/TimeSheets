@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="ProductionControl.Views.EditingLastOrNowDayForLunchEmployee"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ProductionControl.Views"
+      mc:Ignorable="d" 
+      xmlns:ctrl="http://metro.mahapps.com/winfx/xaml/controls"
+      xmlns:vm="clr-namespace:ProductionControl.ViewModel"
+      d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
+
+    <Grid Background="White" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+				<ColumnDefinition Width="250"/>
+			</Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" 
+                       VerticalAlignment="Center" FontSize="16"
+                       Text="{Binding TimeSheetOne.FioShiftOverday.ShortName}" Margin="5"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Text="Выберете дату для заказа обеда"
+                       VerticalAlignment="Center" FontSize="16" Margin="5"/>
+
+            <DatePicker Grid.Column="1" Grid.Row="1" Margin="5"
+                       FontSize="16" VerticalAlignment="Center" 
+                       SelectedDate="{Binding ManualLastDateLunch}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="2" Margin="5"
+                       Text="В этот день, обед был: "
+                       VerticalAlignment="Center" FontSize="16"/>
+
+            <TextBlock Grid.Column="1" Grid.Row="2" Margin="5"
+                       Text="{Binding TextIsLunch, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+                       VerticalAlignment="Center" FontSize="16"
+                       TextWrapping="Wrap"/>
+
+            <Button Grid.Column="0" Grid.Row="3" Content="Отмена" Margin="5"
+                    Command="{Binding CloseLunchCmd}"
+                    Style="{StaticResource MahApps.Styles.Button.Dialogs}"/>
+
+            <Button Grid.Column="1" Grid.Row="3" Content="Обед заказать/Снять заказ" Margin="5"
+                    Command="{Binding UpdLunchCmd}"
+                    Style="{StaticResource MahApps.Styles.Button.Dialogs.Accent}"/>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

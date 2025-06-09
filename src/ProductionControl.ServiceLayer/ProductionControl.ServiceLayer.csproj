@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastReport.Compat" Version="2024.2.15" />
+    <PackageReference Include="FastReport.Core" Version="2024.2.15" />
+    <PackageReference Include="MailerVKT" Version="1.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductionControl.DataAccess.Classes\ProductionControl.DataAccess.Classes.csproj" />
+    <ProjectReference Include="..\ProductionControl.Infrastructure\ProductionControl.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

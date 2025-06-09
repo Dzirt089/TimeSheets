@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/16/2024 09:56:11" ReportInfo.Modified="12/28/2024 10:52:24" ReportInfo.CreatorVersion="2023.2.0.0">
+  <Dictionary/>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="400" PaperHeight="210" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="1436.4" Height="37.8">
+      <TextObject Name="Text17" Width="151.2" Height="37.8" Border.Lines="All" Text="[list.MonthName]    [list.Year] " HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text18" Left="151.2" Width="28.35" Height="37.8" Border.Lines="All" Text="1" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text19" Left="179.55" Width="28.35" Height="37.8" Border.Lines="All" Text="2" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text20" Left="207.9" Width="28.35" Height="37.8" Border.Lines="All" Text="3" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text21" Left="236.25" Width="28.35" Height="37.8" Border.Lines="All" Text="4" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text22" Left="264.6" Width="28.35" Height="37.8" Border.Lines="All" Text="5" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text23" Left="292.95" Width="28.35" Height="37.8" Border.Lines="All" Text="6" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text24" Left="321.3" Width="28.35" Height="37.8" Border.Lines="All" Text="7" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text25" Left="349.65" Width="28.35" Height="37.8" Border.Lines="All" Text="8" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text26" Left="378" Width="28.35" Height="37.8" Border.Lines="All" Text="9" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text27" Left="406.35" Width="28.35" Height="37.8" Border.Lines="All" Text="10" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text28" Left="434.7" Width="28.35" Height="37.8" Border.Lines="All" Text="11" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text29" Left="463.05" Width="28.35" Height="37.8" Border.Lines="All" Text="12" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text30" Left="491.4" Width="28.35" Height="37.8" Border.Lines="All" Text="13" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text31" Left="519.75" Width="28.35" Height="37.8" Border.Lines="All" Text="14" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text32" Left="548.1" Width="28.35" Height="37.8" Border.Lines="All" Text="15" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text33" Left="576.45" Width="28.35" Height="37.8" Border.Lines="All" Text="16" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text34" Left="604.8" Width="28.35" Height="37.8" Border.Lines="All" Text="17" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text35" Left="633.15" Width="28.35" Height="37.8" Border.Lines="All" Text="18" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text36" Left="661.5" Width="28.35" Height="37.8" Border.Lines="All" Text="19" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text37" Left="689.85" Width="28.35" Height="37.8" Border.Lines="All" Text="20" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text38" Left="718.2" Width="28.35" Height="37.8" Border.Lines="All" Text="21" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text39" Left="746.55" Width="28.35" Height="37.8" Border.Lines="All" Text="22" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text40" Left="774.9" Width="28.35" Height="37.8" Border.Lines="All" Text="23" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text41" Left="803.25" Width="28.35" Height="37.8" Border.Lines="All" Text="24" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text42" Left="831.6" Width="28.35" Height="37.8" Border.Lines="All" Text="25" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text43" Left="859.95" Width="28.35" Height="37.8" Border.Lines="All" Text="26" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text44" Left="888.3" Width="28.35" Height="37.8" Border.Lines="All" Text="27" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text45" Left="916.65" Width="28.35" Height="37.8" Border.Lines="All" Text="28" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text46" Left="945" Width="28.35" Height="37.8" Border.Lines="All" Text="29" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text47" Left="973.35" Width="28.35" Height="37.8" Border.Lines="All" Text="30" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text48" Left="1001.7" Width="28.35" Height="37.8" Border.Lines="All" Text="31" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text81" Left="1030.05" Width="47.25" Height="37.8" Border.Lines="All" Text="Дней" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text82" Left="1077.3" Width="56.7" Height="37.8" Border.Lines="All" Text="Норма" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text83" Left="1134" Width="47.25" Height="37.8" Border.Lines="All" Text="Всего" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text84" Left="1181.25" Width="47.25" Height="37.8" Border.Lines="All" Text="Ночный" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text85" Left="1228.5" Width="47.25" Height="37.8" Border.Lines="All" Text="Дневных" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text86" Left="1275.75" Width="66.15" Height="37.8" Border.Lines="All" Text="Переработка" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text87" Left="1341.9" Width="66.15" Height="37.8" Border.Lines="All" Text="Таб. №" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+    </ReportTitleBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="41.8" Width="1436.4" Height="18.9" Condition="[list.DepartmentID]">
+      <TextObject Name="Text94" Width="1408.05" Height="18.9" Border.Lines="All" Text="[list.NameDepartment]" VertAlign="Center" Font="Arial, 10pt"/>
+      <DataBand Name="DataList" Top="64.7" Width="1436.4" Height="18.9">
+        <TextObject Name="Text10" Left="28.35" Width="122.85" Height="18.9" Border.Lines="All" Text="[list.ShortName]" VertAlign="Bottom" Font="Arial, 11pt"/>
+        <TextObject Name="Text9" Left="1341.9" Width="66.15" Height="18.9" Border.Lines="All" Text="[list.EmployeeId]" VertAlign="Bottom" Font="Arial, 11pt"/>
+        <TextObject Name="Text49" Width="28.35" Height="18.9" Border.Lines="All" Text="[Row#]" Font="Arial, 10pt"/>
+        <TextObject Name="Text50" Left="151.2" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day1]" Font="Arial, 10pt"/>
+        <TextObject Name="Text51" Left="179.55" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day2]" Font="Arial, 10pt"/>
+        <TextObject Name="Text52" Left="207.9" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day3]" Font="Arial, 10pt"/>
+        <TextObject Name="Text53" Left="236.25" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day4]" Font="Arial, 10pt"/>
+        <TextObject Name="Text54" Left="264.6" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day5]" Font="Arial, 10pt"/>
+        <TextObject Name="Text55" Left="292.95" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day6]" Font="Arial, 10pt"/>
+        <TextObject Name="Text56" Left="321.3" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day7]" Font="Arial, 10pt"/>
+        <TextObject Name="Text57" Left="349.65" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day8]" Font="Arial, 10pt"/>
+        <TextObject Name="Text58" Left="378" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day9]" Font="Arial, 10pt"/>
+        <TextObject Name="Text59" Left="406.35" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day10]" Font="Arial, 10pt"/>
+        <TextObject Name="Text60" Left="434.7" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day11]" Font="Arial, 10pt"/>
+        <TextObject Name="Text61" Left="463.05" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day12]" Font="Arial, 10pt"/>
+        <TextObject Name="Text62" Left="491.4" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day13]" Font="Arial, 10pt"/>
+        <TextObject Name="Text63" Left="519.75" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day14]" Font="Arial, 10pt"/>
+        <TextObject Name="Text64" Left="548.1" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day15]" Font="Arial, 10pt"/>
+        <TextObject Name="Text65" Left="576.45" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day16]" Font="Arial, 10pt"/>
+        <TextObject Name="Text66" Left="604.8" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day17]" Font="Arial, 10pt"/>
+        <TextObject Name="Text67" Left="633.15" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day18]" Font="Arial, 10pt"/>
+        <TextObject Name="Text68" Left="661.5" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day19]" Font="Arial, 10pt"/>
+        <TextObject Name="Text69" Left="689.85" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day20]" Font="Arial, 10pt"/>
+        <TextObject Name="Text70" Left="718.2" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day21]" Font="Arial, 10pt"/>
+        <TextObject Name="Text71" Left="746.55" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day22]" Font="Arial, 10pt"/>
+        <TextObject Name="Text72" Left="774.9" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day23]" Font="Arial, 10pt"/>
+        <TextObject Name="Text73" Left="803.25" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day24]" Font="Arial, 10pt"/>
+        <TextObject Name="Text74" Left="831.6" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day25]" Font="Arial, 10pt"/>
+        <TextObject Name="Text75" Left="859.95" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day26]" Font="Arial, 10pt"/>
+        <TextObject Name="Text76" Left="888.3" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day27]" Font="Arial, 10pt"/>
+        <TextObject Name="Text77" Left="916.65" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day28]" Font="Arial, 10pt"/>
+        <TextObject Name="Text78" Left="945" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day29]" Font="Arial, 10pt"/>
+        <TextObject Name="Text79" Left="973.35" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day30]" Font="Arial, 10pt"/>
+        <TextObject Name="Text80" Left="1001.7" Width="28.35" Height="18.9" Border.Lines="All" Text="[list.Day31]" Font="Arial, 10pt"/>
+        <TextObject Name="Text88" Left="1030.05" Width="47.25" Height="18.9" Border.Lines="All" Text="[list.TotalWorksDays]" Font="Arial, 10pt"/>
+        <TextObject Name="Text89" Left="1077.3" Width="56.7" Height="18.9" Border.Lines="All" Text="[list.TotalWorksHoursWithoutOverday]" Font="Arial, 10pt"/>
+        <TextObject Name="Text90" Left="1134" Width="47.25" Height="18.9" Border.Lines="All" Text="[list.TotalWorksHoursWithOverday]" Font="Arial, 10pt"/>
+        <TextObject Name="Text91" Left="1181.25" Width="47.25" Height="18.9" Border.Lines="All" Text="[list.TotalNightHours]" Font="Arial, 10pt"/>
+        <TextObject Name="Text92" Left="1228.5" Width="47.25" Height="18.9" Border.Lines="All" Text="[list.TotalDaysHours]" Font="Arial, 10pt"/>
+        <TextObject Name="Text93" Left="1275.75" Width="66.15" Height="18.9" Border.Lines="All" Text="[list.TotalOverdayHours]" Font="Arial, 10pt"/>
+        <Sort>
+          <Sort Expression="[list.ShortName]"/>
+        </Sort>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="87.6" Width="1436.4"/>
+    </GroupHeaderBand>
+  </ReportPage>
+</Report>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/16/2024 09:56:11" ReportInfo.Modified="12/23/2024 10:12:47" ReportInfo.CreatorVersion="2023.2.0.0">
+  <Dictionary>
+    <Total Name="Total" Expression="[list.CountLunch]" Evaluator="DataList"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <DataBand Name="DataList" Top="39.25" Width="718.2" Height="18.9">
+      <TextObject Name="Text9" Width="132.3" Height="18.9" Border.Lines="All" Text="[list.EmployeeId]" VertAlign="Bottom" Font="Arial, 11pt"/>
+      <TextObject Name="Text10" Left="132.3" Width="236.25" Height="18.9" Border.Lines="All" Text="[list.ShortName]" VertAlign="Bottom" Font="Arial, 11pt"/>
+      <TextObject Name="Text11" Left="463.05" Width="94.5" Height="18.9" Border.Lines="All" Text="[list.CountLunch]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="," Format.GroupSeparator=" " Format.NegativePattern="1" VertAlign="Bottom" Font="Arial, 11pt"/>
+      <TextObject Name="Text12" Left="557.55" Width="94.5" Height="18.9" Border.Lines="All" Text="[[list.CountLunch] * [list.AverageAmount]]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" VertAlign="Bottom" Font="Arial, 11pt"/>
+      <TextObject Name="Text16" Left="368.55" Width="94.5" Height="18.9" Border.Lines="All" Text="[list.StartDate]" Format="Date" Format.Format="d" VertAlign="Bottom" Font="Arial, 11pt"/>
+      <DataHeaderBand Name="DataHeader1" Width="718.2" Height="37.8">
+        <TextObject Name="Text6" Left="368.55" Top="18.9" Width="94.5" Height="18.9" Border.Lines="All" Text="Итоги" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text7" Left="463.05" Top="18.9" Width="94.5" Height="18.9" Border.Lines="All" Text="[list.TotalCountLunch]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="0" Format.DecimalSeparator="," Format.GroupSeparator=" " Format.NegativePattern="1" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text8" Left="557.55" Top="18.9" Width="94.5" Height="18.9" Border.Lines="All" Text="[list.TotalSum]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text1" Width="132.3" Height="18.9" Border.Lines="All" Text="Таб N" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text2" Left="132.3" Width="236.25" Height="18.9" Border.Lines="All" Text="ФИО" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text3" Left="463.05" Width="94.5" Height="18.9" Border.Lines="All" Text="Дни" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text4" Left="557.55" Width="94.5" Height="18.9" Border.Lines="All" Text="Сумма" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+        <TextObject Name="Text15" Left="368.55" Width="94.5" Height="18.9" Border.Lines="All" Text="Дата" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+      </DataHeaderBand>
+    </DataBand>
+  </ReportPage>
+</Report>

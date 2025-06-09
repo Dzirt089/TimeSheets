@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ProductionControl" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="RAY_API" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://192.168.168.104:18012</Value>
+    </Setting>
+    <Setting Name="ConVKT" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source = 192.168.168.104; Initial Catalog = VKT; Persist Security Info = True; User ID = Apps; Password = 793148625; Application Name = ProductionControl; Connect Timeout=60</Value>
+    </Setting>
+    <Setting Name="VKT_API" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://192.168.168.104</Value>
+    </Setting>
+    <Setting Name="ConTest" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source = SERVER-TO1; Initial Catalog = Test; Persist Security Info = True; User ID = Apps; Password = 793148625; 	Application Name = ProductionControl; TrustServerCertificate=True</Value>
+    </Setting>
+    <Setting Name="ConBest" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data source = SERVER-BD2; User Id = to; Password = toto; Initial Catalog = rvp002; Application Name = ProductionControl; Connect Timeout=60</Value>
+    </Setting>
+    <Setting Name="ConTimeSheet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source = SERVER-TO1; Initial Catalog = TimeSheet; Persist Security Info = True; User ID = Apps; Password = 793148625; 	Application Name = ProductionControl; TrustServerCertificate=True; Connect Timeout=60</Value>
+    </Setting>
+    <Setting Name="TestTimeSheet" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source = SERVER-TO1; Initial Catalog = Test_TimeSheet; Persist Security Info = True; User ID = Apps; Password = 793148625; 	Application Name = ProductionControl; TrustServerCertificate=True</Value>
+    </Setting>
+    <Setting Name="Prodaction_API" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://server-to1:31514</Value>
+    </Setting>
+    <Setting Name="Test_Prodaction_API" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost:5044</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
