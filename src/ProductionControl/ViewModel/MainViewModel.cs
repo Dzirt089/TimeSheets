@@ -31,7 +31,6 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -639,7 +638,7 @@ namespace ProductionControl.ViewModel
 
 				DataForTimeSheetExOrgs dataForTimeSheetEx = new DataForTimeSheetExOrgs
 				{
-					ValueDepartmentID = ValueDepartmentID,
+					ValueDepartmentID = NamesDepartmentItemOExOrg.DepartmentID,
 					StartDate = StartDateExOrg,
 					EndDate = EndDateExOrg,
 					ItemMonthsTO = _mapper.Map<MonthsOrYearsDto>(ItemMonthsTOExOrg),
@@ -648,8 +647,51 @@ namespace ProductionControl.ViewModel
 					FlagAllEmployeeExOrg = GlobalProperty.FlagAllEmployeeExOrg
 				};
 				var response = await _employeeExOrgSheetApi.SetDataForTimeSheetExOrgAsync(dataForTimeSheetEx).ConfigureAwait(false);
+				//Временное решение, отменяет флаг уволеннения, чтобы прошла валидация при маппинге данных из апи в модель. Без неё, смены\часы не ставятся
+				foreach (var iteResp in response)
+				{
+					if (iteResp.WorkerHours.Any(x => x.EmployeeExOrg.IsDismissal))
+					{
+						iteResp.WorkerHours.Foreach(x =>
+						{
+							if (x.EmployeeExOrg.IsDismissal)
+								x.EmployeeExOrg.IsDismissal = false;
+						});
+					}
+				}
 
 				var tempShifts = _mapper.Map<List<TimeSheetItemExOrg>>(response);
+				//Возвращяем флаг уволнения. Проверяем по дате уволнения (не равна по умолчанию) и флаг уволнения отменен - то ставим флаг уволнения в true
+				foreach (var itemTemp in tempShifts)
+				{
+					if (itemTemp.WorkerHours.Any(x => x.EmployeeExOrg.DateDismissal != DateTime.Parse("31.12.1876")))
+					{
+						itemTemp.WorkerHours.Foreach(x =>
+						{
+							if (x.EmployeeExOrg.DateDismissal != DateTime.Parse("31.12.1876") && x.EmployeeExOrg.IsDismissal == false)
+								x.EmployeeExOrg.IsDismissal = true;
+						});
+					}
+				}
+
+
+				//Если сотрудник уволен в выбранном месяце, то его ФИО красятся в красный. Все остальные случаи - в черный
+				foreach (var item in tempShifts)
+				{
+					var isDismissal = item.WorkerHours.Any(x => x.EmployeeExOrg.DateDismissal.Month == ItemMonthsTOExOrg.Id &&
+																x.EmployeeExOrg.DateDismissal.Year == ItemYearsTOExOrg.Id);
+					if (isDismissal)
+						item.Brush = Brushes.Red;
+					else
+						item.Brush = Brushes.Black;
+
+					item.WorkerHours.Foreach(x =>
+					{
+						Brush brush = x.GetBrushARGB();
+						x.Brush = brush;
+					});
+				}
+
 
 				//Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
 				if (!string.IsNullOrEmpty(FilterName))
@@ -1727,7 +1769,6 @@ namespace ProductionControl.ViewModel
 						LastAccessRightBool = LastAccessRightBool,
 						LastSelectedDepartmentID = LastSelectedDepartmentID,
 						EmployeeAccesses = _mapper.Map<List<EmployeeAccessRight>>(EmployeeAccesses),
-
 					};
 
 					if (LastAccessRightBool == true && !string.IsNullOrEmpty(LastSelectedDepartmentID))
@@ -1748,7 +1789,33 @@ namespace ProductionControl.ViewModel
 					CheckingSeeOrWriteBool = CheckingSeeOrWriteBool
 				};
 				List<TimeSheetItemDto>? response = await _employeeSheetApi.SetDataForTimeSheetAsync(dataForTimeSheet).ConfigureAwait(false);
+				//Временное решение, отменяет флаг уволеннения, чтобы прошла валидация при маппинге данных из апи в модель. Без неё, смены\часы не ставятся
+				foreach (var itemResp in response)
+				{
+					if (itemResp.WorkerHours.Any(x => x.Employee.IsDismissal))
+					{
+						itemResp.WorkerHours.Foreach(x =>
+						{
+							if (x.Employee.IsDismissal)
+								x.Employee.IsDismissal = false;
+						});
+					}
+				}
+
 				List<TimeSheetItem>? tempShifts = _mapper.Map<List<TimeSheetItem>>(response);
+				//Возвращяем флаг уволнения. Проверяем по дате уволнения (не равна по умолчанию) и флаг уволнения отменен - то ставим флаг уволнения в true
+				foreach (var itemTemp in tempShifts)
+				{
+					if (itemTemp.WorkerHours.Any(x => x.Employee.DateDismissal != DateTime.Parse("31.12.1876")))
+					{
+						itemTemp.WorkerHours.Foreach(x =>
+						{
+							if (x.Employee.DateDismissal != DateTime.Parse("31.12.1876") && x.Employee.IsDismissal == false)
+								x.Employee.IsDismissal = true;
+						});
+					}
+				}
+
 
 				foreach (var item in tempShifts)
 				{
@@ -1758,6 +1825,12 @@ namespace ProductionControl.ViewModel
 						item.Brush = Brushes.Red;
 					else
 						item.Brush = Brushes.Black;
+
+					item.WorkerHours.Foreach(x =>
+					{
+						if (!string.IsNullOrEmpty(x.Shift))
+							x.Brush = x.Shift.GetBrush();
+					});
 				}
 
 				////Готовые данные табеля отдаём ресурсу для отрисовки табеля в приложении
@@ -2410,18 +2483,24 @@ namespace ProductionControl.ViewModel
 
 				if (ValidationForTimeSheetsAndUserDataCurrent()) return;
 
-				List<TimeSheetItem>? copyTimeSheet = [.. TimeSheets.Select(x => x.Clone())];
-				var dataSize = JsonSerializer.Serialize(copyTimeSheet).Length;
-				var ds = JsonSerializer.Serialize(copyTimeSheet);
-				var result = _mapper.Map<List<TimeSheetItemDto>>(copyTimeSheet);
+				DataForTimeSheet dataForTimeSheet = new DataForTimeSheet
+				{
+					NamesDepartmentItem = _mapper.Map<DepartmentProduction>(NamesDepartmentItem),
+					StartDate = StartDate,
+					EndDate = EndDate,
+					ItemMonthsTO = _mapper.Map<MonthsOrYearsDto>(ItemMonthsTO),
+					ItemYearsTO = _mapper.Map<MonthsOrYearsDto>(ItemYearsTO),
+					NoWorkDaysTO = NoWorkDaysTO,
+					CheckingSeeOrWriteBool = CheckingSeeOrWriteBool
+				};
 
-				Tuplet = await _resultSheetsApi.GetDataResultSheetAsync(result);
+				Tuplet = await _resultSheetsApi.GetDataResultSheetAsync(dataForTimeSheet);
 
 				Indicators = new ObservableCollection<IndicatorDto>(Tuplet.Indicators);
 
 				TextEmpIndicator = string.Empty;
 				TextIndicator = @$"Участок:  {NamesDepartmentItem.NameDepartment}.";
-				TextCountEmployee = $"Кол-во работников:  {copyTimeSheet.Count}.";
+				TextCountEmployee = $"Кол-во работников:  {TimeSheets.Count}.";
 			}
 			catch (Exception ex)
 			{

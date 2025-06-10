@@ -1,11 +1,13 @@
 ﻿using ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Interfaces;
 
+using System.Text.Json;
+
 namespace ProductionControl.ApiClients.DefinitionOfNonWorkingDaysApiServices.Implementation
 {
 	public class DefinitionOfNonWorkingDaysApiClient : BaseApiClient, IDefinitionOfNonWorkingDaysApiClient
 	{
-		public DefinitionOfNonWorkingDaysApiClient(IHttpClientFactory httpClientFactory) :
-			base(httpClientFactory.CreateClient("VKTApi"))
+		public DefinitionOfNonWorkingDaysApiClient(IHttpClientFactory httpClientFactory, JsonSerializerOptions jsonOptions) :
+			base(httpClientFactory.CreateClient("VKTApi"), jsonOptions)
 		{
 		}
 

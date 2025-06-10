@@ -11,10 +11,10 @@ namespace ProductionControl.UIModels.Dtos.ExternalOrganization
 {
 	public class ShiftDataExOrgDto : ObservableObject
 	{
+		private GlobalSettingsProperty _globalProperty;
 		public ShiftDataExOrgDto() { }
 		public ShiftDataExOrgDto(GlobalSettingsProperty globalProperty) { _globalProperty = globalProperty; }
 
-		private GlobalSettingsProperty _globalProperty;
 
 		public int EmployeeExOrgID
 		{
@@ -108,9 +108,6 @@ namespace ProductionControl.UIModels.Dtos.ExternalOrganization
 		/// </summary>
 		private bool Validation()
 		{
-			// Если Employee ещё не проинициализирован — считаем, что валидация не пройдена
-			if (EmployeeExOrg == null)
-				return false;
 			if (EmployeeExOrg.IsDismissal) //Если уволенный сотрудник
 			{
 				return false;

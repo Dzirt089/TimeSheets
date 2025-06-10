@@ -3,11 +3,14 @@ using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
 using ProductionControl.DataAccess.Classes.HttpModels;
 
+using System.Text.Json;
+
 namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiServices.Implementation
 {
 	public class EmployeeSheetApiClient : BaseApiClient, IEmployeeSheetApiClient
 	{
-		public EmployeeSheetApiClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory.CreateClient("ProductionApi"))
+		public EmployeeSheetApiClient(IHttpClientFactory httpClientFactory, JsonSerializerOptions jsonOptions)
+			: base(httpClientFactory.CreateClient("ProductionApi"), jsonOptions)
 		{
 			// Установка базового адреса для клиента этого экземпляра, для работы с группой вызовов апи "EmployeeSheet"
 			_httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "EmployeeSheet/");

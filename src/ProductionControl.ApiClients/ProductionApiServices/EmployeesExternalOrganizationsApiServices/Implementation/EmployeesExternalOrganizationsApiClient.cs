@@ -3,12 +3,14 @@ using ProductionControl.DataAccess.Classes.ApiModels.Dtos;
 using ProductionControl.DataAccess.Classes.EFClasses.EmployeesExternalOrganizations;
 using ProductionControl.DataAccess.Classes.HttpModels;
 
+using System.Text.Json;
+
 namespace ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOrganizationsApiServices.Implementation
 {
 	public class EmployeesExternalOrganizationsApiClient : BaseApiClient, IEmployeesExternalOrganizationsApiClient
 	{
-		public EmployeesExternalOrganizationsApiClient(IHttpClientFactory httpClientFactory)
-			: base(httpClientFactory.CreateClient("ProductionApi"))
+		public EmployeesExternalOrganizationsApiClient(IHttpClientFactory httpClientFactory, JsonSerializerOptions jsonOptions)
+			: base(httpClientFactory.CreateClient("ProductionApi"), jsonOptions)
 		{
 			_httpClient.BaseAddress = new Uri(_httpClient.BaseAddress, "EmployeesExternalOrganizations/");
 		}

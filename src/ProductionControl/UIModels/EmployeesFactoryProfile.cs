@@ -19,7 +19,9 @@ namespace ProductionControl.UIModels
 	{
 		public EmployeesFactoryProfile()
 		{
-			#region Основные маппинги
+			#region Сотрудники предприятия
+
+
 			CreateMap<MonthsOrYears, MonthsOrYearsDto>().ReverseMap();
 
 			CreateMap<WorkingSchedule, WorkingScheduleDto>().ReverseMap();
@@ -29,7 +31,6 @@ namespace ProductionControl.UIModels
 					src.WorkerHours == null
 					? null
 					: ctx.Mapper.Map<ObservableCollection<ShiftData>>(src.WorkerHours)))
-				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
 				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
 				.ForMember(dest => dest.Brush, opt => opt.Ignore())
 				.AfterMap((src, dest) =>
@@ -42,7 +43,6 @@ namespace ProductionControl.UIModels
 					src.WorkerHours == null
 						? null
 						: ctx.Mapper.Map<ObservableCollection<ShiftData>>(src.WorkerHours)))
-				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
 				.ForMember(dest => dest.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday));
 
 			CreateMap<ShiftDataEmployeeDto, ShiftDataEmployee>()
@@ -77,11 +77,6 @@ namespace ProductionControl.UIModels
 				})
 				.ReverseMap();
 
-
-			#endregion
-
-			#region Сложные маппинги с коллекциями
-
 			// Employee Mapping
 			CreateMap<Employee, EmployeeDto>()
 				.ForMember(dest => dest.DepartmentProduction, opt => opt.MapFrom(src => src.DepartmentProduction))
@@ -107,10 +102,6 @@ namespace ProductionControl.UIModels
 					opt.MapFrom(src => src.EmployeeAccessRight))
 				.ReverseMap();
 
-
-
-			#endregion
-
 			#region Коллекции
 
 			// ObservableCollection<ShiftData> → ObservableCollection<ShiftDataDto>
@@ -131,6 +122,8 @@ namespace ProductionControl.UIModels
 
 			#endregion
 
+			#endregion
+
 			#region SIZ
 
 			CreateMap<Siz, SizDto>().ReverseMap();
@@ -140,31 +133,42 @@ namespace ProductionControl.UIModels
 			#endregion
 
 			#region Внешние организации
-
-			CreateMap<EmployeeExOrgAddInRegion, EmployeeExOrgAddInRegionDto>().ReverseMap();
-			CreateMap<EmployeeExOrg, EmployeeExOrgDto>()
-				.ForMember(dest => dest.ShiftDataExOrgs, opt => opt.Ignore())
-				.ReverseMap()
-				.ForMember(dest => dest.ShiftDataExOrgs, opt => opt.Ignore());
 			CreateMap<EmployeePhoto, EmployeePhotoDto>().ReverseMap();
+			CreateMap<EmployeeExOrgAddInRegion, EmployeeExOrgAddInRegionDto>().ReverseMap();
+
+
+			CreateMap<EmployeeExOrg, EmployeeExOrgDto>()
+				.ForMember(dest => dest.EmployeeExOrgAddInRegions, opt => opt.MapFrom(src => src.EmployeeExOrgAddInRegions))
+				.ForMember(dest => dest.ShiftDataExOrgs, opt => opt.MapFrom(src => src.ShiftDataExOrgs))
+				.AfterMap((src, dest, context) =>
+				{
+					if (src.ShiftDataExOrgs != null)
+					{
+						dest.ShiftDataExOrgs = context.Mapper.Map<IEnumerable<ShiftDataExOrgDto>>(src.ShiftDataExOrgs);
+					}
+				})
+				.ReverseMap();
+
 
 			CreateMap<ShiftDataExOrg, ShiftDataExOrgDto>()
+				.ForMember(d => d.EmployeeExOrg, opt => opt.MapFrom(src => src.EmployeeExOrg))
 				.ForMember(d => d.Brush, opt => opt.Ignore())
+
+				.ForMember(d => d.WorkDate, opt => opt.MapFrom(src => src.WorkDate))
+				.ForMember(d => d.CodeColor, opt => opt.MapFrom(src => src.CodeColor))
 				.ForMember(d => d.Hours, opt => opt.Ignore())
-				.ForMember(d => d.CodeColor, opt => opt.Ignore())
-				.ForMember(d => d.EmployeeExOrg, opt => opt.MapFrom(s => s.EmployeeExOrg))
 				.AfterMap((src, dst) =>
 				{
-					if (src.Hours != null)
+					if (src.EmployeeExOrg != null)
 					{
 						dst.Hours = src.Hours;
 					}
 				})
-				.ReverseMap()
-				.ForMember(d => d.EmployeeExOrg, opt => opt.Ignore());
+				.ReverseMap();
 
 			CreateMap<TimeSheetItemExOrgDto, TimeSheetItemExOrg>()
 				.ForMember(d => d.Brush, opt => opt.Ignore())
+				.ForMember(d => d.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday))
 				.ForMember(d => d.WorkerHours, opt => opt.MapFrom((src, dest, _, ctx) =>
 				{
 					if (src.WorkerHours == null) return null;
@@ -182,7 +186,8 @@ namespace ProductionControl.UIModels
 				{
 					if (src.WorkerHours == null) return null;
 					return ctx.Mapper.Map<IEnumerable<ShiftDataExOrgDto>>(src.WorkerHours);
-				}));
+				}))
+				.ForMember(d => d.FioShiftOverday, opt => opt.MapFrom(src => src.FioShiftOverday));
 
 			#endregion
 		}
@@ -213,8 +218,7 @@ namespace ProductionControl.UIModels
 	}
 
 	// Конвертер для IEnumerable<ShiftData> → IEnumerable<ShiftDataDto>
-	public class ShiftDataEnumerableConverter
-	: ITypeConverter<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>
+	public class ShiftDataEnumerableConverter : ITypeConverter<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>
 	{
 		public IEnumerable<ShiftDataDto> Convert(
 			IEnumerable<ShiftData> source,

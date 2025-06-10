@@ -26,6 +26,9 @@ using ProductionControl.UIModels.Dtos.ExternalOrganization;
 using ProductionControl.UIModels.Model.GlobalPropertys;
 using ProductionControl.ViewModel;
 
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -63,19 +66,36 @@ namespace ProductionControl
 				#endregion
 
 				#region API-Сервисы и API-клиенты
-				
+
+				services.AddSingleton(new JsonSerializerOptions
+				{
+					ReferenceHandler = ReferenceHandler.IgnoreCycles, // Игнорирование циклов
+					MaxDepth = 2048, // Увеличение максимальной глубины
+				});
+
 				services.AddHttpClient("ProductionApi", client =>
-				{
-					client.BaseAddress = new Uri(Settings.Default.Test_Prodaction_API);
-					client.DefaultRequestHeaders.Add("Accept", "application/json");
-					client.Timeout = TimeSpan.FromSeconds(30);
-				});
+					{
+						client.BaseAddress = new Uri(Settings.Default.Test_Prodaction_API);
+						client.DefaultRequestHeaders.Add("Accept", "application/json");
+						client.Timeout = TimeSpan.FromSeconds(300);
+					})
+					.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+					{
+						PooledConnectionIdleTimeout = TimeSpan.FromSeconds(300),
+						MaxConnectionsPerServer = 10,
+					});
+
 				services.AddHttpClient("VKTApi", client =>
-				{
-					client.BaseAddress = new Uri(Settings.Default.VKT_API);
-					client.DefaultRequestHeaders.Add("Accept", "application/json");
-					client.Timeout = TimeSpan.FromSeconds(30);
-				});
+					{
+						client.BaseAddress = new Uri(Settings.Default.VKT_API);
+						client.DefaultRequestHeaders.Add("Accept", "application/json");
+						client.Timeout = TimeSpan.FromSeconds(300);
+					})
+					.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+					{
+						PooledConnectionIdleTimeout = TimeSpan.FromSeconds(300),
+						MaxConnectionsPerServer = 10,
+					});
 
 				services.AddScoped<IReportsApiClient, ReportsApiClient>();
 				services.AddScoped<IResultSheetsApiClient, ResultSheetsApiClient>();

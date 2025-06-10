@@ -7,10 +7,12 @@ namespace ProductionControl.ApiClients
 	public abstract class BaseApiClient
 	{
 		protected readonly HttpClient _httpClient;
+		private readonly JsonSerializerOptions _jsonOptions;
 
-		protected BaseApiClient(HttpClient httpClient)
+		protected BaseApiClient(HttpClient httpClient, JsonSerializerOptions jsonOptions)
 		{
 			_httpClient = httpClient;
+			_jsonOptions = jsonOptions;
 		}
 
 		public T PostTJsonT<T>(string requestUri, object content)
@@ -48,7 +50,12 @@ namespace ProductionControl.ApiClients
 		public async Task<T> PostTJsonTAsync<T>(string requestUri, object content, CancellationToken token = default)
 		{
 			var text = (Encoding.UTF8.GetByteCount(JsonSerializer.Serialize(content)));
-			var response = await _httpClient.PostAsJsonAsync(requestUri, content, token);
+
+			//var json = JsonSerializer.Serialize(content, _jsonOptions);
+			//File.WriteAllText("debag_json.json", json, Encoding.UTF8);
+
+
+			var response = await _httpClient.PostAsJsonAsync(requestUri, content, _jsonOptions, token);
 			response.EnsureSuccessStatusCode();
 			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");
 		}

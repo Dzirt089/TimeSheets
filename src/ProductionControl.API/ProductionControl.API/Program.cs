@@ -1,6 +1,7 @@
 using MailerVKT;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -34,7 +35,11 @@ namespace ProductionControl.API
 			builder.Services.ConfigureHttpJsonOptions(options =>
 			{
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-				options.SerializerOptions.MaxDepth = 128;
+				options.SerializerOptions.MaxDepth = 2048;
+			});
+			builder.Services.Configure<KestrelServerOptions>(options =>
+			{
+				options.Limits.MaxRequestBodySize = 500_000_000;
 			});
 
 			#region Настраиваем dbContext в DI
@@ -119,9 +124,10 @@ namespace ProductionControl.API
 
 			var resultSheets = app.MapGroup("ResultSheets");
 			resultSheets.MapPost("GetDataResultSheet",
-				async (IResultSheetsService service, [FromBody] List<TimeSheetItemDto> copyTimeSheet, CancellationToken token) =>
+				async (IResultSheetsService serviceResult, IEmployeesFactorysRepository service, [FromBody] DataForTimeSheet dataForTimeSheet, CancellationToken token) =>
 				{
-					var result = await service.ShowResultSheet(copyTimeSheet, token);
+					var copyTimeSheet = await service.SetDataForTimeSheetAsync(dataForTimeSheet, token);
+					var result = await serviceResult.ShowResultSheet(copyTimeSheet, token);
 					return Results.Ok(result);
 				});
 
@@ -343,17 +349,6 @@ namespace ProductionControl.API
 					return Results.Ok(result);
 				});
 
-			//employeeSheets.MapPost("/",
-			//	async (IEmployeesFactorysRepository service, [FromBody] , CancellationToken token) =>
-			//	{
-			//		return await service.();
-			//	});
-
-			//employeeSheets.MapPost("/",
-			//	async (IEmployeesFactorysRepository service, [FromBody] , CancellationToken token) =>
-			//	{
-			//		return await service.();
-			//	});
 			#endregion
 
 			#region Employees External Organizations

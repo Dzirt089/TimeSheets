@@ -1,4 +1,5 @@
 ﻿using ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys;
+using ProductionControl.DataAccess.Classes.Utils;
 
 using System.Collections.ObjectModel;
 
@@ -31,6 +32,8 @@ namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 			NoWorksDays = noWorksDay;
 			AccessSeeOrWrite = accessSeeOrWrite;
 			IsLunch = lunch;
+			SetTotalWorksDays();
+			SetCalendarDayAndHours();
 		}
 
 		public TimeSheetItemDto() { }
@@ -107,5 +110,97 @@ namespace ProductionControl.DataAccess.Classes.ApiModels.Dtos
 		/// Кол-во календарных рабочих часов за месяц
 		/// </summary>
 		public int CalendarWorksHours { get; set; }
+
+		/// <summary>
+		/// Установка плановых показателей:
+		/// Месячная норма рабочих дней и часов по производственному календарю 
+		/// </summary>
+		public void SetCalendarDayAndHours()
+		{
+			CalendarWorksDay = WorkerHours.Count - NoWorksDays.Count;
+			CountPreholiday = WorkerHours.Where(x => x.IsPreHoliday == true).Count();
+			CalendarWorksHours = CalendarWorksDay * 8 - CountPreholiday;
+		}
+
+		/// <summary>
+		/// Установка общего кол-во рабочих дней, которые посетил сотрудник
+		/// </summary>
+		public void SetTotalWorksDays()
+		{
+			// Проверка, что список WorkerHours не пуст и не равен null
+			if (WorkerHours.Count == 0 || WorkerHours is null) return;
+
+			// Подсчет количества предпраздничных дней
+			CountPreholiday = WorkerHours.Where(x => x.IsPreHoliday == true && x.Shift != null && x.Shift.GetShiftHours() != 0).Count();
+
+			bool daysShift = false;
+			bool nightShift = false;
+
+			var shift = WorkerHours.Where(x => x.IsPreHoliday).Select(s => s.Shift).FirstOrDefault();
+			if (int.TryParse(shift, out int numberShift))
+			{
+				switch (numberShift)
+				{
+					case 1: daysShift = true; break;
+					case 2: nightShift = true; break;
+					case 3: nightShift = true; break;
+					case 4: daysShift = true; break;
+					case 5: daysShift = true; break;
+					case 7: daysShift = true; break;
+				}
+			}
+
+			// Подсчет общего количества рабочих дней
+			TotalWorksDays = WorkerHours
+				.AsParallel()
+				.Where(x => x.ValidationWorkingDays())
+				.Count();
+
+			// Подсчет общего количества сверхурочных часов
+			var tempTotalOverHours = WorkerHours
+				.AsParallel()
+				.Where(e => e.ValidationOverdayDays())
+				.Sum(r => double.TryParse(r.Overday?.Replace(".", ","), out double tempValue) ?
+				tempValue : 0);
+			TotalOverdayHours = Math.Round(tempTotalOverHours, 1);
+
+			// Подсчет общего количества дневных рабочих часов
+			var tempTotalDaysHours = WorkerHours
+				.AsParallel()
+				.Where(x => x.ValidationWorkingDays())
+				.Sum(x => x.Shift?.GetDaysHours() ?? 0);
+
+			var tempCheckTDH = Math.Round(tempTotalDaysHours, 1);
+
+			if (daysShift)
+				tempCheckTDH -= CountPreholiday;
+
+			TotalDaysHours = tempCheckTDH < 0 ? 0 : tempCheckTDH;
+
+			// Подсчет общего количества ночных рабочих часов
+			var tempTotalNightHours = WorkerHours
+				.AsParallel()
+				.Where(x => x.ValidationWorkingDays())
+				.Sum(y => y.Shift?.GetNightHours() ?? 0);
+
+			if (nightShift)
+				tempTotalNightHours -= CountPreholiday;
+
+			TotalNightHours = Math.Round(tempTotalNightHours, 1);
+
+			// Подсчет общего количества рабочих часов без сверхурочных
+			var tempTotalWorksHoursWithoutOverday = WorkerHours
+				.AsParallel()
+				.Sum(x => x.Shift?.GetShiftHours() ?? 0);
+			var tempCheckTWHWO = Math.Round(tempTotalWorksHoursWithoutOverday, 1) - CountPreholiday;
+
+			TotalWorksHoursWithoutOverday = tempCheckTWHWO < 0 ? 0 : tempCheckTWHWO;
+
+			// Подсчет общего количества рабочих часов с учетом сверхурочных
+			TotalWorksHoursWithOverday = Math.Round(TotalWorksHoursWithoutOverday + TotalOverdayHours, 1);
+
+			// Подсчет количества обедов
+			TotalLunch = WorkerHours.AsParallel().Where(e => e.IsHaveLunch == true).Count();
+		}
 	}
 }
