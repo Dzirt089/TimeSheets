@@ -69,20 +69,24 @@ namespace ProductionControl
 
 				services.AddSingleton(new JsonSerializerOptions
 				{
-					ReferenceHandler = ReferenceHandler.IgnoreCycles, // Игнорирование циклов
-					MaxDepth = 2048, // Увеличение максимальной глубины
+					ReferenceHandler = ReferenceHandler.Preserve,
+					PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+					MaxDepth = 2048,
+					DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
 				});
-
+				
 				services.AddHttpClient("ProductionApi", client =>
 					{
-						client.BaseAddress = new Uri(Settings.Default.Test_Prodaction_API);
+						//client.BaseAddress = new Uri(Settings.Default.Test_Prodaction_API);
+						client.BaseAddress = new Uri(Settings.Default.TestIIS_Prodaction_API);
 						client.DefaultRequestHeaders.Add("Accept", "application/json");
 						client.Timeout = TimeSpan.FromSeconds(300);
 					})
 					.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
 					{
 						PooledConnectionIdleTimeout = TimeSpan.FromSeconds(300),
-						MaxConnectionsPerServer = 10,
+						MaxConnectionsPerServer = 20,
+						AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Brotli
 					});
 
 				services.AddHttpClient("VKTApi", client =>

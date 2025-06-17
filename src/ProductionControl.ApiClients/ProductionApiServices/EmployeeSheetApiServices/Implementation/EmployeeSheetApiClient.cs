@@ -64,8 +64,8 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		public async Task<bool> SetDataEmployeeAsync(Employee employee, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("SetDataEmployee", employee, token);
 
-		public async Task<List<TimeSheetItemDto>> SetDataForTimeSheetAsync(DataForTimeSheet dataForTimeSheet, CancellationToken token = default) =>
-			await PostTJsonTAsync<List<TimeSheetItemDto>>("SetDataForTimeSheet", dataForTimeSheet, token);
+		public async Task<List<Employee>> SetDataForTimeSheetAsync(DataForTimeSheet dataForTimeSheet, CancellationToken token = default) =>
+			await PostTJsonTAsync<List<Employee>>("SetDataForTimeSheet", dataForTimeSheet, token);
 
 		public async Task<bool> SetNamesDepartmentAsync(CancellationToken token = default) =>
 			await GetTJsonTAsync<bool>("SetNamesDepartment", token);

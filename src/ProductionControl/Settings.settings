@@ -29,5 +29,8 @@
     <Setting Name="Test_Prodaction_API" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://localhost:5044</Value>
     </Setting>
+    <Setting Name="TestIIS_Prodaction_API" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://server-to1:46037</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

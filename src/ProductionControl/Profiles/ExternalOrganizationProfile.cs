@@ -7,7 +7,7 @@ using ProductionControl.UIModels.Model.ExternalOrganization;
 
 using System.Collections.ObjectModel;
 
-namespace ProductionControl.UIModels.Profiles
+namespace ProductionControl.Profiles
 {
 	public class ExternalOrganizationProfile : Profile
 	{

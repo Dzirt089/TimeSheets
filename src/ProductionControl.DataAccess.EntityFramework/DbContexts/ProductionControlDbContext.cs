@@ -15,7 +15,7 @@ namespace ProductionControl.DataAccess.EntityFramework.DbContexts
 			: base(options)
 		{
 		}
-		public DbSet<DataSizForMonth> DataSizForMonths { get; set; }
+		public DbSet<DataSizForMonth> DataSizForMonth { get; set; }
 		public DbSet<IssueSiz> IssueSizs { get; set; }
 		public DbSet<Employee>? Employees { get; set; }
 		public DbSet<ShiftData>? ShiftsData { get; set; }
@@ -29,7 +29,7 @@ namespace ProductionControl.DataAccess.EntityFramework.DbContexts
 		public DbSet<ShiftDataExOrg>? ShiftDataExOrgs { get; set; }
 		public DbSet<EmployeeExOrgAddInRegion>? EmployeeExOrgAddInRegions { get; set; }
 		public DbSet<EmployeePhoto>? EmployeePhotos { get; set; }
-		public DbSet<OrderNumberOnDate> OrderNumberOnDates { get; set; }
+		public DbSet<OrderNumberOnDate> OrderNumberOnDate { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

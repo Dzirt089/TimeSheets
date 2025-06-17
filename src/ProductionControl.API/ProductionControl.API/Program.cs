@@ -1,6 +1,7 @@
 using MailerVKT;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -24,6 +25,7 @@ using ProductionControl.ServiceLayer.ServicesAPI.Implementation;
 using ProductionControl.ServiceLayer.ServicesAPI.Interfaces;
 
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ProductionControl.API
@@ -34,11 +36,25 @@ namespace ProductionControl.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
+			builder.Services.AddResponseCompression(); // Активирует middleware сжатия
+
+			builder.Services.Configure<ResponseCompressionOptions>(options =>
+			{
+				options.EnableForHttps = true;
+				options.MimeTypes = new[] { "application/json" };
+			});
+
 			builder.Services.ConfigureHttpJsonOptions(options =>
 			{
-				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+				options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
 				options.SerializerOptions.MaxDepth = 2048;
+
+				options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+				options.SerializerOptions.WriteIndented = false;
+				options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 			});
+
+
 			builder.Services.Configure<KestrelServerOptions>(options =>
 			{
 				options.Limits.MaxRequestBodySize = 500_000_000;
@@ -89,9 +105,10 @@ namespace ProductionControl.API
 				var xmlFileName = Assembly.GetExecutingAssembly().GetName().Name + ".xml";
 				var xmlFilePath = Path.Combine(AppContext.BaseDirectory, xmlFileName);
 				options.IncludeXmlComments(xmlFilePath);
-			}); ;
+			});
 
 			var app = builder.Build();
+			app.UseResponseCompression(); //middleware сжатия в конвейер обработки запросов
 			app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 			// Configure the HTTP request pipeline.
@@ -211,7 +228,7 @@ namespace ProductionControl.API
 			employeeSheets.MapPost("SetDataForTimeSheet",
 			async (IEmployeesFactorysRepository service, [FromBody] DataForTimeSheet dataForTimeSheet, CancellationToken token) =>
 				{
-					var result = await service.SetDataForTimeSheetAsync(dataForTimeSheet, token);
+					var result = await service.GetEmployeesForTimeSheetAsync(dataForTimeSheet, token);
 					return Results.Ok(result);
 				});
 

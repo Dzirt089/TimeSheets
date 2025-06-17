@@ -22,7 +22,7 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
-		Task<List<TimeSheetItemDto>> SetDataForTimeSheetAsync(
+		Task<List<Employee>> SetDataForTimeSheetAsync(
 			DataForTimeSheet dataForTimeSheet, CancellationToken token = default);
 
 		/// <summary>

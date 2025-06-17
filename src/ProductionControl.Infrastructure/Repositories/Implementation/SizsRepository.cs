@@ -13,7 +13,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 
 		public async Task<OrderNumberOnDate?> GetOrderNumberOnDateAsync(CancellationToken token)
 		{
-			var orderNumberOnDate = await _context.OrderNumberOnDates.SingleOrDefaultAsync(token);
+			var orderNumberOnDate = await _context.OrderNumberOnDate.SingleOrDefaultAsync(token);
 			return orderNumberOnDate;
 		}
 
@@ -65,7 +65,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// <returns></returns>
 		public async Task<List<DataSizForMonth>> GetAllDataSizForMonthsAsync(CancellationToken token)
 		{
-			return await _context.DataSizForMonths
+			return await _context.DataSizForMonth
 				.ToListAsync(token);
 		}
 
@@ -74,7 +74,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// </summary>
 		public async Task<List<DataSizForMonth>> GetDataSizForMonthsAsync(long employeeID, CancellationToken token)
 		{
-			return await _context.DataSizForMonths
+			return await _context.DataSizForMonth
 					.Where(x => x.EmployeeID == employeeID)
 					.ToListAsync(token);
 		}
@@ -86,7 +86,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		{
 			await using var transactions = await _context.Database.BeginTransactionAsync(token);
 
-			var allList = await _context.DataSizForMonths.ToListAsync(token);
+			var allList = await _context.DataSizForMonth.ToListAsync(token);
 
 			foreach (var item in allList)
 			{
@@ -110,7 +110,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task AddDataSizForMonthAsync(List<DataSizForMonth> datas, CancellationToken token)
 		{
 			await using var transactions = await _context.Database.BeginTransactionAsync(token);
-			_context.DataSizForMonths?.AddRangeAsync(datas, token);
+			_context.DataSizForMonth?.AddRangeAsync(datas, token);
 
 			await _context.SaveChangesAsync(token);
 			await transactions.CommitAsync(token);
@@ -119,7 +119,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task AddOrderNumberOnDateAsync(OrderNumberOnDate onDate, CancellationToken token)
 		{
 			await using var transactions = await _context.Database.BeginTransactionAsync(token);
-			await _context.OrderNumberOnDates.AddAsync(onDate, token);
+			await _context.OrderNumberOnDate.AddAsync(onDate, token);
 			await _context.SaveChangesAsync(token);
 			await transactions.CommitAsync(token);
 		}
@@ -129,7 +129,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			await using var transactions = await _context.Database.BeginTransactionAsync(token);
 			try
 			{
-				_context.OrderNumberOnDates.Update(onDate);
+				_context.OrderNumberOnDate.Update(onDate);
 				await _context.SaveChangesAsync(token);
 				await transactions.CommitAsync(token);
 			}

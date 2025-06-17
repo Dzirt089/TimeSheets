@@ -51,21 +51,24 @@ namespace ProductionControl.ApiClients
 			//var text = (Encoding.UTF8.GetByteCount(JsonSerializer.Serialize(content)));
 			var response = await _httpClient.PostAsJsonAsync(requestUri, content, _jsonOptions, token);
 			response.EnsureSuccessStatusCode();
-			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");
+
+			// теперь ReadFromJsonAsync "понимает" $id/$values
+			return await response.Content.ReadFromJsonAsync<T>(_jsonOptions, token)
+				   ?? throw new InvalidOperationException("Десериализация вернула null");
 		}
 
 		public async Task<T> GetTJsonTAsync<T>(string requestUri, CancellationToken token = default)
 		{
 			var response = await _httpClient.GetAsync(requestUri, token);
 			response.EnsureSuccessStatusCode();
-			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");
+			return await response.Content.ReadFromJsonAsync<T>(_jsonOptions, token) ?? throw new InvalidOperationException("Response content is null.");
 		}
 
 		public async Task<T> DeleteTJsonTAsync<T>(string requestUri, CancellationToken token = default)
 		{
 			var response = await _httpClient.DeleteAsync(requestUri, token);
 			response.EnsureSuccessStatusCode();
-			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");
+			return await response.Content.ReadFromJsonAsync<T>(_jsonOptions, token) ?? throw new InvalidOperationException("Response content is null.");
 		}
 	}
 }

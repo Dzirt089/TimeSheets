@@ -18,6 +18,60 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		private readonly ProductionControlDbContext _context = context;
 		private readonly IDbServices _dbServices = dbServices;
 
+		public async Task<List<Employee>> GetEmployeesForTimeSheetAsync(
+			DataForTimeSheet dataForTimeSheet, CancellationToken token = default)
+		{
+			//Выбираем только тех сотрудников, которые принадлежат выбранному участку и датам
+			var employeeWithSifts = await _context.Employees
+				.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
+				.Include(i => i.DepartmentProduction)
+				.Where(w => w.DepartmentID == dataForTimeSheet.NamesDepartmentItem.DepartmentID)
+				.Include(e => e.Shifts
+					.Where(s => s.WorkDate >= dataForTimeSheet.StartDate && s.WorkDate <= dataForTimeSheet.EndDate))
+				.OrderBy(o => o.FullName)
+				.ToListAsync(token);
+
+			//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
+			employeeWithSifts = employeeWithSifts
+				.Where(x => x.ValidateEmployee(
+						dataForTimeSheet.ItemMonthsTO.Id, dataForTimeSheet.ItemYearsTO.Id))
+				.ToList();
+
+			//Циклы в которых,
+			//Создаём и заполняем на каждого сотрудника "Пустой" график работ. Который будет заполняться в ручную и автоматически раз в месяц.
+			foreach (var employee in employeeWithSifts.OrderBy(x => int.TryParse(x.NumGraf, out int res) ? res : 0))
+			{
+				var shiftDict = employee.Shifts?.ToDictionary(x => x.WorkDate) ?? [];
+
+				for (var date = dataForTimeSheet.StartDate; date <= dataForTimeSheet.EndDate; date = date.AddDays(1))
+				{
+					if (!shiftDict.ContainsKey(date))
+					{
+						shiftDict[date] = new ShiftData
+						{
+							EmployeeID = employee.EmployeeID,
+							WorkDate = date,
+							Employee = employee,
+							Hours = string.Empty,
+							Shift = string.Empty,
+							Overday = string.Empty,
+							IsHaveLunch = false,
+						};
+					}
+				}
+				employee.Shifts = shiftDict.Values.ToList();
+			}
+
+			if (_context.ChangeTracker.HasChanges())
+			{
+				await _context.SaveChangesAsync(token);
+			}
+
+			return employeeWithSifts;
+
+		}
+
+
 		/// <summary>
 		/// Пакетное обновление данных сотрудников
 		/// </summary>
@@ -53,45 +107,11 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			int id = 1;
 
 			//Выбираем только тех сотрудников, которые принадлежат выбранному участку и датам
-			var employeeWithSifts = await _context.Employees
-				.AsSplitQuery()   //раздельная загрузка каждой включенной коллекции (Include)
-				.Include(i => i.DepartmentProduction)
-				.Where(w => w.DepartmentID == dataForTimeSheet.NamesDepartmentItem.DepartmentID)
-				.Include(e => e.Shifts
-					.Where(s => s.WorkDate >= dataForTimeSheet.StartDate && s.WorkDate <= dataForTimeSheet.EndDate))
-				.OrderBy(o => o.FullName)
-				.ToListAsync();
+			var employeeWithSifts = await GetEmployeesForTimeSheetAsync(dataForTimeSheet, token);
 
-			//Проводим валидацию, где остаются работающие сотрудники и те, которых уволили в выбранном месяце
-			employeeWithSifts = employeeWithSifts
-				.Where(x => x.ValidateEmployee(
-						dataForTimeSheet.ItemMonthsTO.Id, dataForTimeSheet.ItemYearsTO.Id))
-				.ToList();
-
-			//Циклы в которых,
-			//Создаём и заполняем на каждого сотрудника "Пустой" график работ. Который будет заполняться в ручную и автоматически раз в месяц.
+			//Циклы в которых, создаём и заполняем на каждого сотрудника "Пустой" график работ. Который будет заполняться в ручную и автоматически раз в месяц.
 			foreach (var employee in employeeWithSifts.OrderBy(x => int.TryParse(x.NumGraf, out int res) ? res : 0))
 			{
-				var shiftDict = employee.Shifts?.ToDictionary(x => x.WorkDate) ?? [];
-
-				for (var date = dataForTimeSheet.StartDate; date <= dataForTimeSheet.EndDate; date = date.AddDays(1))
-				{
-					if (!shiftDict.ContainsKey(date))
-					{
-						shiftDict[date] = new ShiftData
-						{
-							EmployeeID = employee.EmployeeID,
-							WorkDate = date,
-							Employee = employee,
-							Hours = string.Empty,
-							Shift = string.Empty,
-							Overday = string.Empty,
-							IsHaveLunch = false,
-						};
-					}
-				}
-				employee.Shifts = [.. shiftDict.Values];
-
 				//Конфигурируем данные сотрудника для отображения в табеле
 				var itemShift = new TimeSheetItemDto(
 						id,
@@ -112,7 +132,7 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 
 			if (_context.ChangeTracker.HasChanges())
 			{
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesAsync(token);
 			}
 
 			return tempShifts;

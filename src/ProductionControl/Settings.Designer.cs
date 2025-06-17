@@ -139,5 +139,17 @@ namespace ProductionControl {
                 this["Test_Prodaction_API"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://server-to1:46037")]
+        public string TestIIS_Prodaction_API {
+            get {
+                return ((string)(this["TestIIS_Prodaction_API"]));
+            }
+            set {
+                this["TestIIS_Prodaction_API"] = value;
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ using ProductionControl.UIModels.Model.EmployeesFactory;
 
 using System.Collections.ObjectModel;
 
-namespace ProductionControl.UIModels.Profiles
+namespace ProductionControl.Profiles
 {
 
 	public class EmployeesFactoryProfile : Profile
@@ -74,16 +74,10 @@ namespace ProductionControl.UIModels.Profiles
 
 			// Employee Mapping
 			CreateMap<Employee, EmployeeDto>()
-				.ForMember(dest => dest.DepartmentProduction, opt => opt.MapFrom(src => src.DepartmentProduction))
-				.ForMember(dest => dest.Shifts, opt => opt.MapFrom(src => src.Shifts))
-				.AfterMap((src, dest, context) => // Добавьте третий параметр ResolutionContext
-				{
-					if (src.Shifts != null)
-					{
-						dest.Shifts = context.Mapper.Map<IEnumerable<ShiftDataDto>>(src.Shifts);
-					}
-				})
+				.ForMember(dest => dest.Shifts, opt => opt.MapFrom(src => src.Shifts)) // Прямое маппинг
 				.ReverseMap();
+
+
 
 			// EmployeeAccessRight <-> EmployeeAccessRightDto
 			CreateMap<EmployeeAccessRight, EmployeeAccessRightDto>()
@@ -99,6 +93,12 @@ namespace ProductionControl.UIModels.Profiles
 
 			#region Коллекции
 
+			CreateMap<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>()
+				.ConvertUsing<ShiftDataListConverter>();
+
+			CreateMap<IEnumerable<ShiftDataDto>, IEnumerable<ShiftData>>()
+				.ConvertUsing<ShiftDataDtoListConverter>();
+
 			// ObservableCollection<ShiftData> → ObservableCollection<ShiftDataDto>
 			CreateMap<ObservableCollection<ShiftData>, ObservableCollection<ShiftDataDto>>()
 				.ConvertUsing<ShiftDataCollectionConverter>();
@@ -106,14 +106,6 @@ namespace ProductionControl.UIModels.Profiles
 			// ObservableCollection<ShiftDataDto> → ObservableCollection<ShiftData>
 			CreateMap<ObservableCollection<ShiftDataDto>, ObservableCollection<ShiftData>>()
 				.ConvertUsing<ShiftDataDtoCollectionConverter>();
-
-			// IEnumerable<ShiftData> → IEnumerable<ShiftDataDto>
-			CreateMap<IEnumerable<ShiftData>, IEnumerable<ShiftDataDto>>()
-				.ConvertUsing<ShiftDataEnumerableConverter>();
-
-			// IEnumerable<ShiftDataDto> → IEnumerable<ShiftData>
-			CreateMap<IEnumerable<ShiftDataDto>, IEnumerable<ShiftData>>()
-				.ConvertUsing<ShiftDataDtoEnumerableConverter>();
 
 			#endregion
 

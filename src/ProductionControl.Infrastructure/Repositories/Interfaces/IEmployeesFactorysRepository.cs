@@ -6,6 +6,10 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 {
 	public interface IEmployeesFactorysRepository
 	{
+
+		Task<List<Employee>> GetEmployeesForTimeSheetAsync(
+			DataForTimeSheet dataForTimeSheet, CancellationToken token = default);
+
 		/// <summary>
 		/// метод, который сохранит в нашей БД изменения с номером пропуска
 		/// </summary>

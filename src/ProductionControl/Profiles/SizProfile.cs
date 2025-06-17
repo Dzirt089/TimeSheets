@@ -3,7 +3,7 @@
 using ProductionControl.DataAccess.Classes.EFClasses.Sizs;
 using ProductionControl.UIModels.Dtos.Siz;
 
-namespace ProductionControl.UIModels.Profiles
+namespace ProductionControl.Profiles
 {
 	public class SizProfile : Profile
 	{

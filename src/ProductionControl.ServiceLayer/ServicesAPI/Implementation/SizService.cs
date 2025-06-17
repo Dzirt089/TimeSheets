@@ -127,7 +127,7 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 
 			MonthlyValueCurrent = await valuesService.GetValuesAsync(token);
 
-			if (DateTime.Now.Day == 1 || DateTime.Now.Day == 2)
+			if (DateTime.Now.Day == 1 || DateTime.Now.Day == 2 || DateTime.Now.Day == 17)
 			{
 				ListSizsOutputWithOneDayMonth = await contextServices.GetAllDataSizForMonthsAsync(token);
 
@@ -155,34 +155,43 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Implementation
 			if (checkOne)
 				path = await report.CreateReportForSIZAsync(CompletedEmployeesSizs, token);
 
-			bool checkTwo = await RunTNOInBestAsync(CompletedEmployeesSizs, token);
+			//bool checkTwo = await RunTNOInBestAsync(CompletedEmployeesSizs, token);
 
-			if (checkOne && checkTwo)
+			var mail = new MailerVKT.MailParameters
 			{
-				var mail = new MailerVKT.MailParameters();
-				if (!string.IsNullOrEmpty(path))
-				{
-					mail = new MailerVKT.MailParameters
-					{
-						Recipients = ["teho19@vkt-vent.ru", "ok@vkt-vent.ru", "pdo03@vkt-vent.ru"],
-						Subject = "Ведомости по выдаче СИЗ",
-						SenderName = "Табель",
-						Attachs = [path],
-					};
-				}
-				else
-				{
-					mail = new MailerVKT.MailParameters
-					{
-						Recipients = ["teho19@vkt-vent.ru", "ok@vkt-vent.ru", "pdo03@vkt-vent.ru"],
-						Subject = "Ведомости по выдаче СИЗ",
-						SenderName = "Табель",
-						Text = "Ошибка в формировании, нет файла ведомости. Сообщите разработчикам!"
-					};
-				}
+				Recipients = ["teho19@vkt-vent.ru"/*, "ok@vkt-vent.ru", "pdo03@vkt-vent.ru"*/],
+				Subject = "Ведомости по выдаче СИЗ",
+				SenderName = "Табель",
+				Attachs = [path],
+			};
+			await errorLogger.SendMailReportAsync(mail);
 
-				await errorLogger.SendMailReportAsync(mail);
-			}
+			//if (checkOne && checkTwo)
+			//{
+			//	var mail = new MailerVKT.MailParameters();
+			//	if (!string.IsNullOrEmpty(path))
+			//	{
+			//		mail = new MailerVKT.MailParameters
+			//		{
+			//			Recipients = ["teho19@vkt-vent.ru", "ok@vkt-vent.ru", "pdo03@vkt-vent.ru"],
+			//			Subject = "Ведомости по выдаче СИЗ",
+			//			SenderName = "Табель",
+			//			Attachs = [path],
+			//		};
+			//	}
+			//	else
+			//	{
+			//		mail = new MailerVKT.MailParameters
+			//		{
+			//			Recipients = ["teho19@vkt-vent.ru", "ok@vkt-vent.ru", "pdo03@vkt-vent.ru"],
+			//			Subject = "Ведомости по выдаче СИЗ",
+			//			SenderName = "Табель",
+			//			Text = "Ошибка в формировании, нет файла ведомости. Сообщите разработчикам!"
+			//		};
+			//	}
+
+			//	await errorLogger.SendMailReportAsync(mail);
+			//}
 		}
 		public async Task<bool> SetMonthlyValueBeforeReport(CancellationToken token)
 		{
