@@ -61,6 +61,19 @@ InnerException: {ex?.InnerException}.
 			});
 		}
 
+		public async Task SendMailPlanLaborAsync(string message)
+		{
+
+			await mailService.SendMailAsync(new MailerVKT.MailParameters
+			{
+				Recipients = [/*"ceh06@vkt-vent.ru",*/ "teho19@vkt-vent.ru"],
+				//RecipientsBcc = ["progto@vkt-vent.ru"],
+				SenderName = "Табель",
+				Subject = "Плановая трудоемкость",
+				Text = message,
+			});
+		}
+
 		/// <summary>
 		/// Синхронная версия метода по составлению лога на основе переданного исключения
 		/// </summary>

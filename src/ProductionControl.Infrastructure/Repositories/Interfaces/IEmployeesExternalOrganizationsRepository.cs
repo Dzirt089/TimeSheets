@@ -6,6 +6,19 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 {
 	public interface IEmployeesExternalOrganizationsRepository
 	{
+
+		/// <summary>
+		/// метод, который сохранит в нашей БД изменения с номером пропуска
+		/// </summary>
+		/// <returns></returns>
+		Task SaveEmployeeExOrgCardNumsAsync(IEnumerable<EmployeeExOrgCardNumShortNameId> employeeExOrgCards, CancellationToken token = default);
+
+		/// <summary>
+		/// метод, который получит из апи нашей БД список всех, у кого поле с номером пропуска пустое
+		/// </summary>
+		/// <returns></returns>
+		Task<IEnumerable<EmployeeExOrgCardNumShortNameId>> GetEmployeeExOrgEmptyCardNumsAsync(CancellationToken token = default);
+
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>

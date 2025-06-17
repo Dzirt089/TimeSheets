@@ -6,6 +6,19 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 {
 	public interface IEmployeeSheetApiClient
 	{
+
+		/// <summary>
+		/// метод, который сохранит в нашей БД изменения с номером пропуска
+		/// </summary>
+		/// <returns></returns>
+		Task<bool> SaveEmployeeCardNumsAsync(IEnumerable<EmployeeCardNumShortNameId> employeeCardNums, CancellationToken token = default);
+
+		/// <summary>
+		/// метод, который получит из апи нашей БД список всех, у кого поле с номером пропуска пустое
+		/// </summary>
+		/// <returns></returns>
+		Task<IEnumerable<EmployeeCardNumShortNameId>> GetEmployeeEmptyCardNumsAsync(CancellationToken token = default);
+
 		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
@@ -42,7 +55,7 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		Task<List<Employee>> GetEmployeesAsync(
 		   StartEndDateTime startEndDate, CancellationToken token = default);
 
-		Task<List<Employee>> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
+		Task<bool> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(
 			StartEndDateTime startEndDate, CancellationToken token = default);
 
 		/// <summary>

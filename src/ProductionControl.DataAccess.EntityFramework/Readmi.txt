@@ -1,0 +1,11 @@
+﻿dotnet ef migrations add InitialCreateWithNewArchitecture 
+--project "src\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj"  
+--startup-project "src\ProductionControl.API\ProductionControl.API\ProductionControl.API.csproj"
+
+dotnet ef migrations remove  
+--project "src\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj"  
+--startup-project "src\ProductionControl.API\ProductionControl.API\ProductionControl.API.csproj"
+
+dotnet ef database update
+--project "src\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj"  
+--startup-project "src\ProductionControl.API\ProductionControl.API\ProductionControl.API.csproj"

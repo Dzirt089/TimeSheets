@@ -7,6 +7,18 @@ namespace ProductionControl.Infrastructure.Repositories.Interfaces
 	public interface IEmployeesFactorysRepository
 	{
 		/// <summary>
+		/// метод, который сохранит в нашей БД изменения с номером пропуска
+		/// </summary>
+		/// <returns></returns>
+		Task SaveEmployeeCardNumsAsync(IEnumerable<EmployeeCardNumShortNameId> employeeCardNums, CancellationToken token = default);
+
+		/// <summary>
+		/// метод, который получит из апи нашей БД список всех, у кого поле с номером пропуска пустое
+		/// </summary>
+		/// <returns></returns>
+		Task<IEnumerable<EmployeeCardNumShortNameId>> GetEmployeeEmptyCardNumsAsync(CancellationToken token = default);
+
+		/// <summary>
 		/// Рассчитывает элементы табеля учета рабочего времени для ТО.
 		/// </summary>
 		Task<List<TimeSheetItemDto>> SetDataForTimeSheetAsync(

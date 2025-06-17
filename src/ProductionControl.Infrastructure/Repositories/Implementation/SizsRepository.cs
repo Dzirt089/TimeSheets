@@ -24,7 +24,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<int> GetCodeIDRegionAsync(string code, CancellationToken token)
 		{
 			var result = await _context.IssueSizs
-					.AsNoTracking()
 					.Where(x => x.code != null
 						&& x.codeBest != "06-05" && x.code.Contains(code))
 					.Select(s => s.rcdBest)
@@ -40,7 +39,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<int> GetWarehouseIDAsync(string code, CancellationToken token)
 		{
 			var result = await _context.IssueSizs
-					.AsNoTracking()
 					.Where(x => x.codeBest != null && x.codeBest.Contains(code))
 					.Select(e => e.rcdBest)
 					.FirstOrDefaultAsync(token) ?? 0;
@@ -55,7 +53,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<List<SizUsageRate>> GetSizUsageRateAsync(CancellationToken token)
 		{
 			return await _context.SizUsageRates
-					.AsNoTracking()
 					.Include(i => i.Siz)
 					.Include(i => i.UsageNorm)
 					.OrderBy(o => o.UsageNorm.UsageNormID)
@@ -69,7 +66,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<List<DataSizForMonth>> GetAllDataSizForMonthsAsync(CancellationToken token)
 		{
 			return await _context.DataSizForMonths
-				.AsNoTracking()
 				.ToListAsync(token);
 		}
 
@@ -79,7 +75,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<List<DataSizForMonth>> GetDataSizForMonthsAsync(long employeeID, CancellationToken token)
 		{
 			return await _context.DataSizForMonths
-					.AsNoTracking()
 					.Where(x => x.EmployeeID == employeeID)
 					.ToListAsync(token);
 		}
@@ -151,7 +146,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		public async Task<List<Employee>> GetEmployeesForSizOneDayAsync(CancellationToken token)
 		{
 			var result = await _context.Employees
-					.AsNoTracking()
 					.Include(i => i.DepartmentProduction)
 					.Include(i => i.UsageNorm)
 					.Where(x => x.IsDismissal == false && x.UsageNormID != null)
@@ -167,7 +161,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			DateTime startDate, DateTime endDate, CancellationToken token)
 		{
 			var result = await _context.Employees
-					.AsNoTracking()
 					.Include(i => i.DepartmentProduction)
 					.Include(i => i.Shifts
 						.Where(d => d.WorkDate >= startDate && d.WorkDate <= endDate))

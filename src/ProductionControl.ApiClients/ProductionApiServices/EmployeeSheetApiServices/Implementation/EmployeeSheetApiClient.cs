@@ -58,8 +58,8 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 		public async Task<List<Employee>> GetEmployeesForReportLunchAsync(StartEndDateTime startEndDate, CancellationToken token = default) =>
 			await PostTJsonTAsync<List<Employee>>("GetEmployeesForReportLunch", startEndDate, token);
 
-		public async Task<List<Employee>> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(StartEndDateTime startEndDate, CancellationToken token = default) =>
-			await PostTJsonTAsync<List<Employee>>("GetTotalWorkingHoursWithOverdayHoursForRegions043and044", startEndDate, token);
+		public async Task<bool> GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(StartEndDateTime startEndDate, CancellationToken token = default) =>
+			await PostTJsonTAsync<bool>("GetTotalWorkingHoursWithOverdayHoursForRegions043and044", startEndDate, token);
 
 		public async Task<bool> SetDataEmployeeAsync(Employee employee, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("SetDataEmployee", employee, token);
@@ -90,5 +90,11 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeeSheetApiSer
 
 		public async Task<bool> UpdateLunchEmployeeAsync(IdEmployeeDateTime idEmployeeDateTime, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("UpdateLunchEmployee", idEmployeeDateTime, token);
+
+		public async Task<bool> SaveEmployeeCardNumsAsync(IEnumerable<EmployeeCardNumShortNameId> employeeCardNums, CancellationToken token = default) =>
+			await PostTJsonTAsync<bool>("SaveEmployeeCardNums", employeeCardNums, token);
+
+		public async Task<IEnumerable<EmployeeCardNumShortNameId>> GetEmployeeEmptyCardNumsAsync(CancellationToken token = default) =>
+			await GetTJsonTAsync<IEnumerable<EmployeeCardNumShortNameId>>("GetEmployeeEmptyCardNums", token);
 	}
 }

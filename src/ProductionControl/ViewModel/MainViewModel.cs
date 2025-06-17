@@ -30,7 +30,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -1440,112 +1439,8 @@ namespace ProductionControl.ViewModel
 
 				// Получение данных о рабочих часах и сверхурочных часах за указанный период для текущего пользователя
 				var response = await _employeeSheetApi
-					.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate).ConfigureAwait(false);
-
-				var list = _mapper.Map<List<EmployeeDto>>(response);
-
-				list = list.Where(x => x.ValidateEmployee(StartDate.Month, years: StartDate.Year)).ToList();
-
-				StartEndDateTime startEndDateTime = new StartEndDateTime
-				{
-					StartDate = StartDate,
-					EndDate = EndDate
-				};
-
-				var response2 = await _employeeExOrgSheetApi
-					.GetTotalWorkingHoursWithOverdayHoursForRegions044EmployeeExpOrgsAsync(startEndDateTime)
+					.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate)
 					.ConfigureAwait(false);
-				var listExpOrgs = _mapper.Map<List<EmployeeExOrgDto>>(response2);
-
-				listExpOrgs = listExpOrgs.Where(x => x.ValidateEmployee(months: StartDate.Month, years: StartDate.Year)).ToList();
-				listExpOrgs = listExpOrgs.Where(x => x.EmployeeExOrgAddInRegions != null && x.EmployeeExOrgAddInRegions.Any()).ToList();
-
-				// Списки для хранения общих рабочих часов и сверхурочных часов
-				List<double> totalHourse = [];
-				List<double> totalOverday = [];
-				List<int> days = [];
-				// Итерация по каждому дню в указанном периоде
-				for (var date = StartDate; date <= EndDate; date = date.AddDays(1))
-				{
-					days.Add(date.Day);
-					double summaForDay = 0;
-					double summaOverday = 0;
-
-					bool isNotWeekend = false;
-					bool isPreHoliday = false;
-
-					// Обработка данных для каждого элемента в списке
-					foreach (var item in list)
-					{
-						// Подсчет общего количества рабочих часов для указанного дня
-						summaForDay += item.Shifts
-							.Where(x => x.ValidationWorkingDaysOnDate(date))
-							.Select(s => double.TryParse(s.Hours, out double tempValue) ? tempValue : 0)
-							.SingleOrDefault();
-
-						// Подсчет общего количества сверхурочных часов для указанного дня
-						summaOverday += item.Shifts
-							.Where(x => x.ValidationOverdayDaysOnDate(date))
-							.Select(s => double.TryParse(s.Overday?.Replace(".", ","), out double tempValue)
-										 ? tempValue : 0)
-							.SingleOrDefault();
-					}
-
-					// Проверка, является ли день не выходным
-					isNotWeekend = list.Any(z => z.Shifts.Any(x => x.ValidationWorkingDaysOnDate(date)));
-
-					// Проверка, является ли день предпраздничным
-					isPreHoliday = list
-						.SelectMany(x => x.Shifts)
-						.Where(z => z.ValidationWorkingDaysOnDate(date))
-						.Select(s => s.IsPreHoliday)
-						.FirstOrDefault();
-
-					// Корректировка общего количества рабочих часов в зависимости от типа дня
-					if (isNotWeekend)
-					{
-						if (isPreHoliday)
-							summaForDay -= 14;
-						else
-							summaForDay -= 16;
-					}
-
-					double sumHoursInday = 0;
-
-					foreach (var item in listExpOrgs)
-					{
-						sumHoursInday += item.ShiftDataExOrgs
-							.Where(x => x.ValidationWorkingDaysOnDate(date))
-							.Select(x => x.Hours.TryParseDouble(out double res) ? res : 0)
-							.SingleOrDefault();
-					}
-
-					// Добавление подсчитанных значений в соответствующие списки
-					totalHourse.Add(summaForDay + sumHoursInday);
-					totalOverday.Add(summaOverday);
-				}
-
-				// Формирование HTML-сообщения с результатами
-				var message = new StringBuilder();
-				message.Append($"<table border='1' cols='{totalHourse.Count}' style='font-family:\"Courier New\", Courier, monospace'>");
-				message.Append($"<tr>");
-
-				foreach (var item in days)
-					message.Append($"<td style='padding:5px'>{item}</td>");
-
-				message.Append($"<tr>");
-				foreach (var item in totalHourse)
-					message.Append($"<td style='padding:5px'>{Math.Round(item, 1)}</td>");
-
-				message.Append($"<tr>");
-				foreach (var item in totalOverday)
-					message.Append($"<td style='padding:5px'>{item}</td>");
-
-				message.Append($"</table>");
-
-
-				// Отправка сформированного сообщения по электронной почте
-				await _errorLogger.SendMailPlanLaborAsync(message.ToString()).ConfigureAwait(false);
 
 				await ShowErrorInfoAsync("Плановая трудоемкость успешно отправлена Вам на почту!");
 			}

@@ -5,6 +5,11 @@
 		public int EmployeeExOrgID { get; set; }
 
 		/// <summary>
+		/// Номер пропуска, который выдан сотруднику для прохода на территорию предприятия
+		/// </summary>
+		public string? CardNumber { get; set; }
+
+		/// <summary>
 		/// Номер пропуска
 		/// </summary>
 		public int NumberPass { get; set; }

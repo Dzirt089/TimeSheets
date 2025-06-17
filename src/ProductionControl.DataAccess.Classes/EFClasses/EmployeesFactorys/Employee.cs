@@ -9,6 +9,11 @@ namespace ProductionControl.DataAccess.Classes.EFClasses.EmployeesFactorys
 	{
 		public long EmployeeID { get; set; }
 
+		/// <summary>
+		/// Номер пропуска, который выдан сотруднику для прохода на территорию предприятия
+		/// </summary>
+		public string? CardNumber { get; set; }
+
 		/// <summary>Полные ФИО сотрудника</summary>
 		public string? FullName { get; set; }
 

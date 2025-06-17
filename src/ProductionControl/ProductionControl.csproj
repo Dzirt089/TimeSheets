@@ -45,11 +45,11 @@
 	<PackageReference Include="MahApps.Metro" Version="2.4.10" />
 	<PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
 	<PackageReference Include="MailerVKT" Version="1.0.4" />
-	<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.5" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-	<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+	<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
 	<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />

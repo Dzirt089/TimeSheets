@@ -16,6 +16,12 @@ namespace ProductionControl.UIModels.Dtos.EmployeesFactory
 		}
 		private long _employeeID;
 
+		/// <summary>
+		/// Номер пропуска, который выдан сотруднику для прохода на территорию предприятия
+		/// </summary>
+		public string CardNumber { get => _cardNumberg; set => SetProperty(ref _cardNumberg, value); }
+		private string _cardNumberg;
+
 		/// <summary>Полные ФИО сотрудника</summary>
 		public string? FullName
 		{

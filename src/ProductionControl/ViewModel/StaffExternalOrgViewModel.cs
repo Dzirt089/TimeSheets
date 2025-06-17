@@ -164,9 +164,6 @@ namespace ProductionControl.ViewModel
 					.ConfigureAwait(false);
 				EmployeesForCartotecaExOrgList = _mapper.Map<List<EmployeeExOrgDto>>(response);
 
-				if (string.IsNullOrEmpty(ValueDepartmentID))
-					return;
-
 				StartEndDateTimeDepartmentID startEndDateTimeDepartmentID = new StartEndDateTimeDepartmentID
 				{
 					StartDate = StartDate,
@@ -371,10 +368,12 @@ namespace ProductionControl.ViewModel
 		{
 			try
 			{
+				ItemCategory = AllCategoryes.First();
 				NewEmployeeForCartotecaExOrg = new()
 				{
 					DateDismissal = DateTime.Parse("31.12.1876"),
-					DateEmployment = DateTime.Now.Date
+					DateEmployment = DateTime.Now.Date,
+					NumCategory = ItemCategory.Categoryes,
 				};
 				VisibilityAddMainRegion = Visibility.Hidden;
 				ShowAndHidenElemets();

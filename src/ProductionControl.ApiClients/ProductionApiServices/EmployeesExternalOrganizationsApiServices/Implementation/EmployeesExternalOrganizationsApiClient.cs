@@ -41,5 +41,11 @@ namespace ProductionControl.ApiClients.ProductionApiServices.EmployeesExternalOr
 
 		public async Task<bool> UpdateEmployeeExOrgAsync(DataForUpdateEmloyeeExOrg dataForUpdateEmloyeeExOrg, CancellationToken token = default) =>
 			await PostTJsonTAsync<bool>("UpdateEmployeeExOrg", dataForUpdateEmloyeeExOrg, token);
+
+		public async Task<bool> SaveEmployeeExOrgCardNumsAsync(IEnumerable<EmployeeExOrgCardNumShortNameId> employeeExOrgCards, CancellationToken token = default) =>
+			await PostTJsonTAsync<bool>("SaveEmployeeExOrgCardNums", employeeExOrgCards, token);
+
+		public async Task<IEnumerable<EmployeeExOrgCardNumShortNameId>> GetEmployeeExOrgEmptyCardNumsAsync(CancellationToken token = default) =>
+			await GetTJsonTAsync<IEnumerable<EmployeeExOrgCardNumShortNameId>>("GetEmployeeExOrgEmptyCardNums", token);
 	}
 }

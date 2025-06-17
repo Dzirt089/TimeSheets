@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 namespace ProductionControl.ApiClients
@@ -46,15 +45,10 @@ namespace ProductionControl.ApiClients
 			return result;
 		}
 
-
 		public async Task<T> PostTJsonTAsync<T>(string requestUri, object content, CancellationToken token = default)
 		{
-			var text = (Encoding.UTF8.GetByteCount(JsonSerializer.Serialize(content)));
 
-			//var json = JsonSerializer.Serialize(content, _jsonOptions);
-			//File.WriteAllText("debag_json.json", json, Encoding.UTF8);
-
-
+			//var text = (Encoding.UTF8.GetByteCount(JsonSerializer.Serialize(content)));
 			var response = await _httpClient.PostAsJsonAsync(requestUri, content, _jsonOptions, token);
 			response.EnsureSuccessStatusCode();
 			return await response.Content.ReadFromJsonAsync<T>(token) ?? throw new InvalidOperationException("Response content is null.");

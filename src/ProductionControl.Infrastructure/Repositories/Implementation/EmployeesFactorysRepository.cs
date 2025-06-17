@@ -159,7 +159,6 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			StartEndDateTime startEndDate, CancellationToken token = default)
 		{
 			return await _context.Employees
-					.AsNoTracking()
 					.Include(i => i.DepartmentProduction)
 					.Include(i => i.Shifts
 						.Where(d => d.WorkDate >= startEndDate.StartDate && d.WorkDate <= startEndDate.EndDate))
@@ -608,6 +607,41 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			//Сохраняем
 			await _context.SaveChangesAsync(token);
 			return true;
+		}
+
+		public async Task SaveEmployeeCardNumsAsync(IEnumerable<EmployeeCardNumShortNameId> employeeCardNums, CancellationToken token = default)
+		{
+			var ids = employeeCardNums.Select(c => c.EmployeeID).ToList();
+			var employeeCardNumsDict = employeeCardNums.ToDictionary(x => x.EmployeeID);
+
+			var tempEmployees = await _context.Employees
+				.Where(x => ids.Contains(x.EmployeeID))
+				.ToListAsync(token);
+
+			foreach (var employeeDb in tempEmployees)
+			{
+				var temp = employeeCardNumsDict[employeeDb.EmployeeID];
+				employeeDb.CardNumber = temp.CardNumber;
+			}
+
+			var ad = await _context.SaveChangesAsync(token);
+		}
+
+		public async Task<IEnumerable<EmployeeCardNumShortNameId>> GetEmployeeEmptyCardNumsAsync(CancellationToken token = default)
+		{
+			var tempEmployees = await _context.Employees
+				.AsNoTracking()
+				.Where(x => string.IsNullOrEmpty(x.CardNumber))
+				.ToListAsync(token);
+
+			var result = tempEmployees.Select(x => new EmployeeCardNumShortNameId
+			{
+				EmployeeID = x.EmployeeID,
+				ShortName = x.ShortName,
+				CardNumber = x.CardNumber,
+			});
+
+			return result;
 		}
 	}
 }

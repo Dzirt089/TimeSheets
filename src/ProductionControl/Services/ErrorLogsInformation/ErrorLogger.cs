@@ -64,8 +64,8 @@ InnerException: {ex?.InnerException}.
 
 			await mailService.SendMailAsync(new MailerVKT.MailParameters
 			{
-				Recipients = ["ceh06@vkt-vent.ru", "teho19@vkt-vent.ru"],
-				RecipientsBcc = ["progto@vkt-vent.ru"],
+				Recipients = [/*"ceh06@vkt-vent.ru",*/ "teho19@vkt-vent.ru"],
+				//RecipientsBcc = ["progto@vkt-vent.ru"],
 				SenderName = "Табель",
 				Subject = "Плановая трудоемкость",
 				Text = message,

@@ -4,6 +4,7 @@ namespace ProductionControl.ServiceLayer.ServicesAPI.Interfaces
 {
 	public interface IErrorLogger
 	{
+		Task SendMailPlanLaborAsync(string message);
 		Task SendMailTestAsync(List<string> path, string text);
 
 		Task SendMailReportMonthlySummaryAsync(string path);

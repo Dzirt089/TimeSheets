@@ -16,6 +16,8 @@ using ProductionControl.DataAccess.Sql.Interfaces;
 using ProductionControl.Infrastructure.Repositories.Implementation;
 using ProductionControl.Infrastructure.Repositories.Interfaces;
 using ProductionControl.ServiceLayer.Mail;
+using ProductionControl.ServiceLayer.PlannedLaborServicesAPI.Implementation;
+using ProductionControl.ServiceLayer.PlannedLaborServicesAPI.Interfaces;
 using ProductionControl.ServiceLayer.ResultSheetServicesAPI.Implementation;
 using ProductionControl.ServiceLayer.ResultSheetServicesAPI.Interfaces;
 using ProductionControl.ServiceLayer.ServicesAPI.Implementation;
@@ -42,7 +44,7 @@ namespace ProductionControl.API
 				options.Limits.MaxRequestBodySize = 500_000_000;
 			});
 
-			#region Настраиваем dbContext в DI
+			#region Настраиваем DI
 
 			var config = builder.Configuration;
 			builder.Services.AddHttpClient("ProductionApi", client =>
@@ -54,8 +56,11 @@ namespace ProductionControl.API
 
 			var connString = config.GetConnectionString("TestTimeSheet");
 			//var connString = config.GetConnectionString("ConTimeSheet");
+			builder.Services.AddDbContext<ProductionControlDbContext>(opt =>
+				opt.UseSqlServer(connString, sqlOptions =>
+					sqlOptions.UseCompatibilityLevel(110))); //Задаем в коде максимальный уровень совместимости (говорим EF Core, что он работает с SQL Server 2012)
 
-			builder.Services.AddDbContext<ProductionControlDbContext>(opt => opt.UseSqlServer(connString));
+
 			builder.Services.AddScoped<IMonthlySummaryEmployeeExpOrgsService, MonthlySummaryEmployeeExpOrgsService>();
 			builder.Services.AddScoped<IMonthlyValuesService, MonthlyValuesService>();
 			builder.Services.AddScoped<ISizService, SizService>();
@@ -68,6 +73,7 @@ namespace ProductionControl.API
 			builder.Services.AddScoped<IEmployeesFactorysRepository, EmployeesFactorysRepository>();
 			builder.Services.AddScoped<ISizsRepository, SizsRepository>();
 			builder.Services.AddScoped<IResultSheetsService, ResultSheetsService>();
+			builder.Services.AddScoped<IPlannedLaborServices, PlannedLaborServices>();
 
 			builder.Services.AddScoped<MailService>();
 			builder.Services.AddScoped<Sender>();
@@ -114,7 +120,7 @@ namespace ProductionControl.API
 				async (IScheduleForEmployeeService schedule,
 					CancellationToken token) =>
 				{
-					await schedule.SetScheduleForEmployee(token);
+					await schedule.SetScheduleForEmployee(CancellationToken.None);
 					return Results.Ok(true);
 				});
 
@@ -160,7 +166,7 @@ namespace ProductionControl.API
 					return Results.Ok(result);
 				});
 
-			reports.MapGet("CreateReportForMonthlySummary",
+			reports.MapPost("CreateReportForMonthlySummary",
 				async (IMonthlySummaryService service, [FromBody] DateTime date,
 					CancellationToken token) =>
 				{
@@ -180,6 +186,20 @@ namespace ProductionControl.API
 
 			#region EmployeeSheet
 			var employeeSheets = app.MapGroup("EmployeeSheet");
+
+			employeeSheets.MapPost("SaveEmployeeCardNums",
+				async (IEmployeesFactorysRepository service, [FromBody] List<EmployeeCardNumShortNameId> employeeCardNums, CancellationToken token) =>
+				{
+					await service.SaveEmployeeCardNumsAsync(employeeCardNums, token);
+					return Results.Ok(true);
+				});
+
+			employeeSheets.MapGet("GetEmployeeEmptyCardNums",
+				async (IEmployeesFactorysRepository service, CancellationToken token) =>
+				{
+					var result = await service.GetEmployeeEmptyCardNumsAsync(token);
+					return Results.Ok(result);
+				});
 
 			employeeSheets.MapPost("UpdateEmployees",
 			async (IEmployeesFactorysRepository service, [FromBody] List<Employee> allPeople, CancellationToken token) =>
@@ -287,10 +307,10 @@ namespace ProductionControl.API
 				});
 
 			employeeSheets.MapPost("GetTotalWorkingHoursWithOverdayHoursForRegions043and044",
-				async (IEmployeesFactorysRepository service, [FromBody] StartEndDateTime startEndDate, CancellationToken token) =>
+				async (IPlannedLaborServices service, [FromBody] StartEndDateTime startEndDate, CancellationToken token) =>
 				{
-					var result = await service.GetTotalWorkingHoursWithOverdayHoursForRegions043and044Async(startEndDate, token);
-					return Results.Ok(result);
+					await service.CalcPlannedLaborForRegions043and044EmployeesAndEmployeesExOrg(startEndDate, token);
+					return Results.Ok(true);
 				});
 
 			employeeSheets.MapPost("SetDataEmployee",
@@ -354,6 +374,22 @@ namespace ProductionControl.API
 			#region Employees External Organizations
 
 			var employeesExternalOrganizations = app.MapGroup("EmployeesExternalOrganizations");
+
+			employeesExternalOrganizations.MapPost("SaveEmployeeExOrgCardNums",
+				async (IEmployeesExternalOrganizationsRepository service,
+				[FromBody] List<EmployeeExOrgCardNumShortNameId> employeeExOrgCards,
+				CancellationToken token) =>
+				{
+					await service.SaveEmployeeExOrgCardNumsAsync(employeeExOrgCards, token);
+					return Results.Ok(true);
+				});
+
+			employeesExternalOrganizations.MapGet("GetEmployeeExOrgEmptyCardNums",
+				async (IEmployeesExternalOrganizationsRepository service, CancellationToken token) =>
+				{
+					var result = await service.GetEmployeeExOrgEmptyCardNumsAsync(token);
+					return Results.Ok(result);
+				});
 
 			employeesExternalOrganizations.MapPost("SetDataForTimeSheetExOrg",
 				async (IEmployeesExternalOrganizationsRepository service,

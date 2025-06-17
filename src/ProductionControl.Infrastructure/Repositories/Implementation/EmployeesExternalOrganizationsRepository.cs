@@ -260,8 +260,20 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 		/// </summary>
 		public async Task SetTotalWorksDaysExOrgAsync(ShiftDataExOrg shiftDataExOrg, CancellationToken token = default)
 		{
-			_context.ShiftDataExOrgs?.Update(shiftDataExOrg);
-			await _context.SaveChangesAsync(token);
+			var shifts = await _context.ShiftDataExOrgs
+				.Where(x => x.EmployeeExOrgID == shiftDataExOrg.EmployeeExOrgID
+					&& x.WorkDate == shiftDataExOrg.WorkDate
+					&& x.DepartmentID == shiftDataExOrg.DepartmentID)
+				.Include(x => x.EmployeeExOrg)
+				.FirstOrDefaultAsync(token);
+
+			if (shifts != null)
+			{
+				shifts.Hours = shiftDataExOrg.Hours;
+				shifts.CodeColor = shiftDataExOrg.CodeColor;
+
+				await _context.SaveChangesAsync(token);
+			}
 		}
 
 		/// <summary>
@@ -361,6 +373,44 @@ namespace ProductionControl.Infrastructure.Repositories.Implementation
 			}
 
 			await _context.SaveChangesAsync(token);
+		}
+
+		public async Task SaveEmployeeExOrgCardNumsAsync(IEnumerable<EmployeeExOrgCardNumShortNameId> employeeExOrgCards, CancellationToken token = default)
+		{
+			var ids = employeeExOrgCards
+				.Select(x => x.EmployeeExOrgID)
+				.ToList();
+
+			var employeeExOrgCardsDict = employeeExOrgCards.ToDictionary(x => x.EmployeeExOrgID);
+
+			var tempEmloyeeExOrgs = await _context.EmployeeExOrgs
+				.Where(x => ids.Contains(x.EmployeeExOrgID))
+				.ToListAsync(token);
+
+			foreach (var empExOrgDb in tempEmloyeeExOrgs)
+			{
+				var temp = employeeExOrgCardsDict[empExOrgDb.EmployeeExOrgID];
+				empExOrgDb.CardNumber = temp.CardNumber;
+			}
+
+			var df = await _context.SaveChangesAsync(token);
+		}
+
+		public async Task<IEnumerable<EmployeeExOrgCardNumShortNameId>> GetEmployeeExOrgEmptyCardNumsAsync(CancellationToken token = default)
+		{
+			var tenpEmployeeExOrgs = await _context.EmployeeExOrgs
+				.AsNoTracking()
+				.Where(x => string.IsNullOrEmpty(x.CardNumber))
+				.ToListAsync(token);
+
+			var result = tenpEmployeeExOrgs.Select(x => new EmployeeExOrgCardNumShortNameId
+			{
+				EmployeeExOrgID = x.EmployeeExOrgID,
+				ShortName = x.ShortName,
+				CardNumber = x.CardNumber,
+			});
+
+			return result;
 		}
 	}
 }
