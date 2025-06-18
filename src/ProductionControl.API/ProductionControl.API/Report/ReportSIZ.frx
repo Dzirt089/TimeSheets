@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/28/2024 10:24:16" ReportInfo.Modified="11/27/2024 10:55:53" ReportInfo.CreatorVersion="2023.2.0.0">
+  <Dictionary/>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="287" PaperHeight="200" LeftMargin="0" RightMargin="0" Watermark.Font="Arial, 60pt">
+    <GroupHeaderBand Name="GroupHeader1" Width="1084.86" Height="283.5" StartNewPage="true" KeepWithData="true" Condition="[list.MonthlyValue.OrderNumber]" KeepTogether="true">
+      <TextObject Name="Text47" Left="841.05" Width="236.25" Height="37.8" Text="Типовая межотраслевая форма № МБ-7&#13;&#10;Утверждена постановлением Госкомстата России&#13;&#10;от 30.10.97 № 71а" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text48" Left="378" Top="37.8" Width="207.9" Height="18.9" Text="ВЕДОМОСТЬ № " HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text49" Left="321.3" Top="56.7" Width="444.15" Height="37.8" Text="учета выдачи спецодежды, спецобуви и предохранительных приспособлений" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text50" Left="585.9" Top="37.8" Width="151.2" Height="18.9" Border.Lines="Bottom" Border.BottomLine.Width="2" Text="[list.MonthlyValue.OrderNumber]       [list.MonthlyValue.MonthValue]/[list.MonthlyValue.YearValue]" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 11pt, style=Bold"/>
+      <TextObject Name="Text51" Left="1001.7" Top="85.05" Width="75.6" Height="18.9" Border.Lines="All" Text="Коды" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text52" Left="1001.7" Top="103.95" Width="75.6" Height="18.9" Border.Lines="All" Border.LeftLine.Width="3" Border.TopLine.Width="3" Border.RightLine.Width="3" Text="0320003" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text54" Left="841.05" Top="103.95" Width="160.65" Height="18.9" Text="Форма по ОКУД" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text53" Left="1001.7" Top="122.85" Width="75.6" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="3" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text55" Left="935.55" Top="122.85" Width="66.15" Height="18.9" Text="по ОКПО" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt"/>
+      <TextObject Name="Text56" Top="122.85" Width="255.15" Height="18.9" Text="Организация" VertAlign="Bottom" Font="Arial, 10pt"/>
+      <TextObject Name="Text58" Left="255.15" Top="122.85" Width="623.7" Height="18.9" Border.Lines="Bottom" Text="ЗАО &quot;Рязвент-Плюс&quot;" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text57" Top="141.75" Width="255.15" Height="18.9" Text="Структурное подразделение" VertAlign="Bottom" Font="Arial, 10pt"/>
+      <TextObject Name="Text59" Left="255.15" Top="141.75" Width="359.1" Height="18.9" Border.Lines="Bottom" Text="[list.NameDepartnent]" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text60" Left="1001.7" Top="160.65" Width="75.6" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Width="3" Text="Вид деятельности" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text61" Left="841.05" Top="160.65" Width="160.65" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Width="3" Text="Структурное&#13;&#10;подразделение" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text62" Left="765.45" Top="160.65" Width="75.6" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Width="3" Text="Код вида операции" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text63" Left="623.7" Top="160.65" Width="141.75" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Width="3" Text="Дата&#13;&#10;составления" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text64" Left="623.7" Top="189" Width="141.75" Height="18.9" Border.Lines="All" Border.LeftLine.Width="3" Border.TopLine.Width="3" Border.RightLine.Style="Double" Border.BottomLine.Width="3" Text="[Date]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text65" Left="765.45" Top="189" Width="75.6" Height="18.9" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Width="3" Border.RightLine.Style="Double" Border.BottomLine.Width="3" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text66" Left="841.05" Top="189" Width="160.65" Height="18.9" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Width="3" Border.RightLine.Style="Double" Border.BottomLine.Width="3" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text67" Left="1001.7" Top="189" Width="75.6" Height="18.9" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Width="3" Border.RightLine.Width="3" Border.BottomLine.Width="3" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text68" Left="1001.7" Top="217.35" Width="75.6" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Подпись в &#13;&#10;получении &#13;&#10;(сдаче)" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text69" Left="935.55" Top="217.35" Width="66.15" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Срок &#13;&#10;службы" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text70" Left="765.45" Top="217.35" Width="75.6" Height="47.25" Border.Lines="Left, Right, Top" Border.Style="Double" Text="Количество" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text71" Left="623.7" Top="217.35" Width="141.75" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Единица измерения" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text76" Left="841.05" Top="217.35" Width="94.5" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Дата поступ-ления в экс-плуатацию" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text81" Left="378" Top="217.35" Width="245.7" Height="28.35" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Спецодежда, спецобувь и предохранительные приспособления" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 8pt"/>
+      <TextObject Name="Text82" Left="302.4" Top="217.35" Width="75.6" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Табельный &#13;&#10;номер" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text83" Left="66.15" Top="217.35" Width="236.25" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Фамилия, имя, отчество" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text84" Top="217.35" Width="66.15" Height="47.25" Border.Lines="All" Border.LeftLine.Style="Double" Border.TopLine.Style="Double" Border.RightLine.Style="Double" Text="Номер &#13;&#10;по &#13;&#10;порядку" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+      <TextObject Name="Text79" Left="623.7" Top="245.7" Width="47.25" Height="18.9" Border.Lines="All" Border.LeftLine.Style="Double" Text="Код" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text80" Left="670.95" Top="245.7" Width="94.5" Height="18.9" Border.Lines="All" Border.RightLine.Style="Double" Text="Наименование" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text85" Left="378" Top="245.7" Width="113.4" Height="18.9" Border.Lines="All" Border.LeftLine.Style="Double" Text="Наименование" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text86" Left="491.4" Top="245.7" Width="132.3" Height="18.9" Border.Lines="All" Border.RightLine.Style="Double" Text="Номенклатурный номер" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+      <TextObject Name="Text72" Left="670.95" Top="264.6" Width="94.5" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="7" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text73" Left="765.45" Top="264.6" Width="75.6" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="8" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text74" Left="841.05" Top="264.6" Width="94.5" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="9" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text75" Left="1001.7" Top="264.6" Width="75.6" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="11" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text77" Left="935.55" Top="264.6" Width="66.15" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="10" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text78" Left="623.7" Top="264.6" Width="47.25" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="6" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text87" Left="491.4" Top="264.6" Width="132.3" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="5" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text88" Left="378" Top="264.6" Width="113.4" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="4" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text89" Top="264.6" Width="66.15" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="1" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text90" Left="66.15" Top="264.6" Width="236.25" Height="18.9" Border.Lines="Left, Right, Top" Border.LeftLine.Style="Double" Border.RightLine.Style="Double" Border.BottomLine.Style="Double" Text="2" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <TextObject Name="Text91" Left="302.4" Top="264.6" Width="75.6" Height="18.9" Border.Lines="Left, Right" Border.Style="Double" Text="3" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 9pt"/>
+      <DataBand Name="DataList" Top="287.5" Width="1084.86" Height="18.9" Filter="[list.DataSizsForSizs.Count] &gt; 0" KeepTogether="true" KeepDetail="true">
+        <TextObject Name="Text92" Width="66.15" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[Row#]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text93" Left="66.15" Width="236.25" Height="18.9" Border.Lines="All" Border.Style="Double" EvenStylePriority="UseAll" Text="[list.ShortName]" HorzAlign="Center" VertAlign="Center" Font="Arial, 8pt"/>
+        <TextObject Name="Text94" Left="302.4" Width="75.6" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.EmployeeID]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text95" Left="378" Width="113.4" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.DataSizsForSizs.Name]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text96" Left="491.4" Width="132.3" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.DataSizsForSizs.Article]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text97" Left="623.7" Width="47.25" Height="18.9" Border.Lines="All" Border.Style="Double" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text98" Left="670.95" Width="94.5" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.DataSizsForSizs.Unit]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text99" Left="765.45" Width="75.6" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.DataSizsForSizs.Count]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text100" Left="841.05" Width="94.5" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[Date]" Format="Date" Format.Format="d" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text101" Left="935.55" Width="66.15" Height="18.9" Border.Lines="All" Border.Style="Double" Text="[list.DataSizsForSizs.HoursPerUnit]" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <TextObject Name="Text102" Left="1001.7" Width="75.6" Height="18.9" Border.Lines="All" Border.Style="Double" HorzAlign="Center" VertAlign="Center" Font="Arial, 7pt"/>
+        <Sort>
+          <Sort Expression="[list.ShortName]"/>
+        </Sort>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="310.4" Width="1084.86" Height="66.15" KeepWithData="true">
+        <TextObject Name="Text103" Top="18.9" Width="255.15" Height="18.9" Text="Материально ответственное лицо" VertAlign="Bottom" Font="Arial, 8pt, style=Bold"/>
+        <TextObject Name="Text104" Left="302.4" Top="18.9" Width="179.55" Height="18.9" Text="Начальник участка (Мастер)" HorzAlign="Center" VertAlign="Bottom" Font="Arial, 8pt, style=Bold"/>
+        <TextObject Name="Text105" Left="302.4" Top="37.8" Width="179.55" Height="9.45" Text="(должность)" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text106" Left="491.4" Top="18.9" Width="122.85" Height="18.9" Border.Lines="Bottom" VertAlign="Bottom" Font="Arial, 8pt, style=Bold"/>
+        <TextObject Name="Text107" Left="491.4" Top="37.8" Width="122.85" Height="9.45" Text="(подпись)" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text108" Left="623.7" Top="37.8" Width="141.75" Height="9.45" Text="(расшифровка подписи)" HorzAlign="Center" VertAlign="Center" Font="Arial, 6pt, style=Bold"/>
+        <TextObject Name="Text109" Left="623.7" Top="18.9" Width="141.75" Height="18.9" Border.Lines="Bottom" VertAlign="Bottom" Font="Arial, 8pt, style=Bold"/>
+        <TextObject Name="Text112" Left="784.35" Top="18.9" Width="56.7" Height="18.9" Border.Lines="Bottom" Text="&quot;           &quot;" HorzAlign="Center" Font="Arial, 9pt"/>
+        <TextObject Name="Text113" Left="850.5" Top="18.9" Width="132.3" Height="18.9" Border.Lines="Bottom" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt"/>
+        <TextObject Name="Text114" Left="992.25" Top="18.9" Width="85.05" Height="18.9" Border.Lines="Bottom" Text="г." HorzAlign="Right" VertAlign="Bottom" Font="Arial, 9pt"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+  </ReportPage>
+</Report>

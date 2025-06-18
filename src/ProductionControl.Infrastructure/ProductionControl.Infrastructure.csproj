@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Repositories\Implementation\wsz101dd.ivw~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductionControl.DataAccess.Classes\ProductionControl.DataAccess.Classes.csproj" />
+    <ProjectReference Include="..\ProductionControl.DataAccess.EntityFramework\ProductionControl.DataAccess.EntityFramework.csproj" />
+    <ProjectReference Include="..\ProductionControl.DataAccess.Sql\ProductionControl.DataAccess.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

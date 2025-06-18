@@ -1,0 +1,105 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "TimeSheetContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": "Data",
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "API.ProductionControl",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[DataSizForMonth]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DepartmentProductions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeAccessRights]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeExOrgAddInRegions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeExOrgs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeePhotos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Employees]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ErrorLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IssueSizs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[OrderNumberOnDate]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ShiftDataExOrgs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ShiftsData]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Sizs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SizUsageRates]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[UsageNorms]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": true,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": true,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}

@@ -1,0 +1,87 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>net9.0-windows7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<UseWPF>true</UseWPF>
+	<LangVersion>12</LangVersion>
+	<StartupObject>ProductionControl.App</StartupObject>
+	<Product>Production Control</Product>
+	<ApplicationIcon>scheduleNew.ico</ApplicationIcon>
+	<UpdateRequired>true</UpdateRequired>
+	<Version>$(AssemblyVersion)</Version>
+	<FileVersion>$(AssemblyVersion)</FileVersion>
+	<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion> 
+  </PropertyGroup>
+
+  <ItemGroup>
+	<None Remove="Resources\scheduleNew.ico" />
+	<None Remove="scheduleNew.ico" />
+	<None Remove="Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\scheduleNew.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="scheduleNew.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Resource Include="Settings.settings">
+	  <Generator>SettingsSingleFileGenerator</Generator>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	</Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="AutoMapper" Version="14.0.0" />
+	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	<PackageReference Include="MahApps.Metro" Version="2.4.10" />
+	<PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
+	<PackageReference Include="MailerVKT" Version="1.0.4" />
+	<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+	<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
+	<PackageReference Include="SortableListViewWPF" Version="1.0.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductionControl.ApiClients\ProductionControl.ApiClients.csproj" />
+    <ProjectReference Include="..\ProductionControl.DataAccess.Classes\ProductionControl.DataAccess.Classes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Compile Update="Properties\Resources.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
+	<Compile Update="Settings.Designer.cs">
+	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Settings.settings</DependentUpon>
+	</Compile>
+	<Compile Update="Views\StaffExternalOrgView.xaml.cs">
+	  <SubType>Code</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+	<EmbeddedResource Update="Properties\Resources.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
+  </ItemGroup>
+
+</Project>
